@@ -1,0 +1,24 @@
+{
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.tabSize": 2
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "on",
+  "prettier.documentSelectors": ["**/*.astro"],
+  "[astro]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "astro",
+    "typescript",
+    "typescriptreact"
+  ]
+}

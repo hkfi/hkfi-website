@@ -1,0 +1,57 @@
+---
+import katex from 'katex'
+import Bold from './annotations/Bold.astro'
+import Italic from './annotations/Italic.astro'
+import Strikethrough from './annotations/Strikethrough.astro'
+import Underline from './annotations/Underline.astro'
+import Color from './annotations/Color.astro'
+import Code from './annotations/Code.astro'
+import Anchor from './annotations/Anchor.astro'
+import type { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints'
+
+export type Props = {
+  richText: RichTextItemResponse
+}
+
+const { richText } = Astro.props
+---
+
+<Anchor richText={richText}>
+  <Code richText={richText}>
+    <Color richText={richText}>
+      <Underline richText={richText}>
+        <Strikethrough richText={richText}>
+          <Italic richText={richText}>
+            <Bold richText={richText}>
+              {
+                'text' in richText &&
+                  richText.text &&
+                  richText.text.content.split('\n').map((content, i) => {
+                    if (i === 0) {
+                      return content
+                    }
+                    return (
+                      <>
+                        <br />
+                        {content}
+                      </>
+                    )
+                  })
+              }
+              {
+                'equation' in richText && richText.equation && (
+                  <span
+                    set:html={katex.renderToString(
+                      richText.equation.expression,
+                      { throwOnError: false, output: 'mathml' }
+                    )}
+                  />
+                )
+              }
+            </Bold>
+          </Italic>
+        </Strikethrough>
+      </Underline>
+    </Color>
+  </Code>
+</Anchor>

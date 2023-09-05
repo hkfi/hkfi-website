@@ -1,6 +1,6 @@
 ---
+import '../styles/global.css'
 import Layout from '../layouts/Layout.astro'
-import Card from '../components/Card.astro'
 
 import { Client } from '@notionhq/client'
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
@@ -38,26 +38,21 @@ const blogPosts = await notion.databases
 
 <Layout title='Welcome to Astro.'>
   <main>
-    <h1 class='text-3xl'>hkfi</h1>
-    <ol class='list-decimal'>
+    <div class='flex flex-col gap-1'>
       {
         blogPosts?.map((blogPost) => {
           if (!('title' in blogPost.properties.Title)) return null
-          return <li>{blogPost.properties.Title.title[0].plain_text}</li>
+          if (!('rich_text' in blogPost.properties.Slug)) return null
+          return (
+            <a
+              class='text-text ease-in duration-75 text-2xl origin-left hover:bg-secondary py-2 px-1'
+              href={`/blog/${blogPost.properties.Slug.rich_text[0].plain_text}`}
+            >
+              {blogPost.properties.Title.title[0].plain_text}
+            </a>
+          )
         })
       }
-    </ol>
+    </div>
   </main>
 </Layout>
-
-<style>
-  main {
-    margin: auto;
-    padding: 1rem;
-    width: 800px;
-    max-width: calc(100% - 2rem);
-    color: white;
-    font-size: 20px;
-    line-height: 1.6;
-  }
-</style>

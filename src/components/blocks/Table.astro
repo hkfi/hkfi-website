@@ -1,0 +1,54 @@
+---
+import type { CustomTableBlockObjectResponse } from '@/libs/notion/client'
+
+import RichText from './text/RichText.astro'
+
+export type Props = {
+  block: CustomTableBlockObjectResponse
+}
+
+const { block } = Astro.props
+---
+
+<div class='table text-sm'>
+  <table>
+    <tbody>
+      {
+        block.table.rows.map((tableRow, j) => (
+          <tr>
+            {tableRow.table_row.cells.map((cell, i) => {
+              if (
+                (block.table.has_row_header && i === 0) ||
+                (block.table.has_column_header && j === 0)
+              ) {
+                return (
+                  <th class='px-4 py-2 border border-solid'>
+                    {cell.map((richText) => {
+                      return <RichText richText={richText} />
+                    })}
+                  </th>
+                )
+              }
+              return (
+                <td class='px-4 py-2 border border-solid'>
+                  {cell.map((richText) => {
+                    return <RichText richText={richText} />
+                  })}
+                </td>
+              )
+            })}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .table {
+    overflow-x: auto;
+  }
+  .table th,
+  .table td {
+  }
+</style>

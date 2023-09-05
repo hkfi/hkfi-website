@@ -1,0 +1,14 @@
+---
+export type Props = {
+  href: string
+  label: string
+}
+
+const { href, label } = Astro.props
+---
+
+<a
+  class='flex bg-white px-3 py-2 hover:shadow duration-75 ease-in hover:bg-secondary'
+  href={href}
+  >{label}
+</a>

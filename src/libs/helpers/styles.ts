@@ -1,0 +1,46 @@
+const NotionTextColors = [
+  "default",
+  "blue",
+  "blue_background",
+  "brown",
+  "brown_background",
+  "gray",
+  "gray_background",
+  "green",
+  "green_background",
+  "orange",
+  "orange_background",
+  "pink",
+  "pink_background",
+  "purple",
+  "purple_background",
+  "red",
+  "red_background",
+  "yellow",
+  "yellow_background",
+] as const
+
+export type NotionTextColor = typeof NotionTextColors[number]
+
+export const NotionTextColorsMap = {
+  default: "text-default",
+  blue: "text-blue",
+  blue_background: "bg-blue",
+  brown: "text-brown",
+  brown_background: "bg-brown",
+  gray: "text-gray",
+  gray_background: "bg-gray",
+  green: "text-green",
+  green_background: "bg-green",
+  orange: "text-orange",
+  orange_background: "bg-orange",
+  pink: "text-pink",
+  pink_background: "bg-pink",
+  purple: "text-purple",
+  purple_background: "bg-purple",
+  red: "text-red",
+  red_background: "bg-red",
+  yellow: "text-yellow",
+  yellow_background: "bg-yellow",
+} satisfies Record<NotionTextColor, string>
+

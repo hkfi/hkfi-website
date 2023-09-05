@@ -1,0 +1,25 @@
+---
+import { buildHeadingId } from '@/libs/helpers/blog'
+import RichText from './text/RichText.astro'
+import type { Heading3BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+
+export type Props = {
+  block: Heading3BlockObjectResponse
+}
+
+const { block } = Astro.props
+
+const id = buildHeadingId(block)
+---
+
+{
+  (
+    <a href={`#${id}`} id={id} class='hover:text-primary'>
+      <h3 class='text-xl font-bold'>
+        {block.heading_3.rich_text.map((richText) => (
+          <RichText richText={richText} />
+        ))}
+      </h3>
+    </a>
+  )
+}

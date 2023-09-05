@@ -14,11 +14,20 @@ dependencies:
   astro:
     specifier: ^3.0.7
     version: 3.0.7
+  katex:
+    specifier: ^0.16.8
+    version: 0.16.8
+  shiki:
+    specifier: ^0.14.4
+    version: 0.14.4
   tailwindcss:
     specifier: ^3.0.24
     version: 3.3.3
 
 devDependencies:
+  '@types/katex':
+    specifier: ^0.16.2
+    version: 0.16.2
   '@typescript-eslint/parser':
     specifier: ^6.5.0
     version: 6.5.0(eslint@8.48.0)(typescript@5.2.2)
@@ -41,7 +50,7 @@ devDependencies:
     specifier: ^0.12.0
     version: 0.12.0
   prettier-plugin-tailwindcss:
-    specifier: ^0.5.4
+    specifier: 0.5.4
     version: 0.5.4(prettier-plugin-astro@0.12.0)(prettier@3.0.3)
 
 packages:
@@ -941,6 +950,10 @@ packages:
     resolution: {integrity: sha512-sqm9g7mHlPY/43fcSNrCYfOeX9zkTTK+euO5E6+CVijSMm5tTjkVdwdqRkY3ljjIAf8679vps5jKUoJBCLsMDA==}
     dev: false
 
+  /@types/katex@0.16.2:
+    resolution: {integrity: sha512-dHsSjSlU/EWEEbeNADr3FtZZOAXPkFPUO457QCnoNqcZQXNqNEu/svQd0Nritvd3wNff4vvC/f4e6xgX3Llt8A==}
+    dev: true
+
   /@types/mdast@3.0.12:
     resolution: {integrity: sha512-DT+iNIRNX884cx0/Q1ja7NyUPpZuv0KPyL5rGNxm1WC1OtHstl7n4Jb7nk+xacNShQMbczJjt8uFzznpp6kYBg==}
     dependencies:
@@ -1623,6 +1636,11 @@ packages:
   /commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
+    dev: false
+
+  /commander@8.3.0:
+    resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
+    engines: {node: '>= 12'}
     dev: false
 
   /common-ancestor-path@1.0.1:
@@ -2859,6 +2877,13 @@ packages:
       object.assign: 4.1.4
       object.values: 1.1.7
     dev: true
+
+  /katex@0.16.8:
+    resolution: {integrity: sha512-ftuDnJbcbOckGY11OO+zg3OofESlbR5DRl2cmN8HeWeeFIV7wTXvAOx8kEjZjobhA+9wh2fbKeO6cdcA9Mnovg==}
+    hasBin: true
+    dependencies:
+      commander: 8.3.0
+    dev: false
 
   /keyv@4.5.3:
     resolution: {integrity: sha512-QCiSav9WaX1PgETJ+SpNnx2PRRapJ/oRSXM4VO5OGYGSjrxbKPVFVhB3l2OCbLCk329N8qyAtsJjSjvVBWzEug==}

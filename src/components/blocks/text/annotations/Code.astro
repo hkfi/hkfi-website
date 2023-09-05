@@ -1,0 +1,19 @@
+---
+import type { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints'
+
+export type Props = {
+  richText: RichTextItemResponse
+}
+
+const { richText } = Astro.props
+---
+
+{
+  richText.annotations.code ? (
+    <code class='text-text bg-secondary rounded px-1 py-0.5'>
+      <slot />
+    </code>
+  ) : (
+    <slot />
+  )
+}

@@ -1,0 +1,19 @@
+---
+import { NotionTextColorsMap } from '@/libs/helpers/styles'
+import RichText from './text/RichText.astro'
+import type { ParagraphBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+
+export type Props = {
+  block: ParagraphBlockObjectResponse
+}
+
+const { block } = Astro.props
+---
+
+<p class={NotionTextColorsMap[block.paragraph.color]}>
+  {
+    block.paragraph.rich_text.map((richText) => {
+      return <RichText richText={richText} />
+    })
+  }
+</p>

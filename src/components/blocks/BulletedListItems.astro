@@ -1,0 +1,27 @@
+---
+import { NotionTextColorsMap } from '@/libs/helpers/styles'
+import RichText from './text/RichText.astro'
+import NotionBlocks from '../NotionBlocks.astro'
+import type { CustomBulletedListItemBlockObjectResponse } from '@/libs/notion/client'
+
+export type Props = {
+  block: CustomBulletedListItemBlockObjectResponse
+}
+
+const { block } = Astro.props
+---
+
+{
+  (
+    <li class={NotionTextColorsMap[block.bulleted_list_item.color]}>
+      {block.bulleted_list_item.rich_text.map((richText) => (
+        <RichText richText={richText} />
+      ))}
+      {block.bulleted_list_item.children ? (
+        <ul class='ml-10 list-disc'>
+          <NotionBlocks blocks={block.bulleted_list_item.children} />
+        </ul>
+      ) : null}
+    </li>
+  )
+}

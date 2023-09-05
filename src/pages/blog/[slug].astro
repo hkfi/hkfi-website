@@ -1,0 +1,51 @@
+---
+import PostBody from '@/components/PostBody.astro'
+import {
+  getAllPosts,
+  getPostBySlug,
+  getAllBlocksByBlockId
+} from '@/libs/notion/client'
+import Layout from 'src/layouts/Layout.astro'
+
+export async function getStaticPaths() {
+  const posts = await getAllPosts()
+
+  return posts.map((post) => {
+    const properties = post.properties
+
+    const slug =
+      'rich_text' in properties.Slug
+        ? properties.Slug.rich_text[0].plain_text
+        : ''
+
+    return {
+      params: {
+        slug
+      }
+    }
+  })
+}
+
+const { slug } = Astro.params
+
+if (!slug) {
+  throw new Error('slug is required')
+}
+
+const post = await getPostBySlug(slug)
+
+if (!post) {
+  throw new Error('Post not found. slug: ${slug}')
+}
+
+const [blocks] = await Promise.all([getAllBlocksByBlockId(post.id)])
+
+const title =
+  'title' in post.properties.Title
+    ? post.properties.Title.title[0].plain_text
+    : ''
+---
+
+<Layout title={title}>
+  <PostBody blocks={blocks} />
+</Layout>

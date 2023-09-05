@@ -1,0 +1,19 @@
+---
+import { NotionTextColorsMap } from '@/libs/helpers/styles'
+import RichText from './text/RichText.astro'
+import type { QuoteBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+
+export type Props = {
+  block: QuoteBlockObjectResponse
+}
+
+const { block } = Astro.props
+---
+
+<blockquote
+  class={`${
+    NotionTextColorsMap[block.quote.color]
+  } text-lg italic font-semibold border-l-4 px-4 py-2`}
+>
+  {block.quote.rich_text.map((richText) => <RichText richText={richText} />)}
+</blockquote>

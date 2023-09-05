@@ -10,14 +10,12 @@ const blogPosts = await getAllPosts().then((res) => {
 ---
 
 <Layout title='hkfi'>
-  <main class='w-full max-w-6xl'>
-    <div class='text-xl font-bold'>Recent Posts</div>
-    <div class='flex flex-col gap-1'>
-      {
-        blogPosts?.map((blogPost) => {
-          return <PostLink post={blogPost} />
-        })
-      }
-    </div>
-  </main>
+  <div class='text-xl font-bold'>Recent Posts</div>
+  <div class='flex flex-col gap-1 w-full'>
+    {
+      blogPosts?.map((blogPost) => {
+        return <PostLink post={blogPost} />
+      })
+    }
+  </div>
 </Layout>

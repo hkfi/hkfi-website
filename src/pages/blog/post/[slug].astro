@@ -47,5 +47,8 @@ const title =
 ---
 
 <Layout title={title}>
+  <h1 class='text-3xl font-bold' transition:name={`post-${post.id}`}>
+    {title}
+  </h1>
   <PostBody blocks={blocks} />
 </Layout>

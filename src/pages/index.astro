@@ -1,56 +1,21 @@
 ---
 import '../styles/global.css'
 import Layout from '../layouts/Layout.astro'
+import PostLink from '@/components/PostLink.astro'
+import { getAllPosts } from '@/libs/notion/client'
 
-import { Client } from '@notionhq/client'
-import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
-
-const notion = new Client({
-  auth: import.meta.env.NOTION_INTEGRATION_TOKEN
+const blogPosts = await getAllPosts().then((res) => {
+  return res.slice(0, 5)
 })
-
-const blogPosts = await notion.databases
-  .query({
-    database_id: import.meta.env.NOTION_DATABASE_ID,
-    filter: {
-      property: 'Published',
-      checkbox: {
-        equals: true
-      }
-    },
-    page_size: 10,
-    sorts: [
-      {
-        property: 'Published',
-        direction: 'descending'
-      }
-    ]
-  })
-  .then((res) => {
-    console.log('res: ', res)
-    return res.results as PageObjectResponse[]
-  })
-  .catch((e) => {
-    console.log(e)
-    return null
-  })
 ---
 
-<Layout title='Welcome to Astro.'>
-  <main>
+<Layout title='hkfi'>
+  <main class='w-full max-w-6xl'>
+    <div class='text-xl font-bold'>Recent Posts</div>
     <div class='flex flex-col gap-1'>
       {
         blogPosts?.map((blogPost) => {
-          if (!('title' in blogPost.properties.Title)) return null
-          if (!('rich_text' in blogPost.properties.Slug)) return null
-          return (
-            <a
-              class='text-text ease-in duration-75 text-2xl origin-left hover:bg-secondary py-2 px-1'
-              href={`/blog/${blogPost.properties.Slug.rich_text[0].plain_text}`}
-            >
-              {blogPost.properties.Title.title[0].plain_text}
-            </a>
-          )
+          return <PostLink post={blogPost} />
         })
       }
     </div>

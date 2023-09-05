@@ -1,6 +1,7 @@
 import { Client } from '@notionhq/client'
 import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, ColumnBlockObjectResponse, ColumnListBlockObjectResponse, ListBlockChildrenParameters, NumberedListItemBlockObjectResponse, PageObjectResponse, PartialBlockObjectResponse, QueryDatabaseParameters, TableBlockObjectResponse, TableRowBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_DATABASE_ID, NOTION_INTEGRATION_TOKEN } from '@/constants/env'
+import { NUMBER_OF_POSTS_PER_PAGE } from '@/constants/index'
 
 export type CustomTableBlockObjectResponse = TableBlockObjectResponse & {
   table: {
@@ -98,6 +99,25 @@ export async function getAllPosts() {
     .filter(pageObject => isValidPageObject(pageObject))
 
   return allPostsCache
+}
+
+export async function getPosts(pageSize = 10) {
+  const allPosts = await getAllPosts()
+  return allPosts.slice(0, pageSize)
+}
+
+// page starts from 1 not 0
+export async function getPostsByPage(page: number) {
+  if (page < 1) {
+    return []
+  }
+
+  const allPosts = await getAllPosts()
+
+  const startIndex = (page - 1) * NUMBER_OF_POSTS_PER_PAGE
+  const endIndex = startIndex + NUMBER_OF_POSTS_PER_PAGE
+
+  return allPosts.slice(startIndex, endIndex)
 }
 
 export async function getPostBySlug(slug: string): Promise<PageObjectResponse | null> {

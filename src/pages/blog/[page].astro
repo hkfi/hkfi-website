@@ -1,0 +1,52 @@
+---
+import PostLink from '@/components/PostLink.astro'
+import { getAllPosts } from '@/libs/notion/client'
+import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { Page, PaginateFunction } from 'astro'
+import Layout from 'src/layouts/Layout.astro'
+
+export async function getStaticPaths({
+  paginate
+}: {
+  paginate: PaginateFunction
+}) {
+  const allPosts = await getAllPosts()
+
+  return paginate(allPosts, { pageSize: 10 })
+}
+
+type Props = {
+  page: Page<PageObjectResponse>
+}
+
+const { page } = Astro.props
+---
+
+<Layout title='Blog'>
+  <h1>Page {page.currentPage}</h1>
+  <div class='flex flex-col gap-1'>
+    {page.data.map((post) => <PostLink post={post} />)}
+  </div>
+  <div class='flex justify-between'>
+    {
+      page.url.prev ? (
+        <a
+          class=' hover:-translate-y-0.5 transition-all ease-out bg-secondary px-3 py-2 rounded-sm'
+          href={page.url.prev}
+        >
+          Previous
+        </a>
+      ) : null
+    }
+    {
+      page.url.next ? (
+        <a
+          class=' hover:-translate-y-0.5 transition-all ease-out bg-secondary px-3 py-2 rounded-sm'
+          href={page.url.next}
+        >
+          Next
+        </a>
+      ) : null
+    }
+  </div>
+</Layout>

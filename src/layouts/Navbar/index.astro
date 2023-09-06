@@ -1,8 +1,10 @@
 ---
+import ThemeIcon from '@/components/ThemeIcon.astro'
 import NavbarLink from './NavbarLink.astro'
 ---
 
-<div class='flex justify-between gap-2 p-2 w-full'>
+<div class='flex justify-between gap-2 w-full max-w-6xl' transition:persist>
+  <ThemeIcon />
   <NavbarLink href='/' label='hkfi' />
   <div class='flex gap-2'>
     <NavbarLink href='/about' label='About' />

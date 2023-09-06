@@ -6,7 +6,7 @@
       "@/components/*": ["src/components/*"],
       "@/libs/*": ["src/libs/*"],
       "@/constants/*": ["src/constants/*"],
-      "@/layouts/*": ["src/constants/*"]
+      "@/layouts/*": ["src/layouts/*"]
     }
   }
 }

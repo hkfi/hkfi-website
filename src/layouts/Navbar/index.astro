@@ -3,11 +3,52 @@ import ThemeIcon from '@/components/ThemeIcon.astro'
 import NavbarLink from './NavbarLink.astro'
 ---
 
-<div class='flex justify-between gap-2 w-full max-w-6xl' transition:persist>
-  <ThemeIcon />
-  <NavbarLink href='/' label='hkfi' />
-  <div class='flex gap-2'>
-    <NavbarLink href='/about' label='About' />
-    <NavbarLink href='/blog' label='Blog' />
+<div class='h-[72px] w-full'>
+  <div id='navbar-container' class='w-full flex justify-center'>
+    <div id='navbar' class='w-full max-w-6xl p-2 flex gap-2' transition:persist>
+      <div class='flex-grow flex items-center'>
+        <ThemeIcon />
+      </div>
+      <NavbarLink href='/' label='hkfi' />
+      <div class='flex gap-2 flex-grow justify-end'>
+        <NavbarLink href='/about' label='About' />
+        <NavbarLink href='/blog' label='Blog' />
+      </div>
+    </div>
   </div>
 </div>
+<div id='top-of-site-pixel-anchor' class='absolute top-0'></div>
+
+<script is:inline>
+  if (
+    'IntersectionObserver' in window &&
+    'IntersectionObserverEntry' in window &&
+    'intersectionRatio' in window.IntersectionObserverEntry.prototype
+  ) {
+    let observer = new IntersectionObserver((entries) => {
+      if (entries[0].boundingClientRect.y < 0) {
+        console.log(
+          'entries[0].boundingClientRect.y: ',
+          entries[0].boundingClientRect.y
+        )
+        document.body.classList.add('header-not-at-top')
+        if (entries[0].boundingClientRect.y < -10) {
+          console.log('asdf')
+        }
+      } else {
+        document.body.classList.remove('header-not-at-top')
+      }
+    })
+    const pixelAnchor = document.querySelector('#top-of-site-pixel-anchor')
+
+    if (pixelAnchor) {
+      observer.observe(pixelAnchor)
+    }
+  }
+</script>
+
+<style is:global>
+  body.header-not-at-top #navbar {
+    @apply fixed backdrop-blur bg-black/20 rounded-lg border border-solid border-accent mt-1 z-10;
+  }
+</style>

@@ -54,8 +54,12 @@ import XIcon from './icons/X.astro'
   </script>
 
   <style is:global>
+    body.header-not-at-top #navbar-container {
+      @apply fixed z-10 px-3 py-1;
+    }
+
     body.header-not-at-top #navbar {
-      @apply fixed z-10 mt-1 rounded-lg border border-solid border-accent bg-black/20 backdrop-blur;
+      @apply rounded-lg bg-black/20 shadow-lg backdrop-blur;
     }
   </style>
 </div>

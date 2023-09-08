@@ -9,16 +9,16 @@ module.exports = {
         primary: 'var(--color-primary)',
         secondary: 'var(--color-secondary)',
         accent: 'var(--color-accent)',
-        blue: 'var(--color-blue)',
-        brown: 'var(--color-brown)',
-        gray: 'var(--color-gray)',
-        green: 'var(--color-green)',
-        orange: 'var(--color-orange)',
-        pink: 'var(--color-pink)',
-        purple: 'var(--color-purple)',
-        red: 'var(--color-red)',
-        yellow: 'var(--color-yellow)',
-        default: 'var(--color-default)'
+        'notion-blue': 'var(--color-blue)',
+        'notion-brown': 'var(--color-brown)',
+        'notion-gray': 'var(--color-gray)',
+        'notion-green': 'var(--color-green)',
+        'notion-orange': 'var(--color-orange)',
+        'notion-pink': 'var(--color-pink)',
+        'notion-purple': 'var(--color-purple)',
+        'notion-red': 'var(--color-red)',
+        'notion-yellow': 'var(--color-yellow)',
+        'notion-default': 'var(--color-default)'
       }
     }
   },

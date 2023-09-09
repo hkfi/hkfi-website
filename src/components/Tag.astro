@@ -1,0 +1,29 @@
+---
+import type { MultiSelectPropertyItemObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import { NotionTextColorsMap } from '@/libs/helpers/styles'
+
+type Props = {
+  tag: MultiSelectPropertyItemObjectResponse['multi_select'][number]
+  size?: 'sm' | 'md'
+}
+
+const { tag, size = 'md' } = Astro.props
+
+const TagStyleMap = {
+  default: 'bg-secondary',
+  muted: 'bg-muted'
+}
+
+const TagSizeMap = {
+  sm: 'text-sm',
+  md: 'text-base'
+}
+---
+
+<div
+  class={`${NotionTextColorsMap[tag.color]} 
+${TagSizeMap[size]}
+px-2 py-1`}
+>
+  {tag.name}
+</div>

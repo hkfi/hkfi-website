@@ -9,6 +9,7 @@ module.exports = {
         primary: 'var(--color-primary)',
         secondary: 'var(--color-secondary)',
         accent: 'var(--color-accent)',
+        muted: 'var(--color-muted)',
         'notion-blue': 'var(--color-blue)',
         'notion-brown': 'var(--color-brown)',
         'notion-gray': 'var(--color-gray)',

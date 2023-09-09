@@ -1,0 +1,59 @@
+---
+import { NotionTextColorsMap } from '@/libs/helpers/styles'
+import type { SelectPropertyResponse } from '@/libs/notion/custom-types'
+
+function removeStringFromPermutation(
+  permutation: string,
+  toRemove: string
+): string {
+  const parts = permutation.split('+').filter((part) => part !== toRemove)
+
+  if (parts.length === 1) {
+    return parts[0]
+  }
+
+  return parts.join('+')
+}
+
+type Props = {
+  tag: SelectPropertyResponse
+  chosenTags: string[]
+}
+
+const { tag, chosenTags } = Astro.props
+
+const tagsInUrl = chosenTags.join('+')
+
+const TagStyleMap = {
+  default: 'bg-secondary',
+  muted: 'bg-muted'
+}
+
+const style = chosenTags.includes(tag.name) ? 'default' : 'muted'
+
+const tagIsChosen = chosenTags.includes(tag.name)
+
+const tagsInUrlWithoutChosenTag = removeStringFromPermutation(
+  tagsInUrl,
+  tag.name
+)
+
+const tagsInUrlWithChosenTag =
+  tagsInUrl === '' ? tag.name : `${tagsInUrl}+${tag.name}`
+
+const href = tagIsChosen
+  ? `/blog/tags/${tagsInUrlWithoutChosenTag}${
+      tagsInUrlWithoutChosenTag === '' ? '' : '/1'
+    }`
+  : `/blog/tags/${tagsInUrlWithChosenTag}/1`
+---
+
+<a
+  href={href}
+  class={`${NotionTextColorsMap[tag.color]} ${
+    TagStyleMap[style]
+  } px-3 py-1 hover:bg-secondary rounded-full border border-solid border-accent`}
+  transition:name={`tag-${tag.name}`}
+>
+  {tag.name}
+</a>

@@ -18,7 +18,7 @@ import XIcon from './icons/X.astro'
       </div>
       <div class='flex w-2/5 justify-end gap-2'>
         <NavbarLink href='/about' label='About' />
-        <NavbarLink href='/blog' label='Blog' />
+        <NavbarLink href='/blog/1' label='Blog' />
       </div>
     </div>
   </div>
@@ -33,13 +33,8 @@ import XIcon from './icons/X.astro'
     ) {
       let observer = new IntersectionObserver((entries) => {
         if (entries[0].boundingClientRect.y < 0) {
-          console.log(
-            'entries[0].boundingClientRect.y: ',
-            entries[0].boundingClientRect.y
-          )
           document.body.classList.add('header-not-at-top')
           if (entries[0].boundingClientRect.y < -10) {
-            console.log('asdf')
           }
         } else {
           document.body.classList.remove('header-not-at-top')

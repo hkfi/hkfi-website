@@ -1,5 +1,5 @@
 import { Client } from '@notionhq/client'
-import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, ColumnBlockObjectResponse, ColumnListBlockObjectResponse, ListBlockChildrenParameters, NumberedListItemBlockObjectResponse, PageObjectResponse, PartialBlockObjectResponse, QueryDatabaseParameters, TableBlockObjectResponse, TableRowBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, ColumnBlockObjectResponse, ColumnListBlockObjectResponse, ListBlockChildrenParameters, MultiSelectPropertyItemObjectResponse, NumberedListItemBlockObjectResponse, PageObjectResponse, PartialBlockObjectResponse, QueryDatabaseParameters, TableBlockObjectResponse, TableRowBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_DATABASE_ID, NOTION_INTEGRATION_TOKEN } from '@/constants/env'
 import { NUMBER_OF_POSTS_PER_PAGE } from '@/constants/index'
 
@@ -31,6 +31,8 @@ const client = new Client({
 })
 
 let allPostsCache: PageObjectResponse[] | null = null
+
+let allTagsCache: MultiSelectPropertyItemObjectResponse['multi_select'] | null = null
 
 function isValidPageObject(pageObject: PageObjectResponse): boolean {
   const prop = pageObject.properties
@@ -197,4 +199,18 @@ export async function getAllBlocksByBlockId(blockId: string) {
   }
 
   return allBlocks
+}
+
+export async function getAllTags() {
+  if (allTagsCache !== null) {
+    return allTagsCache
+  }
+
+  const allPosts = await getAllPosts()
+
+  const tags = [...new Map((allPosts.flatMap(post => 'Tags' in post.properties && 'multi_select' in post.properties.Tags ? post.properties.Tags.multi_select : [])).map(item => [item.id, item])).values()]
+
+  allTagsCache = tags
+
+  return tags
 }

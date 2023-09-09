@@ -1,5 +1,6 @@
 ---
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import Tag from './Tag.astro'
 
 type Props = {
   post: PageObjectResponse
@@ -21,16 +22,27 @@ const date =
   'date' in post.properties.Date && post.properties.Date.date
     ? post.properties.Date.date.start
     : ''
+
+const tags =
+  'Tags' in post.properties && 'multi_select' in post.properties.Tags
+    ? post.properties.Tags.multi_select
+    : []
 ---
 
 <a
-  class='text-text ease-in duration-75 text-2xl origin-left hover:bg-secondary py-2 px-1 flex justify-between'
+  transition:name={`post-link-${post.id}`}
+  class='flex h-20 origin-left justify-between px-1 py-2 duration-75 ease-in hover:bg-secondary'
   href={`/blog/post/${slug}`}
 >
-  <span transition:name={`post-${post.id}`}>
+  <div class='p-2 text-2xl' transition:name={`post-${post.id}`}>
     {title}
-  </span>
-  <span class='text-base'>
-    {date}
-  </span>
+  </div>
+  <div class='flex flex-col justify-between'>
+    <div class='p-2 text-end text-sm'>
+      {date}
+    </div>
+    <div class='flex justify-end gap-2'>
+      {tags.map((tag) => <Tag tag={tag} />)}
+    </div>
+  </div>
 </a>

@@ -1,0 +1,104 @@
+---
+import BlogTag from '@/components/BlogTag.astro'
+import PostLink from '@/components/PostLink.astro'
+import ArrowLeft from '@/components/icons/ArrowLeft.astro'
+import ArrowRight from '@/components/icons/ArrowRight.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllPosts, getAllTags } from '@/libs/notion/client'
+import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { Page, PaginateFunction } from 'astro'
+
+export async function getStaticPaths({
+  paginate
+}: {
+  paginate: PaginateFunction
+}) {
+  function generatePermutations(arr: string[]) {
+    if (arr.length === 1) {
+      return [arr[0]]
+    }
+
+    const result: string[] = []
+    for (let i = 0; i < arr.length; i++) {
+      const first = arr[i]
+      const rest = [...arr.slice(0, i), ...arr.slice(i + 1)]
+      const restPermutations = generatePermutations(rest)
+      for (let j = 0; j < restPermutations.length; j++) {
+        result.push(`${first}+${restPermutations[j]}`)
+      }
+    }
+
+    return [...arr, ...result]
+  }
+
+  const [tags, posts] = await Promise.all([getAllTags(), getAllPosts()])
+  const tagStrings = tags.map((tag) => tag.name)
+
+  const tagsPermutations = generatePermutations(tagStrings)
+
+  return tagsPermutations.flatMap((tagPermutation) => {
+    const tagNames = tagPermutation.split('+')
+
+    const postsWithTags = posts.filter(
+      (post) =>
+        post.properties.Tags.type === 'multi_select' &&
+        post.properties.Tags.multi_select.some((tag) =>
+          tagNames.includes(tag.name)
+        )
+    )
+    return paginate(postsWithTags, {
+      pageSize: 10,
+      params: { names: tagPermutation }
+    })
+  })
+}
+
+type Props = {
+  page: Page<PageObjectResponse>
+}
+
+const { page } = Astro.props
+
+const { names = '' } = Astro.params
+
+const allTags = await getAllTags()
+const chosenTags = names.split('+')
+---
+
+<Layout title={`Blog - ${names}`}>
+  <div class='flex gap-2 p-2'>
+    {
+      allTags.map((tag) => {
+        return <BlogTag tag={tag} chosenTags={chosenTags} />
+      })
+    }
+  </div>
+  <div class='flex w-full flex-col gap-1'>
+    {page.data.map((post) => <PostLink post={post} />)}
+  </div>
+  <div class='flex w-full items-center justify-center gap-4'>
+    {
+      page.url.prev ? (
+        <a
+          class='rounded-sm bg-secondary px-4 py-2 transition-all ease-out hover:-translate-y-0.5'
+          href={page.url.prev}
+        >
+          <ArrowLeft />
+        </a>
+      ) : null
+    }
+    <div class='w-[200px] text-center'>
+      Page {page.currentPage} of {page.lastPage}
+    </div>
+    {
+      page.url.next ? (
+        <a
+          class='rounded-sm bg-secondary px-4 py-2 transition-all ease-out hover:-translate-y-0.5'
+          href={page.url.next}
+        >
+          <ArrowRight />
+        </a>
+      ) : null
+    }
+  </div>
+</Layout>

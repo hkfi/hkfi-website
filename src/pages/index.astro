@@ -10,7 +10,7 @@ const blogPosts = await getAllPosts().then((res) => {
 
 <Layout title='hkfi'>
   <div class='text-xl font-bold'>Recent Posts</div>
-  <div class='flex flex-col gap-1 w-full'>
+  <div class='flex w-full flex-col gap-1'>
     {
       blogPosts?.map((blogPost) => {
         return <PostLink post={blogPost} />

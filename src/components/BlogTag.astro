@@ -42,8 +42,10 @@ const tagsInUrlWithChosenTag =
   tagsInUrl === '' ? tag.name : `${tagsInUrl}+${tag.name}`
 
 const href = tagIsChosen
-  ? `/blog/tags/${tagsInUrlWithoutChosenTag}${
-      tagsInUrlWithoutChosenTag === '' ? '' : '/1'
+  ? `/blog/${
+      tagsInUrlWithoutChosenTag === ''
+        ? '1'
+        : `tags/${tagsInUrlWithChosenTag}/1`
     }`
   : `/blog/tags/${tagsInUrlWithChosenTag}/1`
 ---

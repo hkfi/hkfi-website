@@ -1,0 +1,28 @@
+---
+
+---
+
+<spline-viewer
+  url='https://prod.spline.design/1CPN0GbFLm6ChBoK/scene.splinecode'
+  events-target='global'></spline-viewer>
+
+<script>
+  window.onload = function () {
+    // Remove Spline Logo
+    const splineViewer = document.querySelector('spline-viewer')
+    if (!splineViewer) return
+    const shadowRoot = splineViewer.shadowRoot
+    if (!shadowRoot) return
+    shadowRoot?.querySelector('#logo')?.remove()
+  }
+</script>
+
+<style>
+  #logo[style] {
+    display: none !important;
+  }
+</style>
+
+<script
+  type='module'
+  src='https://unpkg.com/@splinetool/viewer/build/spline-viewer.js'></script>

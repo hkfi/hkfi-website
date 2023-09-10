@@ -3,12 +3,32 @@ import Layout from '../layouts/Layout.astro'
 import PostLink from '@/components/PostLink.astro'
 import { getAllPosts } from '@/libs/notion/client'
 
+import SplineAvatar from '@/components/SplineAvatar.astro'
+
 const blogPosts = await getAllPosts().then((res) => {
   return res.slice(0, 5)
 })
 ---
 
 <Layout title='hkfi'>
+  <div class='flex w-full justify-between p-4'>
+    <div
+      class='flex h-[400px] max-w-[500px] flex-grow flex-col justify-center text-5xl'
+    >
+      <div class=''>Hello 👋</div>
+      <div class=''>
+        I'm <span class='text-primary'>Hiroki</span>
+      </div>
+      <div>
+        <span class='text-primary'>Software Engineer</span>
+         and
+        <span class='text-primary'>Digital Nomad</span>
+      </div>
+    </div>
+    <div class='h-[400px] w-[200px]' id='spline-avatar'>
+      <SplineAvatar />
+    </div>
+  </div>
   <div class='text-xl font-bold'>Recent Posts</div>
   <div class='flex w-full flex-col gap-1'>
     {

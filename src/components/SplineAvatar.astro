@@ -6,8 +6,8 @@
   url='https://prod.spline.design/1CPN0GbFLm6ChBoK/scene.splinecode'
   events-target='global'></spline-viewer>
 
-<script>
-  window.onload = function () {
+<script is:inline>
+  window.onload = () => {
     // Remove Spline Logo
     const splineViewer = document.querySelector('spline-viewer')
     if (!splineViewer) return
@@ -15,6 +15,13 @@
     if (!shadowRoot) return
     shadowRoot?.querySelector('#logo')?.remove()
   }
+  ;(() => {
+    const splineViewer = document.querySelector('spline-viewer')
+    if (!splineViewer) return
+    const shadowRoot = splineViewer.shadowRoot
+    if (!shadowRoot) return
+    shadowRoot?.querySelector('#logo')?.remove()
+  })()
 </script>
 
 <style>

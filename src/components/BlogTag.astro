@@ -45,7 +45,7 @@ const href = tagIsChosen
   ? `/blog/${
       tagsInUrlWithoutChosenTag === ''
         ? '1'
-        : `tags/${tagsInUrlWithChosenTag}/1`
+        : `tags/${tagsInUrlWithoutChosenTag}/1`
     }`
   : `/blog/tags/${tagsInUrlWithChosenTag}/1`
 ---

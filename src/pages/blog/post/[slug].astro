@@ -1,4 +1,5 @@
 ---
+import BlogTag from '@/components/BlogTag.astro'
 import PostBody from '@/components/PostBody.astro'
 import {
   getAllPosts,
@@ -44,11 +45,28 @@ const title =
   'title' in post.properties.Title
     ? post.properties.Title.title[0].plain_text
     : ''
+
+const tags =
+  'multi_select' in post.properties.Tags
+    ? post.properties.Tags.multi_select
+    : []
+
+const date =
+  'date' in post.properties.Date ? post.properties.Date.date?.start : ''
 ---
 
 <Layout title={title}>
-  <h1 class='text-3xl font-bold text-text' transition:name={`post-${post.id}`}>
+  <h1
+    class='self-center text-3xl font-bold text-text'
+    transition:name={`post-${post.id}`}
+  >
     {title}
   </h1>
+  <div class='flex items-center justify-between px-2'>
+    <div>{date}</div>
+    <div class='flex gap-2'>
+      {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
+    </div>
+  </div>
   <PostBody blocks={blocks} />
 </Layout>

@@ -47,10 +47,10 @@ const language = block.code.language.toLowerCase()
       <pre class='text-sm'>
         {isValidLanguage(block.code.language) ? (
           <AstroCode
+            theme='css-variables'
             wrap
             lang={block.code.language}
             code={code}
-            theme='github-light'
           />
         ) : null}
       </pre>

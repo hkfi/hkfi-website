@@ -7,7 +7,7 @@
     --color-text: #000000;
     --color-background: #f8f6ec;
     --color-primary: #96ce9d;
-    --color-secondary: #fcfdfc;
+    --color-secondary: #cbdccb;
     --color-accent: #dce256;
     --color-muted: #f7f8d9;
 
@@ -22,16 +22,40 @@
     --color-yellow: #ffeb3b;
 
     --color-default: #000000;
+
+    --astro-code-color-text: rgb(57, 44, 44);
+    --astro-code-color-background: rgb(239, 230, 218);
+    --astro-code-token-constant: plum;
+    --astro-code-token-string: orchid;
+    --astro-code-token-comment: rgb(176, 53, 39);
+    --astro-code-token-keyword: rgb(39, 95, 103);
+    --astro-code-token-parameter: seashell;
+    --astro-code-token-function: dodgerblue;
+    --astro-code-token-string-expression: rgb(160, 114, 55);
+    --astro-code-token-punctuation: linen;
+    --astro-code-token-link: honeydew;
   }
 
   .dark {
-    --color-text: #f8f6ec;
+    --color-text: #e6e4da;
     --color-background: #323232;
     --color-primary: #96ce9d;
     --color-secondary: #536653;
     --color-accent: #f7f8d9;
     --color-muted: #3a3a3a;
 
-    --color-default: #f8f6ec;
+    --color-default: #e6e4da;
+
+    --astro-code-color-text: azure;
+    --astro-code-color-background: rgb(58, 58, 58);
+    --astro-code-token-constant: plum;
+    --astro-code-token-string: orchid;
+    --astro-code-token-comment: salmon;
+    --astro-code-token-keyword: powderblue;
+    --astro-code-token-parameter: seashell;
+    --astro-code-token-function: dodgerblue;
+    --astro-code-token-string-expression: burlywood;
+    --astro-code-token-punctuation: linen;
+    --astro-code-token-link: honeydew;
   }
 }

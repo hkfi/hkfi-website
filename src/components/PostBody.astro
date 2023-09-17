@@ -2,6 +2,7 @@
 import NotionBlocks from './NotionBlocks.astro'
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { CustomBlockObjectResponse } from '@/libs/notion/client'
+import ArrowUp from './icons/ArrowUp.astro'
 
 export type Props = {
   blocks: Array<BlockObjectResponse | CustomBlockObjectResponse>
@@ -10,6 +11,29 @@ export type Props = {
 const { blocks } = Astro.props
 ---
 
-<div class='p-2 gap-1.5 flex flex-col'>
+<div class='flex flex-col gap-1.5 p-2'>
+  <button
+    onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+    id='scroll-to-top'
+    class='fixed bottom-10 right-10 z-10 flex h-16 w-16 items-center justify-center rounded-full bg-primary transition-all duration-150 ease-in-out hover:bg-secondary'
+  >
+    <ArrowUp />
+  </button>
   <NotionBlocks blocks={blocks} isRoot={true} />
 </div>
+
+<script>
+  window.addEventListener('wheel', (e) => {
+    const scrollDirection = e.deltaY < 0 ? 1 : -1
+
+    const scrollToTop = document.getElementById('scroll-to-top')
+
+    if (scrollDirection === 1 && window.scrollY > 0) {
+      scrollToTop?.classList.add('visible', 'opacity-100')
+      scrollToTop?.classList.remove('invisible', 'opacity-0')
+    } else {
+      scrollToTop?.classList.add('invisible', 'opacity-0')
+      scrollToTop?.classList.remove('visible', 'opacity-100')
+    }
+  })
+</script>

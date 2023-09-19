@@ -25,14 +25,14 @@ const { blocks } = Astro.props
 <script>
   // Make the scroll to top button appear when the user scrolls up
   window.addEventListener('wheel', (e) => {
-    const scrollDirection = e.deltaY < 0 ? 1 : -1
+    const scrollDirection = e.deltaY < 1 ? 1 : e.deltaY > 1 ? -1 : 0
 
     const scrollToTop = document.getElementById('scroll-to-top')
 
     if (scrollDirection === 1 && window.scrollY > 0) {
       scrollToTop?.classList.add('visible', 'opacity-100')
       scrollToTop?.classList.remove('invisible', 'opacity-0')
-    } else {
+    } else if (scrollDirection === -1) {
       scrollToTop?.classList.add('invisible', 'opacity-0')
       scrollToTop?.classList.remove('visible', 'opacity-100')
     }

@@ -5,25 +5,29 @@ import GithubIcon from './icons/Github.astro'
 import XIcon from './icons/X.astro'
 ---
 
-<div class='h-[72px] w-full'>
-  <div id='navbar-container' class='flex w-full justify-center'>
-    <div id='navbar' class='flex w-full max-w-6xl gap-2 p-2' transition:persist>
-      <div class='flex w-2/5 items-center gap-4'>
-        <ThemeIcon />
-        <GithubIcon />
-        <XIcon />
-      </div>
-      <div class='flex w-1/5 justify-center'>
-        <NavbarLink href='/' label='hkfi' />
-      </div>
-      <div class='flex w-2/5 justify-end gap-2'>
-        <NavbarLink href='/about' label='About' />
-        <NavbarLink href='/blog/1' label='Blog' />
-      </div>
+<div class='flex h-[72px] w-full justify-center'>
+  <div
+    id='navbar'
+    class='duration-400 flex w-full max-w-6xl items-center gap-2 p-2 transition-all ease-in-out'
+    transition:persist
+  >
+    <div class='flex w-2/5 items-center gap-4'>
+      <ThemeIcon />
+      <GithubIcon />
+      <XIcon />
+    </div>
+    <div class='flex w-1/5 justify-center'>
+      <NavbarLink href='/' label='hkfi' />
+    </div>
+    <div class='flex w-2/5 justify-end gap-2'>
+      <NavbarLink href='/about' label='About' />
+      <NavbarLink href='/blog/1' label='Blog' />
     </div>
   </div>
 
   <div id='top-of-site-pixel-anchor' class='absolute top-0'></div>
+
+  <div id='bottom-of-nav-pixel-anchor' class='absolute top-[50px]'></div>
 
   <script is:inline>
     if (
@@ -34,27 +38,41 @@ import XIcon from './icons/X.astro'
       let observer = new IntersectionObserver((entries) => {
         if (entries[0].boundingClientRect.y < 0) {
           document.body.classList.add('header-not-at-top')
-          if (entries[0].boundingClientRect.y < -10) {
-          }
         } else {
           document.body.classList.remove('header-not-at-top')
         }
       })
-      const pixelAnchor = document.querySelector('#top-of-site-pixel-anchor')
+      const pixelAnchor = document.querySelector('#bottom-of-nav-pixel-anchor')
 
       if (pixelAnchor) {
         observer.observe(pixelAnchor)
       }
     }
+
+    window.addEventListener('wheel', (e) => {
+      const scrollDirection = e.deltaY < 1 ? 1 : e.deltaY > 1 ? -1 : 0
+
+      const navbar = document.getElementById('navbar')
+
+      if (scrollDirection === 1 && window.scrollY >= 50) {
+        // Scroll up and scrolled over 50px
+        navbar?.classList.remove('-translate-y-20', 'invisible', 'opacity-0')
+        navbar?.classList.add('visible', 'opacity-100')
+      } else if (scrollDirection === -1 && window.scrollY >= 50) {
+        // Scroll down and scrolled over 50px
+        navbar?.classList.add('invisible', 'opacity-0', '-translate-y-20')
+        navbar?.classList?.remove('visible', 'opacity-100')
+      }
+    })
   </script>
 
   <style is:global>
-    body.header-not-at-top #navbar-container {
-      @apply fixed z-10 px-3 py-1;
+    body #navbar {
+      @apply z-10 px-3 py-1;
     }
 
     body.header-not-at-top #navbar {
-      @apply rounded-lg bg-black/20 shadow-lg backdrop-blur;
+      @apply fixed mt-1 h-[72px] rounded-lg bg-black/20 shadow-lg backdrop-blur;
     }
   </style>
 </div>

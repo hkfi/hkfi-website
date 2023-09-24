@@ -28,7 +28,7 @@ const { page } = Astro.props
 ---
 
 <Layout title='Blog'>
-  <div class='flex gap-2 p-2'>
+  <div class='flex flex-wrap gap-2 p-2'>
     {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
   </div>
   <div class='flex w-full flex-col gap-1'>

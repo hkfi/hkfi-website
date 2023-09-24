@@ -1,11 +1,17 @@
 ---
 import BlogTag from '@/components/BlogTag.astro'
 import PostBody from '@/components/PostBody.astro'
+import { buildHeadingId } from '@/libs/helpers/blog'
 import {
   getAllPosts,
   getPostBySlug,
   getAllBlocksByBlockId
 } from '@/libs/notion/client'
+import type {
+  Heading1BlockObjectResponse,
+  Heading2BlockObjectResponse,
+  Heading3BlockObjectResponse
+} from '@notionhq/client/build/src/api-endpoints'
 import Layout from 'src/layouts/Layout.astro'
 
 export async function getStaticPaths() {
@@ -53,20 +59,83 @@ const tags =
 
 const date =
   'date' in post.properties.Date ? post.properties.Date.date?.start : ''
+
+type HeadingBlockObjectResponse =
+  | Heading1BlockObjectResponse
+  | Heading2BlockObjectResponse
+  | Heading3BlockObjectResponse
+
+const headingBlocks = blocks.filter((block) =>
+  ['heading_1', 'heading_2', 'heading_3'].includes(block.type)
+) as HeadingBlockObjectResponse[]
 ---
 
 <Layout title={title}>
-  <h1
-    class='self-center text-3xl font-bold text-text'
-    transition:name={`post-${post.id}`}
-  >
-    {title}
-  </h1>
-  <div class='flex items-center justify-between px-2'>
-    <div>{date}</div>
-    <div class='flex gap-2'>
-      {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
+  <div class='flex w-full'>
+    <div class='flex w-40 flex-grow flex-col p-2'>
+      <div id='post-info-section' class='fixed flex flex-col gap-2'>
+        <div class='text-xl'>
+          {date}
+        </div>
+        <div class='flex gap-2'>
+          {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
+        </div>
+      </div>
+    </div>
+    <div class='flex flex-grow flex-col'>
+      <h1
+        class='self-center text-3xl font-bold text-text'
+        transition:name={`post-${post.id}`}
+      >
+        {title}
+      </h1>
+      <PostBody blocks={blocks} />
+    </div>
+    <div class='flex w-40 flex-grow flex-col p-2'>
+      <div id='table-of-contents' class='fixed flex w-40 flex-grow flex-col'>
+        {
+          headingBlocks.map((headingBlock) => {
+            const headingBlockType = headingBlock.type
+            const headingString = buildHeadingId(headingBlock)
+            const leftPaddingMap = {
+              heading_1: 'pl-0',
+              heading_2: 'pl-4',
+              heading_3: 'pl-8'
+            }
+
+            return (
+              <a
+                href={`#${headingString}`}
+                class={`${leftPaddingMap[headingBlockType]} hover:text-primary hover:decoration-primary`}
+              >
+                {headingString}
+              </a>
+            )
+          })
+        }
+      </div>
     </div>
   </div>
-  <PostBody blocks={blocks} />
 </Layout>
+
+<script>
+  // Make the scroll to top button appear when the user scrolls up
+  window.addEventListener('wheel', (e) => {
+    const scrollDirection = e.deltaY < 1 ? 1 : e.deltaY > 1 ? -1 : 0
+
+    const tableOfContents = document.getElementById('table-of-contents')
+    const postInfoSection = document.getElementById('post-info-section')
+
+    if (scrollDirection === 1 && window.scrollY > 0) {
+      tableOfContents?.classList.add('visible', 'opacity-100')
+      tableOfContents?.classList.remove('invisible', 'opacity-0')
+      postInfoSection?.classList.add('visible', 'opacity-100')
+      postInfoSection?.classList.remove('invisible', 'opacity-0')
+    } else if (scrollDirection === -1) {
+      tableOfContents?.classList.add('invisible', 'opacity-0')
+      tableOfContents?.classList.remove('visible', 'opacity-100')
+      postInfoSection?.classList.add('invisible', 'opacity-0')
+      postInfoSection?.classList.remove('visible', 'opacity-100')
+    }
+  })
+</script>

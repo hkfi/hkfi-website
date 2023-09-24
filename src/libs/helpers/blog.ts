@@ -9,6 +9,6 @@ export const buildHeadingId = (block: HeadingBlockObjectResponse) => {
     if (!('text' in richText)) {
       return ''
     }
-    return richText.text.content
-  }).join().trim()
+    return richText.plain_text
+  }).join('').trim()
 }

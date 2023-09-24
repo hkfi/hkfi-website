@@ -1,0 +1,36 @@
+---
+
+---
+
+<dialog id='dialog' class='rounded-md bg-background p-2'>
+  <div id='dialog-content'>
+    <slot name='dialog-content' />
+  </div>
+</dialog>
+
+<style>
+  dialog {
+    position: fixed;
+  }
+
+  dialog::backdrop {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    background: rgba(18, 75, 17, 0.1);
+    backdrop-filter: blur(2px);
+  }
+</style>
+
+<script is:inline>
+  const dialog = document.querySelector('#dialog')
+
+  dialog.addEventListener('click', (event) => {
+    console.log('event:', event)
+    if (event.target.id !== 'dialog-content') {
+      dialog.close()
+    }
+  })
+</script>

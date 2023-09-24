@@ -13,6 +13,8 @@ import type {
   Heading3BlockObjectResponse
 } from '@notionhq/client/build/src/api-endpoints'
 import Layout from 'src/layouts/Layout.astro'
+import BurgerMenu from '@/components/icons/BurgerMenu.astro'
+import Modal from '@/components/Modal.astro'
 
 export async function getStaticPaths() {
   const posts = await getAllPosts()
@@ -72,7 +74,7 @@ const headingBlocks = blocks.filter((block) =>
 
 <Layout title={title}>
   <div class='flex w-full'>
-    <div class='flex w-40 flex-grow flex-col p-2'>
+    <div class='hidden w-40 flex-grow flex-col p-2 lg:flex'>
       <div id='post-info-section' class='fixed flex flex-col gap-2'>
         <div class='text-xl'>
           {date}
@@ -89,9 +91,17 @@ const headingBlocks = blocks.filter((block) =>
       >
         {title}
       </h1>
+      <div class='flex justify-between p-2 lg:hidden'>
+        <div class='text-xl'>
+          {date}
+        </div>
+        <div class='flex gap-2'>
+          {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
+        </div>
+      </div>
       <PostBody blocks={blocks} />
     </div>
-    <div class='flex w-40 flex-grow flex-col p-2'>
+    <div class='hidden w-40 flex-grow flex-col p-2 md:flex'>
       <div id='table-of-contents' class='fixed flex w-40 flex-grow flex-col'>
         {
           headingBlocks.map((headingBlock) => {
@@ -106,7 +116,8 @@ const headingBlocks = blocks.filter((block) =>
             return (
               <a
                 href={`#${headingString}`}
-                class={`${leftPaddingMap[headingBlockType]} hover:text-primary hover:decoration-primary`}
+                class={`${leftPaddingMap[headingBlockType]} 
+                hover:text-primary hover:decoration-primary`}
               >
                 {headingString}
               </a>
@@ -116,6 +127,42 @@ const headingBlocks = blocks.filter((block) =>
       </div>
     </div>
   </div>
+
+  <button
+    id='show-table-of-contents-button'
+    class='fixed bottom-0 right-10 z-30 flex h-16 w-16 -translate-y-10 items-center justify-center rounded-full bg-primary transition-all duration-200 ease-in-out hover:bg-secondary md:hidden'
+    onclick='window.dialog.showModal()'
+  >
+    <BurgerMenu />
+  </button>
+
+  <Modal>
+    <div
+      slot='dialog-content'
+      class='flex flex-col items-center rounded-md bg-background'
+    >
+      {
+        headingBlocks.map((headingBlock) => {
+          const headingBlockType = headingBlock.type
+          const headingString = buildHeadingId(headingBlock)
+          const leftPaddingMap = {
+            heading_1: 'pl-0',
+            heading_2: 'pl-4',
+            heading_3: 'pl-8'
+          }
+
+          return (
+            <a
+              href={`#${headingString}`}
+              class={`${leftPaddingMap[headingBlockType]} w-full text-center text-lg text-notion-default hover:text-primary hover:decoration-primary`}
+            >
+              {headingString}
+            </a>
+          )
+        })
+      }
+    </div>
+  </Modal>
 </Layout>
 
 <script>
@@ -126,16 +173,24 @@ const headingBlocks = blocks.filter((block) =>
     const tableOfContents = document.getElementById('table-of-contents')
     const postInfoSection = document.getElementById('post-info-section')
 
+    const showTableOfContentsButton = document.getElementById(
+      'show-table-of-contents-button'
+    )
+
     if (scrollDirection === 1 && window.scrollY > 0) {
       tableOfContents?.classList.add('visible', 'opacity-100')
       tableOfContents?.classList.remove('invisible', 'opacity-0')
       postInfoSection?.classList.add('visible', 'opacity-100')
       postInfoSection?.classList.remove('invisible', 'opacity-0')
+      showTableOfContentsButton?.classList.add('visible', 'opacity-100')
+      showTableOfContentsButton?.classList.remove('invisible', 'opacity-0')
     } else if (scrollDirection === -1) {
       tableOfContents?.classList.add('invisible', 'opacity-0')
       tableOfContents?.classList.remove('visible', 'opacity-100')
       postInfoSection?.classList.add('invisible', 'opacity-0')
       postInfoSection?.classList.remove('visible', 'opacity-100')
+      showTableOfContentsButton?.classList.add('invisible', 'opacity-0')
+      showTableOfContentsButton?.classList.remove('visible', 'opacity-100')
     }
   })
 </script>

@@ -74,7 +74,8 @@ const headingBlocks = blocks.filter((block) =>
 
 <Layout title={title}>
   <div class='flex w-full'>
-    <div class='hidden w-40 flex-grow flex-col p-2 lg:flex'>
+    <!-- Tags in left section -->
+    <div class='hidden min-w-40 flex-grow flex-col p-2 lg:flex'>
       <div id='post-info-section' class='fixed flex flex-col gap-2'>
         <div class='text-xl'>
           {date}
@@ -84,6 +85,7 @@ const headingBlocks = blocks.filter((block) =>
         </div>
       </div>
     </div>
+    <!-- Post content in the middle -->
     <div class='flex flex-grow flex-col'>
       <h1
         class='self-center text-3xl font-bold text-text'
@@ -101,7 +103,8 @@ const headingBlocks = blocks.filter((block) =>
       </div>
       <PostBody blocks={blocks} />
     </div>
-    <div class='hidden w-40 flex-grow flex-col p-2 md:flex'>
+    <!-- Table of contents in the right -->
+    <div class='hidden min-w-40 flex-grow flex-col p-2 md:flex'>
       <div id='table-of-contents' class='fixed flex w-40 flex-grow flex-col'>
         {
           headingBlocks.map((headingBlock) => {

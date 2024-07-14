@@ -6,11 +6,12 @@ export type Props = {
 }
 
 const { richText } = Astro.props
+console.log(richText)
 ---
 
 {
   richText.annotations.code ? (
-    <code class='text-text bg-secondary rounded px-1 py-0.5'>
+    <code class='rounded bg-secondary px-1 py-0.5 text-sm text-text'>
       <slot />
     </code>
   ) : (

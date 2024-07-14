@@ -72,7 +72,12 @@ const headingBlocks = blocks.filter((block) =>
 ) as HeadingBlockObjectResponse[]
 ---
 
-<Layout title={title}>
+<Layout
+  title={`${title} | hkfi`}
+  seo={{
+    description: `${title} | hkfi`
+  }}
+>
   <div class='flex w-full'>
     <!-- Tags in left section -->
     <div class='hidden min-w-40 flex-grow flex-col p-2 lg:flex'>

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.0",
+    "@astrolib/seo": "1.0.0-beta.5",
     "@notionhq/client": "^2.2.15",
     "astro": "^4.11.5",
     "katex": "^0.16.11",

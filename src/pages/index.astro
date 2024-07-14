@@ -10,7 +10,12 @@ const blogPosts = await getAllPosts().then((res) => {
 })
 ---
 
-<Layout title='hkfi'>
+<Layout
+  title='hkfi'
+  seo={{
+    description: 'hkfi - full stack software engineer'
+  }}
+>
   <div class='flex w-full justify-between p-4'>
     <div
       class='flex min-h-[400px] flex-grow flex-col justify-center gap-2 text-5xl'

@@ -27,7 +27,12 @@ type Props = {
 const { page } = Astro.props
 ---
 
-<Layout title='Blog'>
+<Layout
+  title='Blog | hkfi'
+  seo={{
+    description: "hkfi's tech blog"
+  }}
+>
   <div class='flex flex-wrap gap-2 p-2'>
     {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
   </div>

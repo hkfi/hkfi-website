@@ -63,9 +63,15 @@ const { names = '' } = Astro.params
 
 const allTags = await getAllTags()
 const chosenTags = names.split('+')
+const commaSeparatedChosenTags = chosenTags.join(', ')
 ---
 
-<Layout title={`Blog - ${names}`}>
+<Layout
+  title={`Blog - ${commaSeparatedChosenTags} | hkfi`}
+  seo={{
+    description: `hkfi's blog articles about ${commaSeparatedChosenTags}`
+  }}
+>
   <div class='flex flex-wrap gap-2 p-2'>
     {
       allTags.map((tag) => {

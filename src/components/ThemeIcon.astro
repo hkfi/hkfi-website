@@ -2,7 +2,7 @@
 
 ---
 
-<button id='themeToggle'>
+<button id='themeToggle' aria-label='theme-toggle'>
   <svg class='h-6' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
     <path
       id='sun'
@@ -22,11 +22,11 @@
     border: 0;
     background: none;
 
-    @apply hover:fill-orange-500 fill-text;
+    @apply fill-text hover:fill-orange-500;
   }
 
   :global(.dark) #themeToggle {
-    @apply hover:fill-purple-500 fill-text;
+    @apply fill-text hover:fill-purple-500;
   }
 
   :global(.dark) #sun {

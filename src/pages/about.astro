@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets'
 import Layout from '@/layouts/Layout.astro'
 import profilePicture from '../assets/avatar.jpeg'
+import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
 ---
 
 <Layout
@@ -10,24 +11,47 @@ import profilePicture from '../assets/avatar.jpeg'
     description: 'About hkfi'
   }}
 >
-  <div
-    class='flex w-full flex-col items-center justify-center gap-4 p-4 md:flex-row'
-  >
-    <Image
-      class='h-40 w-40 rounded-lg'
-      src={profilePicture}
-      alt='profile picture'
-    />
+  <div class='flex w-full flex-col items-center gap-4'>
+    <div
+      class='flex w-full max-w-3xl flex-col items-center justify-center gap-4 p-4 md:flex-row'
+    >
+      <Image
+        class='h-40 w-40 rounded-lg'
+        src={profilePicture}
+        alt='profile picture'
+      />
 
-    <div class='flex max-w-xl flex-col text-base'>
-      <div class=''>
-        Hey there! I'm Hiroki, a full-stack software engineer with a passion for
-        the web. These days I mostly code in TypeScript and Python, but I'm
-        pretty tech agnostic and love learning new technologies.
+      <div class='flex flex-col text-base'>
+        <div class=''>
+          Hey there! I'm Hiroki, a full-stack software engineer with a passion
+          for the web. These days I mostly code in TypeScript and Python, but
+          I'm pretty tech agnostic and love learning new technologies.
+        </div>
+        <div>
+          I also love to travel so when I'm not coding, you can find me
+          exploring new foods, cultures, and learning languages.
+        </div>
+      </div>
+    </div>
+    <div class='flex max-w-3xl flex-col items-center justify-center gap-4 p-4'>
+      <div>
+        By the way, did you notice how quickly this page loaded? Check out these
+        lighthouse scores!
+      </div>
+      <Image src={lighthouseMetrics} alt='lighthouse-scores' class='w-120' />
+      <div>
+        This website is built with Astro and Tailwind, with the blog posts
+        written in Notion, which are queried with Notion's API to build the blog
+        post pages of the site.
       </div>
       <div>
-        I also love to travel so when I'm not coding, you can find me exploring
-        new foods, cultures, and learning languages.
+        Feel free to checkout the <a
+          href='https://github.com/hkfi/hkfi-website'
+          target='_blank'
+          class='underline hover:text-primary'
+        >
+          source code</a
+        >!
       </div>
     </div>
   </div>

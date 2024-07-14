@@ -49,13 +49,9 @@ const htmlCode = await codeToHtml(code, {
   {
     language === 'mermaid' ? (
       <pre set:html={htmlCode} />
-    ) : (
-      <pre class='text-sm'>
-        {isValidLanguage(block.code.language) ? (
-          <div set:html={htmlCode} />
-        ) : null}
-      </pre>
-    )
+    ) : isValidLanguage(block.code.language) ? (
+      <div class='text-sm' set:html={htmlCode} />
+    ) : null
   }
   <Caption richTexts={block.code.caption} />
 </div>

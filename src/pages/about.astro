@@ -1,12 +1,29 @@
 ---
+import { Image } from 'astro:assets'
 import Layout from '@/layouts/Layout.astro'
+import profilePicture from '../assets/avatar.jpeg'
 ---
 
 <Layout title='About'>
-  <div class='flex w-full flex-col p-4'>
-    <div class='text-lg'>
-      Hey there, I'm Hiroki, a Software Engineer (Full-stack Web). These days I
-      work mostly with tools in the JavaScript and Python ecosystems.
+  <div
+    class='flex w-full flex-col items-center justify-center gap-4 p-4 md:flex-row'
+  >
+    <Image
+      class='h-40 w-40 rounded-lg'
+      src={profilePicture}
+      alt='profile picture'
+    />
+
+    <div class='flex max-w-xl flex-col text-base'>
+      <div class=''>
+        Hey there! I'm Hiroki, a full-stack software engineer with a passion for
+        the web. These days I mostly code in TypeScript and Python, but I'm
+        pretty tech agnostic and love learning new technologies.
+      </div>
+      <div>
+        I also love to travel so when I'm not coding, you can find me exploring
+        new foods, cultures, and learning languages.
+      </div>
     </div>
   </div>
 </Layout>

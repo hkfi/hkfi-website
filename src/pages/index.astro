@@ -13,7 +13,7 @@ const blogPosts = await getAllPosts().then((res) => {
 <Layout title='hkfi'>
   <div class='flex w-full justify-between p-4'>
     <div
-      class='flex h-[400px] flex-grow flex-col justify-center gap-2 text-5xl'
+      class='flex min-h-[400px] flex-grow flex-col justify-center gap-2 text-5xl'
     >
       <div class=''>Hello 👋</div>
       <div class=''>
@@ -21,14 +21,14 @@ const blogPosts = await getAllPosts().then((res) => {
       </div>
       <div>
         <span class='text-primary'>Software Engineer</span>
-         and
+        and
         <span class='text-primary'>Digital Nomad</span>
       </div>
       <div>
         I mostly write about <span class='text-primary'
           >Full-stack Web Development</span
         > and the <span class='text-primary'>JavaScript</span>
-         ecosystem here.
+        ecosystem here.
       </div>
     </div>
     <!-- <div class='h-[400px] w-[200px]' id='spline-avatar'>

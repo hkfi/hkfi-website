@@ -14,7 +14,7 @@
     "@astrojs/tailwind": "^5.1.0",
     "@astrolib/seo": "1.0.0-beta.5",
     "@notionhq/client": "^2.2.15",
-    "astro": "^4.11.5",
+    "astro": "^5.0.0",
     "katex": "^0.16.11",
     "sharp": "^0.33.4",
     "shiki": "^1.10.1",

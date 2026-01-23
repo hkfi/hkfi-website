@@ -11,10 +11,10 @@
     "lint": "prettier --write  \"**/*.{js,jsx,ts,tsx,md,mdx,astro}\" && eslint --fix \"src/**/*.{js,ts,jsx,tsx,astro}\""
   },
   "dependencies": {
-    "@astrojs/tailwind": "^5.1.0",
+    "@astrojs/tailwind": "^6.0.2",
     "@astrolib/seo": "1.0.0-beta.5",
     "@notionhq/client": "^2.2.15",
-    "astro": "^4.11.5",
+    "astro": "^5.16.14",
     "katex": "^0.16.11",
     "sharp": "^0.33.4",
     "shiki": "^1.10.1",

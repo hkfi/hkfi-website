@@ -8,5 +8,7 @@
       "@/constants/*": ["src/constants/*"],
       "@/layouts/*": ["src/layouts/*"]
     }
-  }
+  },
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
 }

@@ -23,8 +23,8 @@
 
     --color-default: #000000;
 
-    --astro-code-color-text: rgb(57, 44, 44);
-    --astro-code-color-background: rgb(239, 230, 218);
+    --astro-code-foreground: rgb(57, 44, 44);
+    --astro-code-background: rgb(239, 230, 218);
     --astro-code-token-constant: plum;
     --astro-code-token-string: orchid;
     --astro-code-token-comment: rgb(176, 53, 39);
@@ -46,8 +46,8 @@
 
     --color-default: #e6e4da;
 
-    --astro-code-color-text: azure;
-    --astro-code-color-background: rgb(58, 58, 58);
+    --astro-code-foreground: azure;
+    --astro-code-background: rgb(58, 58, 58);
     --astro-code-token-constant: plum;
     --astro-code-token-string: orchid;
     --astro-code-token-comment: salmon;

@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css'
-import { ViewTransitions } from 'astro:transitions'
+import { ClientRouter } from 'astro:transitions'
 import Navbar from './Navbar/index.astro'
 import Footer from './Footer.astro'
 import PostHog from '@/components/third-party/PostHog.astro'
@@ -24,7 +24,7 @@ const { title, seo } = Astro.props
     <meta name='generator' content={Astro.generator} />
     <AstroSeo {...seo} />
     <title>{title}</title>
-    <ViewTransitions />
+    <ClientRouter />
     <PostHog />
   </head>
   <body

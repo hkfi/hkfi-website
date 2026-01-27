@@ -11,47 +11,61 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
     description: 'About hkfi'
   }}
 >
-  <div class='flex w-full flex-col items-center gap-4'>
+  <div class='flex w-full flex-col items-center gap-8 py-8 animate-fade-in'>
+    <!-- Profile Section -->
     <div
-      class='flex w-full max-w-3xl flex-col items-center justify-center gap-4 p-4 md:flex-row'
+      class='flex w-full max-w-4xl flex-col items-center gap-8 rounded-2xl bg-secondary/20 p-8 shadow-sm md:flex-row md:gap-12'
     >
       <Image
-        class='h-40 w-40 rounded-lg'
+        class='h-48 w-48 rounded-full border-4 border-background shadow-md'
         src={profilePicture}
         alt='profile picture'
       />
 
-      <div class='flex flex-col text-base'>
-        <div class=''>
-          Hey there! I'm Hiroki, a full-stack software engineer with a passion
-          for the web. These days I mostly code in TypeScript and Python, but
-          I'm pretty tech agnostic and love learning new technologies.
-        </div>
-        <div>
-          I also love to travel so when I'm not coding, you can find me
-          exploring new foods, cultures, and learning languages.
+      <div class='flex flex-col gap-4'>
+        <h1 class='text-4xl font-bold tracking-tight text-primary'>
+          Hi, I'm Hiroki 👋
+        </h1>
+        <div class='flex flex-col gap-3 text-lg text-default/80'>
+          <p>
+            I'm a <span class='font-medium text-primary'>Software Engineer</span> with a passion for the web.
+          </p>
+          <p>
+            These days I mostly code in <span class='font-medium'>TypeScript</span> and <span class='font-medium'>Python</span>, but I'm tech-agnostic and love exploring new tools.
+          </p>
+          <p>
+            When I'm not coding, you can find me traveling 🌍, trying new foods 🍜, and learning languages.
+          </p>
         </div>
       </div>
     </div>
-    <div class='flex max-w-3xl flex-col items-center justify-center gap-4 p-4'>
-      <div>
-        By the way, did you notice how quickly this page loaded? Check out these
-        lighthouse scores!
+
+    <!-- Tech Stack / Lighthouse Section -->
+    <div
+      class='flex w-full max-w-4xl flex-col gap-6 rounded-2xl bg-secondary/10 p-8'
+    >
+      <div class='flex flex-col gap-2'>
+        <h2 class='text-2xl font-bold'>Check out these lighthouse scores!
+</h2>
       </div>
-      <Image src={lighthouseMetrics} alt='lighthouse-scores' class='w-120' />
-      <div>
-        This website is built with Astro and Tailwind, with the blog posts
-        written in Notion, which are queried with Notion's API to build the blog
-        post pages of the site.
-      </div>
-      <div>
-        Feel free to checkout the <a
-          href='https://github.com/hkfi/hkfi-website'
-          target='_blank'
-          class='underline hover:text-primary'
-        >
-          source code</a
-        >!
+
+      <div class='flex flex-col items-center gap-6 md:flex-row md:justify-around'>
+        <Image src={lighthouseMetrics} alt='lighthouse-scores' class='w-full max-w-md rounded-lg shadow-sm' />
+        
+        <div class='flex flex-col gap-4 text-base text-default/70'>
+          <p>This website is built with <span class='font-semibold'>Astro</span> and <span class='font-semibold'>Tailwind</span>, with the blog posts written in <span class='font-semibold'>Notion</span>, which are queried with <span class='font-semibold'>Notion</span>'s API to build the blog post pages of the site.</p>
+          <p>
+            Curious about the code?
+            <a
+              href='https://github.com/hkfi/hkfi-website'
+              target='_blank'
+              class='inline-flex items-center gap-1 font-medium text-primary hover:underline'
+            >
+              View Source on GitHub
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   </div>

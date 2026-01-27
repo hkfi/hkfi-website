@@ -7,6 +7,11 @@ import type {
 } from '@notionhq/client/build/src/api-endpoints'
 
 import { codeToHtml } from 'shiki'
+import {
+  transformerNotationDiff,
+  transformerNotationHighlight,
+  transformerNotationErrorLevel
+} from '@shikijs/transformers'
 import { bundledLanguages, type BundledLanguage } from 'shiki/langs'
 
 const VALID_LANGUAGES = Object.keys(bundledLanguages) as BundledLanguage[]
@@ -41,7 +46,12 @@ const htmlCode = await codeToHtml(code, {
   themes: {
     light: 'rose-pine-dawn',
     dark: 'one-dark-pro'
-  }
+  },
+  transformers: [
+    transformerNotationDiff(),
+    transformerNotationHighlight(),
+    transformerNotationErrorLevel()
+  ]
 })
 ---
 

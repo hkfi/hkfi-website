@@ -46,6 +46,16 @@
 
     --color-default: #e6e4da;
 
+    --color-blue: #60a5fa;
+    --color-brown: #a1887f;
+    --color-gray: #d1d5db;
+    --color-green: #81c784;
+    --color-orange: #ffb74d;
+    --color-pink: #f06292;
+    --color-purple: #ba68c8;
+    --color-red: #e57373;
+    --color-yellow: #fff176;
+
     --astro-code-foreground: azure;
     --astro-code-background: rgb(58, 58, 58);
     --astro-code-token-constant: plum;
@@ -71,5 +81,25 @@ html.dark .shiki span {
 }
 
 pre.shiki {
+  overflow-x: auto;
   white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: 100%;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  counter-reset: step;
+}
+
+pre.shiki code {
+  counter-reset: step;
+}
+
+pre.shiki .line::before {
+  counter-increment: step;
+  content: counter(step);
+  display: inline-block;
+  width: 1.5rem;
+  margin-right: 1rem;
+  text-align: right;
+  color: rgba(115, 138, 148, 0.4);
 }

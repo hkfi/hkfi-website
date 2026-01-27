@@ -33,35 +33,50 @@ const { page } = Astro.props
     description: "hkfi's tech blog"
   }}
 >
-  <div class='flex flex-wrap gap-2 p-2'>
-    {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
-  </div>
-  <div class='flex w-full flex-col gap-1'>
-    {page.data.map((post) => <PostLink post={post} />)}
-  </div>
-  <div class='flex w-full items-center justify-center gap-4'>
-    {
-      page.url.prev ? (
-        <a
-          class='rounded-sm bg-secondary px-4 py-2 transition-all ease-out hover:-translate-y-0.5'
-          href={page.url.prev}
-        >
-          <ArrowLeft />
-        </a>
-      ) : null
-    }
-    <div class='w-[200px] text-center'>
-      Page {page.currentPage} of {page.lastPage}
+  <div class='flex w-full flex-col gap-6 py-4 animate-fade-in'>
+    <!-- Tags Filter -->
+    <div class='flex flex-wrap gap-2 p-2'>
+      {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
     </div>
-    {
-      page.url.next ? (
-        <a
-          class='rounded-sm bg-secondary px-4 py-2 transition-all ease-out hover:-translate-y-0.5'
-          href={page.url.next}
-        >
-          <ArrowRight />
-        </a>
-      ) : null
-    }
+
+    <!-- Blog Grid -->
+    <div class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+      {page.data.map((post) => <PostLink post={post} />)}
+    </div>
+
+    <!-- Pagination -->
+    <div class='mt-8 flex w-full items-center justify-center gap-6'>
+      {
+        page.url.prev ? (
+          <a
+            class='flex items-center justify-center rounded-lg bg-secondary/50 px-4 py-3 text-primary transition-all hover:-translate-x-1 hover:bg-secondary hover:shadow-sm'
+            href={page.url.prev}
+            aria-label="Previous Page"
+          >
+            <ArrowLeft />
+          </a>
+        ) : (
+          <div class='w-12'></div> /* Spacer */
+        )
+      }
+      
+      <div class='font-medium text-default/60'>
+        Page <span class='text-primary font-bold'>{page.currentPage}</span> of {page.lastPage}
+      </div>
+
+      {
+        page.url.next ? (
+          <a
+            class='flex items-center justify-center rounded-lg bg-secondary/50 px-4 py-3 text-primary transition-all hover:translate-x-1 hover:bg-secondary hover:shadow-sm'
+            href={page.url.next}
+            aria-label="Next Page"
+          >
+            <ArrowRight />
+          </a>
+        ) : (
+          <div class='w-12'></div> /* Spacer */
+        )
+      }
+    </div>
   </div>
 </Layout>

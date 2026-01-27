@@ -91,22 +91,28 @@ const headingBlocks = blocks.filter((block) =>
       </div>
     </div>
     <!-- Post content in the middle -->
-    <div class='flex flex-grow flex-col'>
-      <h1
-        class='self-center text-3xl font-bold text-text'
-        transition:name={`post-${post.id}`}
-      >
-        {title}
-      </h1>
-      <div class='flex justify-between p-2 lg:hidden'>
-        <div class='text-xl'>
-          {date}
-        </div>
-        <div class='flex gap-2'>
-          {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
+    <div class='mx-auto flex w-full max-w-3xl flex-grow flex-col gap-6 md:mx-0'>
+      <div class='flex flex-col items-center gap-4 border-b border-default/10 pb-8 text-center'>
+        <h1
+          class='text-4xl font-extrabold tracking-tight text-text md:text-5xl'
+          transition:name={`post-${post.id}`}
+        >
+          {title}
+        </h1>
+        <div class='flex flex-wrap items-center justify-center gap-4 text-default/60'>
+          <div class='text-lg font-medium'>
+            {date}
+          </div>
+          <div class='h-1 w-1 rounded-full bg-default/40'></div>
+          <div class='flex gap-2'>
+            {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
+          </div>
         </div>
       </div>
-      <PostBody blocks={blocks} />
+
+      <div class='prose prose-lg dark:prose-invert max-w-none pt-4'>
+        <PostBody blocks={blocks} />
+      </div>
     </div>
     <!-- Table of contents in the right -->
     <div class='hidden min-w-40 flex-grow flex-col p-2 md:flex'>

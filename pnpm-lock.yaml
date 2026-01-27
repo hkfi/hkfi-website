@@ -14,9 +14,15 @@ importers:
       '@astrolib/seo':
         specifier: 1.0.0-beta.5
         version: 1.0.0-beta.5(astro@5.16.14(@types/node@20.14.9)(jiti@1.21.6)(rollup@4.56.0)(typescript@5.5.3)(yaml@2.4.5))
+      '@fontsource/outfit':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@notionhq/client':
         specifier: ^2.2.15
         version: 2.2.15
+      '@shikijs/transformers':
+        specifier: ^3.21.0
+        version: 3.21.0
       astro:
         specifier: ^5.16.14
         version: 5.16.14(@types/node@20.14.9)(jiti@1.21.6)(rollup@4.56.0)(typescript@5.5.3)(yaml@2.4.5)
@@ -301,6 +307,9 @@ packages:
   '@eslint/js@8.57.0':
     resolution: {integrity: sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@fontsource/outfit@5.2.8':
+    resolution: {integrity: sha512-rXC6g0MqD7cOBjht0bMqc43qM6lRqDLML9KXsmg9uykz0wLQhy8Z/ajrMG6iyoT3NJR+MYgU+OEHp7uHoTb+Yw==}
 
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
@@ -780,6 +789,9 @@ packages:
 
   '@shikijs/themes@3.21.0':
     resolution: {integrity: sha512-BAE4cr9EDiZyYzwIHEk7JTBJ9CzlPuM4PchfcA5ao1dWXb25nv6hYsoDiBq2aZK9E3dlt3WB78uI96UESD+8Mw==}
+
+  '@shikijs/transformers@3.21.0':
+    resolution: {integrity: sha512-CZwvCWWIiRRiFk9/JKzdEooakAP8mQDtBOQ1TKiCaS2E1bYtyBCOkUzS8akO34/7ufICQ29oeSfkb3tT5KtrhA==}
 
   '@shikijs/types@1.27.2':
     resolution: {integrity: sha512-DM9OWUyjmdYdnKDpaGB/GEn9XkToyK1tqxuqbmc5PV+5K8WjjwfygL3+cIvbkSw2v1ySwHDgqATq/+98pJ4Kyg==}
@@ -3239,6 +3251,8 @@ snapshots:
 
   '@eslint/js@8.57.0': {}
 
+  '@fontsource/outfit@5.2.8': {}
+
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.3
@@ -3612,6 +3626,11 @@ snapshots:
 
   '@shikijs/themes@3.21.0':
     dependencies:
+      '@shikijs/types': 3.21.0
+
+  '@shikijs/transformers@3.21.0':
+    dependencies:
+      '@shikijs/core': 3.21.0
       '@shikijs/types': 3.21.0
 
   '@shikijs/types@1.27.2':
@@ -5723,13 +5742,13 @@ snapshots:
   rehype-stringify@10.0.0:
     dependencies:
       '@types/hast': 3.0.4
-      hast-util-to-html: 9.0.4
+      hast-util-to-html: 9.0.5
       unified: 11.0.5
 
   rehype-stringify@10.0.1:
     dependencies:
       '@types/hast': 3.0.4
-      hast-util-to-html: 9.0.4
+      hast-util-to-html: 9.0.5
       unified: 11.0.5
 
   rehype@13.0.2:

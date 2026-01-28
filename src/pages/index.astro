@@ -3,6 +3,8 @@ import Layout from '../layouts/Layout.astro'
 import PostLink from '@/components/PostLink.astro'
 import { getAllPosts } from '@/libs/notion/client'
 
+import ThinkingEmoji from '@/components/ThinkingEmoji'
+
 // import SplineAvatar from '@/components/SplineAvatar.astro'
 
 const blogPosts = await getAllPosts().then((res) => {
@@ -16,7 +18,7 @@ const blogPosts = await getAllPosts().then((res) => {
     description: 'hkfi - full stack software engineer'
   }}
 >
-  <div class='flex w-full justify-between p-4'>
+  <div class='flex w-full justify-between p-4 items-center'>
     <div
       class='flex min-h-[400px] flex-grow animate-fade-in flex-col justify-center gap-4'
     >
@@ -33,9 +35,13 @@ const blogPosts = await getAllPosts().then((res) => {
         AI and Bitcoin enjoyer
       </div>
     </div>
-    <!-- <div class='h-[400px] w-[200px]' id='spline-avatar'>
-      <SplineAvatar />
-    </div> -->
+    <div class='h-[400px] w-[200px] lg:w-[400px]' id='eye-3d'>
+      <ThinkingEmoji client:only="react">
+         <div slot="fallback" class="w-full h-full flex items-center justify-center">
+            <span class="text-[180px] animate-pulse">🤔</span>
+         </div>
+      </ThinkingEmoji>
+    </div>
   </div>
   <div class='mb-6 mt-12 text-3xl font-bold tracking-tight px-3'>Recent Posts</div>
   <div class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>

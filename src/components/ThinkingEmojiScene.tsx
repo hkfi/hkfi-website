@@ -27,9 +27,18 @@ function GlobalTracker() {
   return null
 }
 
-function Model() {
+interface ModelProps {
+  onReady?: () => void
+}
+
+function Model({ onReady }: ModelProps) {
   const { scene } = useGLTF('/thinking_emoji/scene-draco.gltf', '/draco/')
   const ref = useRef<THREE.Group>(null)
+
+  // Signal that the model has loaded and mounted
+  useEffect(() => {
+    onReady?.()
+  }, [onReady])
 
   useFrame(() => {
     if (ref.current) {
@@ -63,10 +72,17 @@ function Model() {
 // Preload the model
 useGLTF.preload('/thinking_emoji/scene-draco.gltf', '/draco/')
 
-export default function ThinkingEmojiScene() {
+interface ThinkingEmojiSceneProps {
+  onReady?: () => void
+}
+
+export default function ThinkingEmojiScene({ onReady }: ThinkingEmojiSceneProps) {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <Canvas camera={{ position: [0, 0, 5], fov: 45 }} style={{ background: 'transparent' }}>
+      <Canvas 
+        camera={{ position: [0, 0, 5], fov: 45 }} 
+        style={{ background: 'transparent' }}
+      >
         <GlobalTracker />
         
         {/* Lights */}
@@ -77,7 +93,7 @@ export default function ThinkingEmojiScene() {
         {/* Environment for shiny reflections if the model has PBR materials */}
         <Environment preset="city" />
 
-        <Model />
+        <Model onReady={onReady} />
 
         {/* Shadows for grounded feel */}
         <ContactShadows position={[0, -1.5, 0]} opacity={0.4} scale={5} blur={2.5} far={4} resolution={128} frames={1} />

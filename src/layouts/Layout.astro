@@ -7,6 +7,8 @@ import Footer from './Footer.astro'
 import PostHog from '@/components/third-party/PostHog.astro'
 import type { AstroSeoProps } from '@astrolib/seo'
 import { AstroSeo } from '@astrolib/seo'
+import CommandPalette from '@/components/CommandPalette'
+import { getAllPosts } from '@/libs/notion/client'
 
 export type Props = {
   title: string
@@ -14,6 +16,22 @@ export type Props = {
 }
 
 const { title, seo } = Astro.props
+
+const allPosts = await getAllPosts()
+const commandPaletteItems = allPosts.map((post) => ({
+  title:
+    'title' in post.properties.Title && post.properties.Title.title[0]
+      ? post.properties.Title.title[0].plain_text
+      : '',
+  slug:
+    'rich_text' in post.properties.Slug
+      ? post.properties.Slug.rich_text[0].plain_text
+      : '',
+  tags:
+    'Tags' in post.properties && 'multi_select' in post.properties.Tags
+      ? post.properties.Tags.multi_select.map((t: any) => t.name)
+      : [],
+}))
 ---
 
 <!doctype html>
@@ -36,6 +54,9 @@ const { title, seo } = Astro.props
       <slot />
     </main>
     <Footer />
+    <div transition:persist='command-palette'>
+      <CommandPalette client:only='react' posts={commandPaletteItems} />
+    </div>
 
     <style is:global>
       html {

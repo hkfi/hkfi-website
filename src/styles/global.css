@@ -103,3 +103,157 @@ pre.shiki .line::before {
   text-align: right;
   color: rgba(115, 138, 148, 0.4);
 }
+
+/* Command Palette (cmdk) */
+[cmdk-overlay] {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 75, 17, 0.1);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+  animation: cmdk-overlay-show 150ms ease;
+}
+
+[cmdk-dialog] {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 640px;
+  z-index: 51;
+  background: var(--color-background);
+  border: 1px solid var(--color-secondary);
+  border-radius: 12px;
+  box-shadow: 0 16px 70px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: cmdk-dialog-show 150ms ease;
+}
+
+[cmdk-input] {
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: transparent;
+  color: var(--color-text);
+  border: none;
+  border-bottom: 1px solid var(--color-secondary);
+  outline: none;
+}
+
+[cmdk-input]::placeholder {
+  color: var(--color-text);
+  opacity: 0.4;
+}
+
+[cmdk-list] {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+[cmdk-group-heading] {
+  padding: 8px 12px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text);
+  opacity: 0.5;
+}
+
+[cmdk-item] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+[cmdk-item][data-selected='true'] {
+  background: var(--color-secondary);
+}
+
+[cmdk-item]:active {
+  background: var(--color-primary);
+  color: var(--color-background);
+}
+
+[cmdk-item] svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+[cmdk-empty] {
+  padding: 32px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text);
+  opacity: 0.5;
+}
+
+.command-palette-tags {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.command-palette-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--color-muted);
+  color: var(--color-text);
+  opacity: 0.7;
+}
+
+/* Search trigger tooltip */
+.search-trigger {
+  position: relative;
+}
+
+.search-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: 'Outfit', system-ui, sans-serif;
+  border-radius: 4px;
+  background: var(--color-muted);
+  border: 1px solid var(--color-secondary);
+  color: var(--color-text);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: opacity 150ms ease;
+}
+
+.search-trigger:hover .search-tooltip {
+  opacity: 0.7;
+}
+
+@keyframes cmdk-overlay-show {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cmdk-dialog-show {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}

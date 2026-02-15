@@ -15,11 +15,32 @@ import XIcon from './icons/X.astro'
       <ThemeIcon />
       <GithubIcon />
       <XIcon />
+      <button
+        id='command-palette-trigger'
+        class='search-trigger border-0 bg-none'
+        aria-label='Search (⌘K)'
+        onclick='document.dispatchEvent(new CustomEvent("open-command-palette"))'
+      >
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+          stroke-linecap='round'
+          stroke-linejoin='round'
+          class='h-6 stroke-text hover:stroke-primary'
+        >
+          <circle cx='11' cy='11' r='8'></circle>
+          <line x1='21' x2='16.65' y1='21' y2='16.65'></line>
+        </svg>
+        <span class='search-tooltip' id='search-shortcut-hint'>⌘K</span>
+      </button>
     </div>
     <div class='flex w-1/5 justify-center'>
       <NavbarLink href='/' label='hkfi' />
     </div>
-    <div class='flex w-2/5 justify-end gap-2'>
+    <div class='flex w-2/5 items-center justify-end gap-2'>
       <NavbarLink href='/about' label='About' />
       <NavbarLink href='/blog/1' label='Blog' />
     </div>
@@ -47,6 +68,12 @@ import XIcon from './icons/X.astro'
       if (pixelAnchor) {
         observer.observe(pixelAnchor)
       }
+    }
+
+    const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform)
+    if (!isMac) {
+      const hint = document.getElementById('search-shortcut-hint')
+      if (hint) hint.textContent = 'Ctrl+K'
     }
 
     window.addEventListener('wheel', (e) => {

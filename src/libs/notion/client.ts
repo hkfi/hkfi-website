@@ -3,6 +3,7 @@ import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, ColumnBl
 import { NOTION_DATABASE_ID, NOTION_INTEGRATION_TOKEN } from '@/constants/env'
 import { NUMBER_OF_POSTS_PER_PAGE } from '@/constants/index'
 import { getPostExcerpt, getReadingTime, getPostGradient } from '@/libs/helpers/blog'
+import pLimit from 'p-limit'
 
 export type CustomTableBlockObjectResponse = TableBlockObjectResponse & {
   table: {
@@ -248,9 +249,10 @@ export async function getAllPostCardData(): Promise<Map<string, CardData>> {
   const allPosts = await getAllPosts()
   const cardDataMap = new Map<string, CardData>()
 
-  // Fetch blocks for all posts in parallel
+  // Limit concurrency to avoid hitting Notion API rate limits (3 req/s)
+  const limit = pLimit(3)
   const results = await Promise.all(
-    allPosts.map(async (post) => {
+    allPosts.map((post) => limit(async () => {
       const blocks = await getAllBlocksByBlockId(post.id)
       const title = getPostTitle(post)
       return {
@@ -262,7 +264,7 @@ export async function getAllPostCardData(): Promise<Map<string, CardData>> {
           gradient: getPostGradient(title),
         }
       }
-    })
+    }))
   )
 
   for (const { id, cardData } of results) {

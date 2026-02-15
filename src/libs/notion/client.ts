@@ -2,6 +2,7 @@ import { Client } from '@notionhq/client'
 import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, ColumnBlockObjectResponse, ColumnListBlockObjectResponse, ListBlockChildrenParameters, MultiSelectPropertyItemObjectResponse, NumberedListItemBlockObjectResponse, PageObjectResponse, PartialBlockObjectResponse, QueryDatabaseParameters, TableBlockObjectResponse, TableRowBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_DATABASE_ID, NOTION_INTEGRATION_TOKEN } from '@/constants/env'
 import { NUMBER_OF_POSTS_PER_PAGE } from '@/constants/index'
+import { getPostExcerpt, getReadingTime, getPostGradient } from '@/libs/helpers/blog'
 
 export type CustomTableBlockObjectResponse = TableBlockObjectResponse & {
   table: {
@@ -213,4 +214,61 @@ export async function getAllTags() {
   allTagsCache = tags
 
   return tags
+}
+
+// --- Card data for improved blog post cards ---
+
+export type CardData = {
+  excerpt: string
+  readingTime: string
+  coverUrl: string | null
+  gradient: string
+}
+
+let cardDataCache: Map<string, CardData> | null = null
+
+function getCoverUrl(post: PageObjectResponse): string | null {
+  if (!post.cover) return null
+  if (post.cover.type === 'external') return post.cover.external.url
+  if (post.cover.type === 'file') return post.cover.file.url
+  return null
+}
+
+function getPostTitle(post: PageObjectResponse): string {
+  return 'title' in post.properties.Title && post.properties.Title.title[0]
+    ? post.properties.Title.title[0].plain_text
+    : ''
+}
+
+export async function getAllPostCardData(): Promise<Map<string, CardData>> {
+  if (cardDataCache !== null) {
+    return cardDataCache
+  }
+
+  const allPosts = await getAllPosts()
+  const cardDataMap = new Map<string, CardData>()
+
+  // Fetch blocks for all posts in parallel
+  const results = await Promise.all(
+    allPosts.map(async (post) => {
+      const blocks = await getAllBlocksByBlockId(post.id)
+      const title = getPostTitle(post)
+      return {
+        id: post.id,
+        cardData: {
+          excerpt: getPostExcerpt(blocks as BlockObjectResponse[], 140),
+          readingTime: getReadingTime(blocks as BlockObjectResponse[]),
+          coverUrl: getCoverUrl(post),
+          gradient: getPostGradient(title),
+        }
+      }
+    })
+  )
+
+  for (const { id, cardData } of results) {
+    cardDataMap.set(id, cardData)
+  }
+
+  cardDataCache = cardDataMap
+  return cardDataCache
 }

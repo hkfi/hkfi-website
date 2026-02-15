@@ -1,12 +1,14 @@
 ---
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { CardData } from '@/libs/notion/client'
 import Tag from './Tag.astro'
 
 type Props = {
   post: PageObjectResponse
+  cardData?: CardData
 }
 
-const { post } = Astro.props
+const { post, cardData } = Astro.props
 
 const slug =
   'rich_text' in post.properties.Slug
@@ -27,28 +29,61 @@ const tags =
   'Tags' in post.properties && 'multi_select' in post.properties.Tags
     ? post.properties.Tags.multi_select
     : []
+
+const excerpt = cardData?.excerpt ?? ''
+const readingTime = cardData?.readingTime ?? ''
+const coverUrl = cardData?.coverUrl ?? null
+const gradient = cardData?.gradient ?? 'bg-gradient-to-br from-primary/30 to-secondary/50'
 ---
 
 <a
   transition:name={`post-link-${post.id}`}
-  class='group flex flex-col justify-between rounded-xl border border-transparent bg-secondary/20 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:bg-secondary/40 hover:shadow-lg'
+  class='group flex h-full flex-col overflow-hidden rounded-xl border border-transparent bg-secondary/20 transition-all duration-300 hover:scale-[1.02] hover:border-primary/20 hover:shadow-xl'
   href={`/blog/post/${slug}`}
 >
-  <div class='mb-4'>
-    <div
-      class='text-2xl font-bold tracking-tight text-primary transition-colors group-hover:text-primary/80'
-      transition:name={`post-${post.id}`}
-    >
-      {title}
-    </div>
+  <!-- Cover image or gradient -->
+  <div class='relative h-32 w-full overflow-hidden'>
+    {coverUrl ? (
+      <img
+        src={coverUrl}
+        alt=''
+        class='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105'
+        loading='lazy'
+      />
+    ) : (
+      <div class={`h-full w-full ${gradient} transition-opacity duration-300 group-hover:opacity-80`} />
+    )}
   </div>
 
-  <div class='flex items-end justify-between'>
-    <div class='flex flex-wrap gap-2'>
-      {tags.map((tag) => <Tag tag={tag} />)}
+  <!-- Content -->
+  <div class='flex flex-grow flex-col justify-between p-4'>
+    <div>
+      <div
+        class='text-xl font-bold tracking-tight text-primary transition-colors group-hover:text-primary/80'
+        transition:name={`post-${post.id}`}
+      >
+        {title}
+      </div>
+      {excerpt && (
+        <p class='mt-2 line-clamp-2 text-sm leading-relaxed text-default/50'>
+          {excerpt}
+        </p>
+      )}
     </div>
-    <div class='text-sm text-default/60'>
-      {date}
+
+    <div class='mt-4 flex items-end justify-between'>
+      <div class='flex flex-wrap gap-1.5'>
+        {tags.map((tag) => <Tag tag={tag} size='sm' />)}
+      </div>
+      <div class='flex shrink-0 items-center gap-1.5 text-xs text-default/40'>
+        {readingTime && (
+          <>
+            <span>{readingTime}</span>
+            <span>·</span>
+          </>
+        )}
+        <span>{date}</span>
+      </div>
     </div>
   </div>
 </a>

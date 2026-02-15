@@ -33,7 +33,7 @@ const tags =
 const excerpt = cardData?.excerpt ?? ''
 const readingTime = cardData?.readingTime ?? ''
 const coverUrl = cardData?.coverUrl ?? null
-const gradient = cardData?.gradient ?? 'bg-gradient-to-br from-primary/30 to-secondary/50'
+const gradient = cardData?.gradient ?? 'linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 30%, transparent) 0%, color-mix(in srgb, var(--color-secondary) 50%, transparent) 100%)'
 ---
 
 <a
@@ -51,7 +51,7 @@ const gradient = cardData?.gradient ?? 'bg-gradient-to-br from-primary/30 to-sec
         loading='lazy'
       />
     ) : (
-      <div class={`h-full w-full ${gradient} transition-opacity duration-300 group-hover:opacity-80`} />
+      <div class='h-full w-full transition-opacity duration-300 group-hover:opacity-80' style={`background: ${gradient}`} />
     )}
   </div>
 

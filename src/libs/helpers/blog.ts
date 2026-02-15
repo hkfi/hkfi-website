@@ -65,19 +65,19 @@ export function getReadingTime(blocks: BlockObjectResponse[]): string {
 }
 
 /**
- * Generate a deterministic gradient class based on the post title.
- * Uses a simple hash to pick from curated gradient pairs that work
- * with the site's CSS custom property color scheme.
+ * Generate a deterministic inline gradient style based on the post title.
+ * Uses CSS custom properties so it works in both light and dark mode.
+ * Returns an inline CSS `background` value (not Tailwind classes) to avoid purge issues.
  */
-const GRADIENTS = [
-  'from-primary/30 to-secondary/50',
-  'from-secondary/40 to-primary/20',
-  'from-accent/20 to-primary/30',
-  'from-primary/20 to-accent/30',
-  'from-secondary/30 to-accent/20',
-  'from-accent/30 to-secondary/40',
-  'from-primary/40 to-muted/60',
-  'from-muted/40 to-primary/30',
+const GRADIENTS: [string, string][] = [
+  ['var(--color-primary)', 'var(--color-secondary)'],
+  ['var(--color-secondary)', 'var(--color-primary)'],
+  ['var(--color-accent)', 'var(--color-primary)'],
+  ['var(--color-primary)', 'var(--color-accent)'],
+  ['var(--color-secondary)', 'var(--color-accent)'],
+  ['var(--color-accent)', 'var(--color-secondary)'],
+  ['var(--color-primary)', 'var(--color-muted)'],
+  ['var(--color-muted)', 'var(--color-primary)'],
 ]
 
 export function getPostGradient(title: string): string {
@@ -86,5 +86,6 @@ export function getPostGradient(title: string): string {
     hash = ((hash << 5) - hash + title.charCodeAt(i)) | 0
   }
   const index = Math.abs(hash) % GRADIENTS.length
-  return `bg-gradient-to-br ${GRADIENTS[index]}`
+  const [from, to] = GRADIENTS[index]
+  return `linear-gradient(135deg, color-mix(in srgb, ${from} 30%, transparent) 0%, color-mix(in srgb, ${to} 50%, transparent) 100%)`
 }

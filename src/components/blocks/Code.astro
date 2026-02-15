@@ -55,7 +55,7 @@ const htmlCode = await codeToHtml(code, {
 })
 ---
 
-<div class='code'>
+<div class='code group relative' data-code={code}>
   {
     language === 'mermaid' ? (
       <pre set:html={htmlCode} />
@@ -63,5 +63,67 @@ const htmlCode = await codeToHtml(code, {
       <div class='text-sm' set:html={htmlCode} />
     ) : null
   }
+  <button
+    class='copy-btn absolute right-2 top-2 rounded-md border border-text/10 bg-background/80 p-1.5 opacity-0 backdrop-blur-sm transition-all duration-200 hover:bg-background group-hover:opacity-100'
+    aria-label='Copy code'
+  >
+    <svg
+      class='copy-icon h-4 w-4 text-text/60'
+      xmlns='http://www.w3.org/2000/svg'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      stroke-width='2'
+      stroke-linecap='round'
+      stroke-linejoin='round'
+    >
+      <rect x='9' y='9' width='13' height='13' rx='2' ry='2'></rect>
+      <path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'></path>
+    </svg>
+    <svg
+      class='check-icon hidden h-4 w-4 text-primary'
+      xmlns='http://www.w3.org/2000/svg'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      stroke-width='2'
+      stroke-linecap='round'
+      stroke-linejoin='round'
+    >
+      <polyline points='20 6 9 17 4 12'></polyline>
+    </svg>
+  </button>
   <Caption richTexts={block.code.caption} />
 </div>
+
+<script is:inline data-astro-rerun>
+  ;(() => {
+    document.querySelectorAll('.code[data-code]').forEach((block) => {
+      const btn = block.querySelector('.copy-btn')
+      if (!btn || btn.dataset.initialized) return
+      btn.dataset.initialized = 'true'
+
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        const code = block.getAttribute('data-code')
+        if (!code) return
+
+        try {
+          await navigator.clipboard.writeText(code)
+          const copyIcon = btn.querySelector('.copy-icon')
+          const checkIcon = btn.querySelector('.check-icon')
+          copyIcon.classList.add('hidden')
+          checkIcon.classList.remove('hidden')
+
+          setTimeout(() => {
+            copyIcon.classList.remove('hidden')
+            checkIcon.classList.add('hidden')
+          }, 2000)
+        } catch (err) {
+          console.error('Failed to copy:', err)
+        }
+      })
+    })
+  })()
+</script>

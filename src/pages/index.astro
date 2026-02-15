@@ -46,8 +46,12 @@ const blogPosts = await getAllPosts().then((res) => {
   <div class='mb-6 mt-12 text-3xl font-bold tracking-tight px-3'>Recent Posts</div>
   <div class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
     {
-      blogPosts?.map((blogPost) => {
-        return <PostLink post={blogPost} />
+      blogPosts?.map((blogPost, index) => {
+        return (
+          <div class='opacity-0 animate-fade-in' style={`animation-delay: ${index * 75}ms`}>
+            <PostLink post={blogPost} />
+          </div>
+        )
       })
     }
   </div>

@@ -93,6 +93,33 @@ import XIcon from './icons/X.astro'
     })
   </script>
 
+  <script is:inline>
+    ;(() => {
+      if (!window.matchMedia('(pointer: fine)').matches) return
+
+      const MAX_OFFSET = 4
+      document.querySelectorAll('[data-magnetic]').forEach((el) => {
+        if (el.dataset.magneticInit) return
+        el.dataset.magneticInit = 'true'
+        el.style.transition = 'transform 0.2s ease-out'
+        el.style.willChange = 'transform'
+
+        el.addEventListener('mousemove', (e) => {
+          const rect = el.getBoundingClientRect()
+          const centerX = rect.left + rect.width / 2
+          const centerY = rect.top + rect.height / 2
+          const moveX = ((e.clientX - centerX) / (rect.width / 2)) * MAX_OFFSET
+          const moveY = ((e.clientY - centerY) / (rect.height / 2)) * MAX_OFFSET
+          el.style.transform = `translate(${moveX}px, ${moveY}px)`
+        })
+
+        el.addEventListener('mouseleave', () => {
+          el.style.transform = 'translate(0px, 0px)'
+        })
+      })
+    })()
+  </script>
+
   <style is:global>
     body #navbar {
       @apply z-10 px-3 py-1;

@@ -6,6 +6,7 @@ import react from '@astrojs/react'
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://hkfi.dev',
   redirects: {
     '/blog': '/blog/1',
     '/blog/tags': '/blog/1'

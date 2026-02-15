@@ -29,7 +29,7 @@ const commandPaletteItems = allPosts.map((post) => ({
       : '',
   tags:
     'Tags' in post.properties && 'multi_select' in post.properties.Tags
-      ? post.properties.Tags.multi_select.map((t: any) => t.name)
+      ? post.properties.Tags.multi_select.map((t) => t.name)
       : [],
 }))
 ---

@@ -81,13 +81,17 @@ export default function CommandPalette({ posts }: CommandPaletteProps) {
 
   const handleSelect = useCallback((href: string) => {
     setOpen(false)
-    // Programmatically click an anchor so Astro's ClientRouter
-    // intercepts it and triggers a view transition
-    const a = document.createElement('a')
-    a.href = href
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
+    // Use Astro's navigate API for view transitions
+    import('astro:transitions/client')
+      .then(({ navigate }) => navigate(href))
+      .catch(() => {
+        // Fallback: programmatic anchor click for ClientRouter interception
+        const a = document.createElement('a')
+        a.href = href
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+      })
   }, [])
 
   return (

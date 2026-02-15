@@ -34,7 +34,7 @@ import XIcon from './icons/X.astro'
           <circle cx='11' cy='11' r='8'></circle>
           <line x1='21' x2='16.65' y1='21' y2='16.65'></line>
         </svg>
-        <span class='search-tooltip'>⌘K</span>
+        <span class='search-tooltip' id='search-shortcut-hint'>⌘K</span>
       </button>
     </div>
     <div class='flex w-1/5 justify-center'>
@@ -68,6 +68,12 @@ import XIcon from './icons/X.astro'
       if (pixelAnchor) {
         observer.observe(pixelAnchor)
       }
+    }
+
+    const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform)
+    if (!isMac) {
+      const hint = document.getElementById('search-shortcut-hint')
+      if (hint) hint.textContent = 'Ctrl+K'
     }
 
     window.addEventListener('wheel', (e) => {

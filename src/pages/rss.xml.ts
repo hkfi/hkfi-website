@@ -24,12 +24,17 @@ function getDate(post: PageObjectResponse): Date | undefined {
 }
 
 export async function GET(context: APIContext) {
+  if (!context.site) {
+    throw new Error(
+      'The `site` property is required in `astro.config.mjs` to generate the RSS feed.',
+    )
+  }
   const posts = await getAllPosts()
 
   return rss({
     title: 'hkfi',
     description: "hkfi's tech blog",
-    site: context.site!.toString(),
+    site: context.site.toString(),
     items: posts.map((post) => ({
       title: getTitle(post),
       pubDate: getDate(post),

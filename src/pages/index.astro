@@ -48,7 +48,7 @@ const blogPosts = await getAllPosts().then((res) => {
     {
       blogPosts?.map((blogPost, index) => {
         return (
-          <div class='opacity-0 animate-fade-in' style={`animation-delay: ${index * 75}ms`}>
+          <div class='motion-safe:opacity-0 motion-safe:animate-fade-in' style={`animation-delay: ${index * 75}ms`}>
             <PostLink post={blogPost} />
           </div>
         )

@@ -42,7 +42,7 @@ const { page } = Astro.props
     <!-- Blog Grid -->
     <div class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
       {page.data.map((post, index) => (
-        <div class='opacity-0 animate-fade-in' style={`animation-delay: ${index * 75}ms`}>
+        <div class='motion-safe:opacity-0 motion-safe:animate-fade-in' style={`animation-delay: ${index * 75}ms`}>
           <PostLink post={post} />
         </div>
       ))}

@@ -214,15 +214,32 @@ pre.shiki .line::before {
   opacity: 0.7;
 }
 
-.command-palette-kbd {
+/* Search trigger tooltip */
+.search-trigger {
+  position: relative;
+}
+
+.search-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  padding: 2px 8px;
   font-size: 11px;
-  padding: 2px 6px;
+  font-family: 'Outfit', system-ui, sans-serif;
   border-radius: 4px;
   background: var(--color-muted);
   border: 1px solid var(--color-secondary);
   color: var(--color-text);
-  opacity: 0.6;
-  font-family: inherit;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: opacity 150ms ease;
+}
+
+.search-trigger:hover .search-tooltip {
+  opacity: 0.7;
 }
 
 @keyframes cmdk-overlay-show {

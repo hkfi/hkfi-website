@@ -33,7 +33,8 @@ export async function GET(context: APIContext) {
 
   return rss({
     title: 'hkfi',
-    description: "hkfi's tech blog",
+    description:
+      'Engineering notes from hkfi on web development, TypeScript, Python, and product engineering.',
     site: context.site.toString(),
     items: posts.map((post) => ({
       title: getTitle(post),

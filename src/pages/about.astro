@@ -8,7 +8,8 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
 <Layout
   title='About | hkfi'
   seo={{
-    description: 'About hkfi'
+    description:
+      'About Hiroki Furuichi, a software engineer focused on building performant web experiences.'
   }}
 >
   <div class='flex w-full flex-col items-center gap-8 py-8 animate-fade-in'>
@@ -28,10 +29,10 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
         </h1>
         <div class='flex flex-col gap-3 text-lg text-default/80'>
           <p>
-            I'm a <span class='font-medium text-primary'>Software Engineer</span> with a passion for the web.
+            I'm a <span class='font-medium text-primary'>Software Engineer</span> focused on building fast, user-friendly web products.
           </p>
           <p>
-            These days I mostly code in <span class='font-medium'>TypeScript</span> and <span class='font-medium'>Python</span>, but I'm tech-agnostic and love exploring new tools.
+            I mainly work in <span class='font-medium'>TypeScript</span> and <span class='font-medium'>Python</span>, and I enjoy turning product ideas into reliable, polished experiences.
           </p>
           <p>
             When I'm not coding, you can find me traveling 🌍, trying new foods 🍜, and learning languages.
@@ -45,15 +46,14 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
       class='flex w-full max-w-4xl flex-col gap-6 rounded-2xl bg-secondary/10 p-8'
     >
       <div class='flex flex-col gap-2'>
-        <h2 class='text-2xl font-bold'>Check out these lighthouse scores!
-</h2>
+        <h2 class='text-2xl font-bold'>Performance &amp; Build Approach</h2>
       </div>
 
       <div class='flex flex-col items-center gap-6 md:flex-row md:justify-around'>
         <Image src={lighthouseMetrics} alt='lighthouse-scores' class='w-full max-w-md rounded-lg shadow-sm' />
         
         <div class='flex flex-col gap-4 text-base text-default/70'>
-          <p>This website is built with <span class='font-semibold'>Astro</span> and <span class='font-semibold'>Tailwind</span>, with the blog posts written in <span class='font-semibold'>Notion</span>, which are queried with <span class='font-semibold'>Notion</span>'s API to build the blog post pages of the site.</p>
+          <p>This site is built with <span class='font-semibold'>Astro</span> and <span class='font-semibold'>Tailwind</span> for fast, content-first pages. Posts are authored in <span class='font-semibold'>Notion</span> and fetched at build time via the <span class='font-semibold'>Notion API</span>.</p>
           <p>
             Curious about the code?
             <a

@@ -16,7 +16,7 @@ export const buildHeadingId = (block: HeadingBlockObjectResponse) => {
 /**
  * Extract plain text from a block's rich_text array.
  */
-function extractBlockText(block: BlockObjectResponse): string {
+export function extractBlockText(block: BlockObjectResponse): string {
   const richText =
     block.type === 'paragraph' ? block.paragraph.rich_text :
     block.type === 'heading_1' ? block.heading_1.rich_text :
@@ -30,6 +30,16 @@ function extractBlockText(block: BlockObjectResponse): string {
 
   if (!richText) return ''
   return richText.map((rt) => rt.plain_text).join('')
+}
+
+/**
+ * Get the full plain text content of a post for embedding.
+ */
+export function getFullPostText(blocks: BlockObjectResponse[]): string {
+  return blocks
+    .map((block) => extractBlockText(block))
+    .filter(Boolean)
+    .join(' ')
 }
 
 /**

@@ -43,17 +43,13 @@ const cardDataMap = await getAllPostCardData()
     </ScrollReveal>
 
     <!-- Blog Grid -->
-    <ScrollReveal
-      animation='fade-up'
-      stagger={80}
-      class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'
-    >
-      {page.data.map((post) => (
-        <div>
+    <div class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+      {page.data.map((post, index) => (
+        <ScrollReveal animation='fade-up' delay={index * 75} duration={500}>
           <PostLink post={post} cardData={cardDataMap.get(post.id)} />
-        </div>
+        </ScrollReveal>
       ))}
-    </ScrollReveal>
+    </div>
 
     <!-- Pagination -->
     <ScrollReveal animation='fade' delay={200} class='mt-8 flex w-full items-center justify-center gap-6'>

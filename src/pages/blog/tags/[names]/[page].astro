@@ -80,13 +80,13 @@ const commaSeparatedChosenTags = chosenTags.join(', ')
       })
     }
   </ScrollReveal>
-  <ScrollReveal animation='fade-up' stagger={80} class='flex w-full flex-col gap-1'>
-    {page.data.map((post) => (
-      <div>
+  <div class='flex w-full flex-col gap-1'>
+    {page.data.map((post, index) => (
+      <ScrollReveal animation='fade-up' delay={index * 75} duration={500}>
         <PostLink post={post} />
-      </div>
+      </ScrollReveal>
     ))}
-  </ScrollReveal>
+  </div>
   <ScrollReveal animation='fade' delay={200} class='flex w-full items-center justify-center gap-4'>
     {
       page.url.prev ? (

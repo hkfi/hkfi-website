@@ -2,7 +2,9 @@ import { Client } from '@notionhq/client'
 import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, ColumnBlockObjectResponse, ColumnListBlockObjectResponse, ListBlockChildrenParameters, MultiSelectPropertyItemObjectResponse, NumberedListItemBlockObjectResponse, PageObjectResponse, PartialBlockObjectResponse, QueryDatabaseParameters, TableBlockObjectResponse, TableRowBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_DATABASE_ID, NOTION_INTEGRATION_TOKEN } from '@/constants/env'
 import { NUMBER_OF_POSTS_PER_PAGE } from '@/constants/index'
-import { getPostExcerpt, getReadingTime, getPostGradient } from '@/libs/helpers/blog'
+import { getPostExcerpt, getReadingTime, getPostGradient, getFullPostText } from '@/libs/helpers/blog'
+import { OPENAI_API_KEY } from '@/constants/env'
+import OpenAI from 'openai'
 import pLimit from 'p-limit'
 
 export type CustomTableBlockObjectResponse = TableBlockObjectResponse & {
@@ -273,4 +275,75 @@ export async function getAllPostCardData(): Promise<Map<string, CardData>> {
 
   cardDataCache = cardDataMap
   return cardDataCache
+}
+
+// --- Embedding generation for semantic search ---
+
+export type PostEmbedding = {
+  slug: string
+  title: string
+  embedding: number[]
+}
+
+let embeddingsCache: PostEmbedding[] | null = null
+
+function getPostTags(post: PageObjectResponse): string[] {
+  return 'Tags' in post.properties && 'multi_select' in post.properties.Tags
+    ? post.properties.Tags.multi_select.map((t) => t.name)
+    : []
+}
+
+function getPostSlug(post: PageObjectResponse): string {
+  return 'rich_text' in post.properties.Slug
+    ? post.properties.Slug.rich_text[0].plain_text
+    : ''
+}
+
+export async function generatePostEmbeddings(): Promise<PostEmbedding[]> {
+  if (embeddingsCache !== null) {
+    return embeddingsCache
+  }
+
+  if (!OPENAI_API_KEY) {
+    console.warn('OPENAI_API_KEY not set, skipping embedding generation')
+    return []
+  }
+
+  const openai = new OpenAI({ apiKey: OPENAI_API_KEY })
+  const allPosts = await getAllPosts()
+
+  // Fetch blocks for all posts with concurrency limit
+  const limit = pLimit(3)
+  const postsWithBlocks = await Promise.all(
+    allPosts.map((post) => limit(async () => {
+      const blocks = await getAllBlocksByBlockId(post.id)
+      return { post, blocks: blocks as BlockObjectResponse[] }
+    }))
+  )
+
+  // Generate embeddings with concurrency limit for OpenAI API
+  const embeddingLimit = pLimit(5)
+  const results = await Promise.all(
+    postsWithBlocks.map(({ post, blocks }) => embeddingLimit(async () => {
+      const title = getPostTitle(post)
+      const tags = getPostTags(post)
+      const fullText = getFullPostText(blocks)
+      const input = `${title} ${tags.join(' ')} ${fullText}`.slice(0, 8000)
+
+      const response = await openai.embeddings.create({
+        model: 'text-embedding-3-small',
+        input,
+        dimensions: 256,
+      })
+
+      return {
+        slug: getPostSlug(post),
+        title,
+        embedding: response.data[0].embedding,
+      }
+    }))
+  )
+
+  embeddingsCache = results
+  return embeddingsCache
 }

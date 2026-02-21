@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets'
 import Layout from '@/layouts/Layout.astro'
+import ScrollReveal from '@/components/ScrollReveal.astro'
 import profilePicture from '../assets/avatar.jpeg'
 import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
 ---
@@ -12,9 +13,11 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
       'About Hiroki Furuichi, a software engineer focused on building performant web experiences.'
   }}
 >
-  <div class='flex w-full flex-col items-center gap-8 py-8 animate-fade-in'>
+  <div class='flex w-full flex-col items-center gap-8 py-8'>
     <!-- Profile Section -->
-    <div
+    <ScrollReveal
+      animation='fade-up'
+      duration={700}
       class='flex w-full max-w-4xl flex-col items-center gap-8 rounded-2xl bg-secondary/20 p-8 shadow-sm md:flex-row md:gap-12'
     >
       <Image
@@ -39,10 +42,13 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
           </p>
         </div>
       </div>
-    </div>
+    </ScrollReveal>
 
     <!-- Tech Stack / Lighthouse Section -->
-    <div
+    <ScrollReveal
+      animation='fade-up'
+      delay={150}
+      duration={700}
       class='flex w-full max-w-4xl flex-col gap-6 rounded-2xl bg-secondary/10 p-8'
     >
       <div class='flex flex-col gap-2'>
@@ -51,7 +57,7 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
 
       <div class='flex flex-col items-center gap-6 md:flex-row md:justify-around'>
         <Image src={lighthouseMetrics} alt='lighthouse-scores' class='w-full max-w-md rounded-lg shadow-sm' />
-        
+
         <div class='flex flex-col gap-4 text-base text-default/70'>
           <p>This site is built with <span class='font-semibold'>Astro</span> and <span class='font-semibold'>Tailwind</span> for fast, content-first pages. Posts are authored in <span class='font-semibold'>Notion</span> and fetched at build time via the <span class='font-semibold'>Notion API</span>.</p>
           <p>
@@ -67,6 +73,6 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
           </p>
         </div>
       </div>
-    </div>
+    </ScrollReveal>
   </div>
 </Layout>

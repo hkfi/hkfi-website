@@ -1,6 +1,7 @@
 ---
 import BlogTag from '@/components/BlogTag.astro'
 import PostLink from '@/components/PostLink.astro'
+import ScrollReveal from '@/components/ScrollReveal.astro'
 import ArrowLeft from '@/components/icons/ArrowLeft.astro'
 import ArrowRight from '@/components/icons/ArrowRight.astro'
 import Layout from '@/layouts/Layout.astro'
@@ -72,17 +73,21 @@ const commaSeparatedChosenTags = chosenTags.join(', ')
     description: `Posts about ${commaSeparatedChosenTags} on hkfi's engineering blog.`
   }}
 >
-  <div class='flex flex-wrap gap-2 p-2'>
+  <ScrollReveal animation='fade-up' duration={500} class='flex flex-wrap gap-2 p-2'>
     {
       allTags.map((tag) => {
         return <BlogTag tag={tag} chosenTags={chosenTags} />
       })
     }
-  </div>
-  <div class='flex w-full flex-col gap-1'>
-    {page.data.map((post) => <PostLink post={post} />)}
-  </div>
-  <div class='flex w-full items-center justify-center gap-4'>
+  </ScrollReveal>
+  <ScrollReveal animation='fade-up' stagger={80} class='flex w-full flex-col gap-1'>
+    {page.data.map((post) => (
+      <div>
+        <PostLink post={post} />
+      </div>
+    ))}
+  </ScrollReveal>
+  <ScrollReveal animation='fade' delay={200} class='flex w-full items-center justify-center gap-4'>
     {
       page.url.prev ? (
         <a
@@ -106,5 +111,5 @@ const commaSeparatedChosenTags = chosenTags.join(', ')
         </a>
       ) : null
     }
-  </div>
+  </ScrollReveal>
 </Layout>

@@ -13,6 +13,7 @@ import type {
   Heading3BlockObjectResponse
 } from '@notionhq/client/build/src/api-endpoints'
 import Layout from 'src/layouts/Layout.astro'
+import ScrollReveal from '@/components/ScrollReveal.astro'
 import BurgerMenu from '@/components/icons/BurgerMenu.astro'
 import Modal from '@/components/Modal.astro'
 
@@ -94,7 +95,7 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
     </div>
     <!-- Post content in the middle -->
     <div class='mx-auto flex w-full max-w-3xl flex-grow flex-col gap-6 md:mx-0'>
-      <div class='flex flex-col items-center gap-4 border-b border-default/10 pb-8 text-center'>
+      <ScrollReveal animation='fade-up' duration={600} class='flex flex-col items-center gap-4 border-b border-default/10 pb-8 text-center'>
         <h1
           class='text-4xl font-extrabold tracking-tight text-text md:text-5xl'
           transition:name={`post-${post.id}`}
@@ -110,11 +111,13 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
             {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
           </div>
         </div>
-      </div>
+      </ScrollReveal>
 
-      <div class='prose prose-lg dark:prose-invert max-w-none pt-4'>
-        <PostBody blocks={blocks} />
-      </div>
+      <ScrollReveal animation='fade-up' delay={150} duration={700}>
+        <div class='prose prose-lg dark:prose-invert max-w-none pt-4'>
+          <PostBody blocks={blocks} />
+        </div>
+      </ScrollReveal>
     </div>
     <!-- Table of contents in the right -->
     <div class='hidden min-w-40 flex-grow flex-col p-2 md:flex'>

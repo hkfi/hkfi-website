@@ -1,6 +1,7 @@
 ---
 import BlogTag from '@/components/BlogTag.astro'
 import PostLink from '@/components/PostLink.astro'
+import ScrollReveal from '@/components/ScrollReveal.astro'
 import { getAllPosts, getAllTags, getAllPostCardData } from '@/libs/notion/client'
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { Page, PaginateFunction } from 'astro'
@@ -37,21 +38,25 @@ const cardDataMap = await getAllPostCardData()
 >
   <div class='flex w-full flex-col gap-6 py-4'>
     <!-- Tags Filter -->
-    <div class='flex flex-wrap gap-2 p-2'>
+    <ScrollReveal animation='fade-up' duration={500} class='flex flex-wrap gap-2 p-2'>
       {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
-    </div>
+    </ScrollReveal>
 
     <!-- Blog Grid -->
-    <div class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-      {page.data.map((post, index) => (
-        <div class='motion-safe:opacity-0 motion-safe:animate-fade-in' style={`animation-delay: ${index * 75}ms`}>
+    <ScrollReveal
+      animation='fade-up'
+      stagger={80}
+      class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'
+    >
+      {page.data.map((post) => (
+        <div>
           <PostLink post={post} cardData={cardDataMap.get(post.id)} />
         </div>
       ))}
-    </div>
+    </ScrollReveal>
 
     <!-- Pagination -->
-    <div class='mt-8 flex w-full items-center justify-center gap-6'>
+    <ScrollReveal animation='fade' delay={200} class='mt-8 flex w-full items-center justify-center gap-6'>
       {
         page.url.prev ? (
           <a
@@ -65,7 +70,7 @@ const cardDataMap = await getAllPostCardData()
           <div class='w-12'></div> /* Spacer */
         )
       }
-      
+
       <div class='font-medium text-default/60'>
         Page <span class='text-primary font-bold'>{page.currentPage}</span> of {page.lastPage}
       </div>
@@ -83,6 +88,6 @@ const cardDataMap = await getAllPostCardData()
           <div class='w-12'></div> /* Spacer */
         )
       }
-    </div>
+    </ScrollReveal>
   </div>
 </Layout>

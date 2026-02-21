@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import PostLink from '@/components/PostLink.astro'
+import ScrollReveal from '@/components/ScrollReveal.astro'
 import { getAllPosts, getAllPostCardData } from '@/libs/notion/client'
 
 import ThinkingEmoji from '@/components/ThinkingEmoji'
@@ -21,9 +22,7 @@ const cardDataMap = await getAllPostCardData()
   }}
 >
   <div class='flex w-full justify-between p-4 items-center'>
-    <div
-      class='flex min-h-[400px] flex-grow animate-fade-in flex-col justify-center gap-4'
-    >
+    <ScrollReveal animation='fade-up' duration={700} class='flex min-h-[400px] flex-grow flex-col justify-center gap-4'>
       <div class='text-5xl font-extrabold tracking-tight md:text-6xl'>
         Hello <span class='animate-pulse'>👋</span>
       </div>
@@ -36,8 +35,8 @@ const cardDataMap = await getAllPostCardData()
       <div class='max-w-xl text-lg text-default/60'>
         Building web experiences with TypeScript and Python
       </div>
-    </div>
-    <div class='h-[400px] w-[200px] lg:w-[400px]' id='eye-3d'>
+    </ScrollReveal>
+    <div class='h-[400px] w-[200px] lg:w-[400px]' id='eye-3d' data-parallax='0.08'>
       <ThinkingEmoji client:only="react">
          <div slot="fallback" class="w-full h-full flex items-center justify-center">
             <span class="text-[180px] animate-pulse">🤔</span>
@@ -45,14 +44,18 @@ const cardDataMap = await getAllPostCardData()
       </ThinkingEmoji>
     </div>
   </div>
-  <div class='mb-6 mt-12 text-3xl font-bold tracking-tight px-3'>Recent Posts</div>
+
+  <ScrollReveal animation='fade-up' delay={100} class='mb-6 mt-12 text-3xl font-bold tracking-tight px-3'>
+    Recent Posts
+  </ScrollReveal>
+
   <div class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
     {
       blogPosts?.map((blogPost, index) => {
         return (
-          <div class='motion-safe:opacity-0 motion-safe:animate-fade-in' style={`animation-delay: ${index * 75}ms`}>
+          <ScrollReveal animation='fade-up' delay={index * 75} duration={500}>
             <PostLink post={blogPost} cardData={cardDataMap.get(blogPost.id)} />
-          </div>
+          </ScrollReveal>
         )
       })
     }

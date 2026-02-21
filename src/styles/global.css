@@ -283,6 +283,112 @@ pre.shiki .line::before {
   40% { opacity: 1; transform: scale(1); }
 }
 
+/* ===== Scroll-Driven Reveal Animations ===== */
+
+/* Initial hidden state — elements wait to be revealed */
+.scroll-reveal {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* When revealed by IntersectionObserver */
+.scroll-reveal.is-visible {
+  opacity: 1;
+}
+
+/* fade-up: slide up from below */
+.scroll-reveal[data-scroll-animation='fade-up'] {
+  transform: translateY(24px);
+}
+.scroll-reveal[data-scroll-animation='fade-up'].is-visible {
+  transform: translateY(0);
+}
+
+/* fade: opacity only */
+.scroll-reveal[data-scroll-animation='fade'].is-visible {
+  /* just opacity, handled by base .is-visible */
+}
+
+/* scale: grow from slightly smaller */
+.scroll-reveal[data-scroll-animation='scale'] {
+  transform: scale(0.95);
+}
+.scroll-reveal[data-scroll-animation='scale'].is-visible {
+  transform: scale(1);
+}
+
+/* fade-left: slide in from the left */
+.scroll-reveal[data-scroll-animation='fade-left'] {
+  transform: translateX(-24px);
+}
+.scroll-reveal[data-scroll-animation='fade-left'].is-visible {
+  transform: translateX(0);
+}
+
+/* fade-right: slide in from the right */
+.scroll-reveal[data-scroll-animation='fade-right'] {
+  transform: translateX(24px);
+}
+.scroll-reveal[data-scroll-animation='fade-right'].is-visible {
+  transform: translateX(0);
+}
+
+/* Transition timing (applied via inline style for custom duration/delay) */
+.scroll-reveal {
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Staggered children */
+.scroll-reveal.is-visible > [data-scroll-child] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-scroll-child] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Parallax element */
+[data-parallax] {
+  will-change: transform;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal[data-scroll-animation='fade-up'],
+  .scroll-reveal[data-scroll-animation='scale'],
+  .scroll-reveal[data-scroll-animation='fade-left'],
+  .scroll-reveal[data-scroll-animation='fade-right'] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .scroll-reveal.is-visible,
+  .scroll-reveal[data-scroll-animation='fade-up'].is-visible,
+  .scroll-reveal[data-scroll-animation='scale'].is-visible,
+  .scroll-reveal[data-scroll-animation='fade-left'].is-visible,
+  .scroll-reveal[data-scroll-animation='fade-right'].is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  [data-scroll-child] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  [data-parallax] {
+    transform: none !important;
+  }
+}
+
 @keyframes cmdk-overlay-show {
   from { opacity: 0; }
   to { opacity: 1; }

@@ -1,0 +1,53 @@
+---
+/**
+ * ScrollReveal — a lightweight wrapper that animates children into view
+ * on scroll using IntersectionObserver (handled by a global script in Layout).
+ *
+ * Props:
+ *   animation  — which animation to play: 'fade-up' | 'fade' | 'scale' | 'fade-left' | 'fade-right'
+ *   delay      — delay in ms before the animation starts (default 0)
+ *   duration   — animation duration in ms (default 600)
+ *   threshold  — how much of the element must be visible to trigger (0-1, default 0.1)
+ *   once       — animate only once? (default true)
+ *   tag        — HTML tag for the wrapper element (default 'div')
+ *   class      — additional CSS classes to add to the wrapper
+ *   stagger    — if set, children will be staggered by this many ms
+ */
+
+type Animation = 'fade-up' | 'fade' | 'scale' | 'fade-left' | 'fade-right'
+
+interface Props {
+  animation?: Animation
+  delay?: number
+  duration?: number
+  threshold?: number
+  once?: boolean
+  tag?: string
+  class?: string
+  stagger?: number
+}
+
+const {
+  animation = 'fade-up',
+  delay = 0,
+  duration = 600,
+  threshold = 0.1,
+  once = true,
+  tag: Tag = 'div',
+  class: className = '',
+  stagger,
+} = Astro.props
+---
+
+<Tag
+  data-scroll-reveal
+  data-scroll-animation={animation}
+  data-scroll-delay={delay}
+  data-scroll-duration={duration}
+  data-scroll-threshold={threshold}
+  data-scroll-once={once}
+  data-scroll-stagger={stagger}
+  class:list={['scroll-reveal', className]}
+>
+  <slot />
+</Tag>

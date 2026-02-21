@@ -94,5 +94,119 @@ const commandPaletteItems = allPosts.map((post) => ({
       // Runs on view transitions navigation
       document.addEventListener('astro:after-swap', setDarkMode)
     </script>
+
+    <script>
+      /**
+       * Scroll-driven reveal animations via IntersectionObserver.
+       * Re-initialises after every Astro view-transition swap.
+       */
+      function initScrollReveal() {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (prefersReducedMotion) {
+          document.querySelectorAll('.scroll-reveal').forEach((el) => {
+            el.classList.add('is-visible')
+          })
+          return
+        }
+
+        const elements = document.querySelectorAll<HTMLElement>('.scroll-reveal:not(.scroll-reveal-init)')
+
+        elements.forEach((el) => {
+          el.classList.add('scroll-reveal-init')
+
+          const duration = parseInt(el.dataset.scrollDuration || '600', 10)
+          const delay = parseInt(el.dataset.scrollDelay || '0', 10)
+          const threshold = parseFloat(el.dataset.scrollThreshold || '0.1')
+          const once = el.dataset.scrollOnce !== 'false'
+          const stagger = el.dataset.scrollStagger ? parseInt(el.dataset.scrollStagger, 10) : null
+
+          // Apply transition timing via inline style
+          el.style.transitionDuration = `${duration}ms`
+          el.style.transitionDelay = `${delay}ms`
+
+          // If stagger, set up children
+          if (stagger) {
+            const children = el.children
+            for (let i = 0; i < children.length; i++) {
+              const child = children[i] as HTMLElement
+              child.setAttribute('data-scroll-child', '')
+              child.style.transitionDuration = `${duration}ms`
+              child.style.transitionDelay = `${delay + i * stagger}ms`
+            }
+          }
+
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  el.classList.add('is-visible')
+                  if (once) observer.unobserve(el)
+                } else if (!once) {
+                  el.classList.remove('is-visible')
+                }
+              })
+            },
+            { threshold, rootMargin: '0px 0px -40px 0px' }
+          )
+
+          observer.observe(el)
+        })
+      }
+
+      /**
+       * Parallax scroll effect — elements with [data-parallax] get a subtle
+       * translateY shift based on scroll position.
+       */
+      function initParallax() {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (prefersReducedMotion) return
+
+        const parallaxElements = document.querySelectorAll<HTMLElement>('[data-parallax]')
+        if (parallaxElements.length === 0) return
+
+        let ticking = false
+
+        function updateParallax() {
+          const scrollY = window.scrollY
+          parallaxElements.forEach((el) => {
+            const speed = parseFloat(el.dataset.parallax || '0.15')
+            const rect = el.getBoundingClientRect()
+            const elCenter = rect.top + rect.height / 2 + scrollY
+            const viewCenter = scrollY + window.innerHeight / 2
+            const offset = (viewCenter - elCenter) * speed
+            el.style.transform = `translateY(${offset}px)`
+          })
+          ticking = false
+        }
+
+        function onScroll() {
+          if (!ticking) {
+            requestAnimationFrame(updateParallax)
+            ticking = true
+          }
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true })
+        updateParallax()
+
+        return () => window.removeEventListener('scroll', onScroll)
+      }
+
+      // Initialise on first load
+      let cleanupParallax: (() => void) | undefined
+      initScrollReveal()
+      cleanupParallax = initParallax()
+
+      // Re-initialise after Astro view transitions
+      document.addEventListener('astro:after-swap', () => {
+        cleanupParallax?.()
+        initScrollReveal()
+        cleanupParallax = initParallax()
+      })
+
+      document.addEventListener('astro:page-load', () => {
+        initScrollReveal()
+      })
+    </script>
   </body>
 </html>

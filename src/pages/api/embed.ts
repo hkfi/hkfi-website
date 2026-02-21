@@ -50,7 +50,7 @@ export async function POST(context: APIContext) {
     })
   }
 
-  let body: { query?: string }
+  let body: unknown
   try {
     body = await context.request.json()
   } catch {
@@ -60,15 +60,30 @@ export async function POST(context: APIContext) {
     })
   }
 
-  const query = body.query?.trim()
-  if (!query || query.length === 0) {
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    return new Response(JSON.stringify({ error: 'Invalid JSON body, expected an object' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const query = (body as Record<string, unknown>).query
+  if (typeof query !== 'string') {
+    return new Response(JSON.stringify({ error: 'Query must be a string' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const trimmedQuery = query.trim()
+  if (trimmedQuery.length === 0) {
     return new Response(JSON.stringify({ error: 'Query is required' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
 
-  if (query.length > 500) {
+  if (trimmedQuery.length > 500) {
     return new Response(JSON.stringify({ error: 'Query too long (max 500 characters)' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
@@ -80,7 +95,7 @@ export async function POST(context: APIContext) {
 
     const response = await openai.embeddings.create({
       model: 'text-embedding-3-small',
-      input: query,
+      input: trimmedQuery,
       dimensions: 256,
     })
 

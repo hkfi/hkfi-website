@@ -210,6 +210,7 @@ export default function CommandPalette({ posts }: CommandPaletteProps) {
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
+      abortRef.current?.abort()
     }
   }, [search, loadEmbeddings])
 

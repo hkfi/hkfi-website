@@ -25,6 +25,7 @@ interface SemanticResult {
 
 const PAGES = [
   { title: 'Home', href: '/' },
+  { title: 'Projects', href: '/projects' },
   { title: 'About', href: '/about' },
   { title: 'Blog', href: '/blog/1' },
 ]

@@ -192,21 +192,19 @@ const commandPaletteItems = allPosts.map((post) => ({
         return () => window.removeEventListener('scroll', onScroll)
       }
 
-      // Initialise on first load
       let cleanupParallax: (() => void) | undefined
-      initScrollReveal()
-      cleanupParallax = initParallax()
 
-      // Re-initialise after Astro view transitions
-      document.addEventListener('astro:after-swap', () => {
+      function reinitAnimations() {
         cleanupParallax?.()
         initScrollReveal()
         cleanupParallax = initParallax()
-      })
+      }
 
-      document.addEventListener('astro:page-load', () => {
-        initScrollReveal()
-      })
+      // Initialise on first load
+      reinitAnimations()
+
+      // Re-initialise after Astro view transitions
+      document.addEventListener('astro:after-swap', reinitAnimations)
     </script>
   </body>
 </html>

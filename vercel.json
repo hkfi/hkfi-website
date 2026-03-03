@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/blog/tags/:path*",
+      "destination": "/blog",
+      "permanent": true
+    }
+  ]
+}

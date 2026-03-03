@@ -11,8 +11,7 @@ export default defineConfig({
   site: 'https://hkfi.dev',
   adapter: vercel(),
   redirects: {
-    '/blog': '/blog/1',
-    '/blog/tags': '/blog/1'
+    '/blog/1': '/blog'
   },
   integrations: [tailwind(), react()]
 })

@@ -40,6 +40,7 @@ function getPostTagNames(
     <div
       id='blog-grid'
       class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'
+      data-page-size={NUMBER_OF_POSTS_PER_PAGE}
     >
       {
         allPosts.map((post, index) => (
@@ -90,7 +91,6 @@ function getPostTagNames(
   </div>
 
   <script>
-    const POSTS_PER_PAGE = 10
     let blogFilterAbort: AbortController | null = null
     let isRendering = false
 
@@ -100,6 +100,8 @@ function getPostTagNames(
 
       const grid = document.getElementById('blog-grid')
       if (!grid) return
+
+      const POSTS_PER_PAGE = parseInt(grid.dataset.pageSize || '10', 10)
 
       // Clean up listeners from previous view-transition lifecycle
       blogFilterAbort?.abort()

@@ -359,6 +359,7 @@ export type Project = {
   url: string | null
   github: string | null
   coverUrl: string | null
+  images: string[]
   gradient: string
   date: string
   order: number
@@ -435,6 +436,16 @@ function extractProjectData(page: PageObjectResponse): Project {
   const order = 'Order' in prop && 'number' in prop.Order && prop.Order.number !== null
     ? prop.Order.number : 999
 
+  const images: string[] = []
+  if ('Screenshots' in prop && 'files' in prop.Screenshots) {
+    for (const file of prop.Screenshots.files) {
+      if (file.type === 'external') images.push(file.external.url)
+      else if (file.type === 'file') images.push(file.file.url)
+    }
+  }
+
+  const coverUrl = getCoverUrl(page)
+
   return {
     id: page.id,
     name,
@@ -443,7 +454,8 @@ function extractProjectData(page: PageObjectResponse): Project {
     tags,
     url,
     github,
-    coverUrl: getCoverUrl(page),
+    coverUrl,
+    images: coverUrl ? [coverUrl, ...images] : images,
     gradient: getPostGradient(name),
     date,
     order,

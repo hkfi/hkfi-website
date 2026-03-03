@@ -1,6 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import ScrollReveal from '@/components/ScrollReveal.astro'
+import ImageCarousel from '@/components/ImageCarousel.astro'
 import { getAllProjectData } from '@/libs/notion/client'
 import { getPostGradient } from '@/libs/helpers/blog'
 
@@ -32,22 +33,13 @@ const projects = await getAllProjectData()
             href={`/projects/${project.slug}`}
             class='group flex flex-col overflow-hidden rounded-xl border border-transparent bg-secondary/20 transition-all duration-300 hover:scale-[1.02] hover:border-primary/20 hover:shadow-xl'
           >
-            {/* Cover / gradient header */}
-            <div class='relative h-36 w-full overflow-hidden'>
-              {project.coverUrl ? (
-                <img
-                  src={project.coverUrl}
-                  alt=''
-                  class='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105'
-                  loading='lazy'
-                />
-              ) : (
-                <div
-                  class='h-full w-full transition-opacity duration-300 group-hover:opacity-80'
-                  style={`background: ${project.gradient}`}
-                />
-              )}
-            </div>
+            {/* Cover images / carousel */}
+            <ImageCarousel
+              images={project.images}
+              gradient={project.gradient}
+              alt={project.name}
+              class='h-40'
+            />
 
             {/* Content */}
             <div class='flex flex-grow flex-col justify-between p-5'>

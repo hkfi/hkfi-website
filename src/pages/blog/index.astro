@@ -44,13 +44,14 @@ function getPostTagNames(
       {
         allPosts.map((post, index) => (
           <div
-            class={`blog-post-card ${index >= NUMBER_OF_POSTS_PER_PAGE ? 'hidden' : ''}`}
+            class={`blog-post-card h-full ${index >= NUMBER_OF_POSTS_PER_PAGE ? 'hidden' : ''}`}
             data-tags={getPostTagNames(post).join(',')}
           >
             <ScrollReveal
               animation='fade-up'
               delay={(index % NUMBER_OF_POSTS_PER_PAGE) * 75}
               duration={500}
+              class='h-full'
             >
               <PostLink post={post} cardData={cardDataMap.get(post.id)} />
             </ScrollReveal>

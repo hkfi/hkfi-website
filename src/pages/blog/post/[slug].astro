@@ -89,7 +89,7 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
           {date}
         </div>
         <div class='flex flex-wrap gap-2'>
-          {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
+          {tags.map((tag) => <BlogTag tag={tag} link />)}
         </div>
       </div>
     </div>
@@ -108,7 +108,7 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
           </div>
           <div class='h-1 w-1 rounded-full bg-default/40'></div>
           <div class='flex gap-2'>
-            {tags.map((tag) => <BlogTag tag={tag} chosenTags={[]} />)}
+            {tags.map((tag) => <BlogTag tag={tag} link />)}
           </div>
         </div>
       </ScrollReveal>

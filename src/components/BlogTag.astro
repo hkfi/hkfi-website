@@ -4,17 +4,32 @@ import type { SelectPropertyResponse } from '@/libs/notion/custom-types'
 
 type Props = {
   tag: SelectPropertyResponse
+  link?: boolean
 }
 
-const { tag } = Astro.props
+const { tag, link = false } = Astro.props
+
+const sharedClass = `${NotionTextColorsMap[tag.color]} bg-muted px-3 py-1 hover:bg-secondary rounded-full border border-solid border-accent cursor-pointer transition-colors`
 ---
 
-<button
-  type='button'
-  data-tag={tag.name}
-  class={`blog-tag-btn ${NotionTextColorsMap[tag.color]} bg-muted px-3 py-1 hover:bg-secondary rounded-full border border-solid border-accent cursor-pointer transition-colors`}
-  aria-pressed='false'
-  transition:name={`tag-${tag.name}`}
->
-  {tag.name}
-</button>
+{
+  link ? (
+    <a
+      href={`/blog?tags=${encodeURIComponent(tag.name)}`}
+      class={sharedClass}
+      transition:name={`tag-${tag.name}`}
+    >
+      {tag.name}
+    </a>
+  ) : (
+    <button
+      type='button'
+      data-tag={tag.name}
+      class={`blog-tag-btn ${sharedClass}`}
+      aria-pressed='false'
+      transition:name={`tag-${tag.name}`}
+    >
+      {tag.name}
+    </button>
+  )
+}

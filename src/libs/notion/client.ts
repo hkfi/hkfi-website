@@ -404,15 +404,20 @@ export async function getAllProjects(): Promise<PageObjectResponse[]> {
 
   let results: PageObjectResponse[] = []
 
-  while (true) {
-    const res = await client.databases.query(params)
-    results = results.concat(res.results as PageObjectResponse[])
+  try {
+    while (true) {
+      const res = await client.databases.query(params)
+      results = results.concat(res.results as PageObjectResponse[])
 
-    if (!res.has_more || !res.next_cursor) {
-      break
+      if (!res.has_more || !res.next_cursor) {
+        break
+      }
+
+      params['start_cursor'] = res.next_cursor
     }
-
-    params['start_cursor'] = res.next_cursor
+  } catch (error) {
+    console.warn('Failed to fetch projects from Notion:', (error as Error).message)
+    return []
   }
 
   allProjectsCache = results.filter(isValidProject)
@@ -429,10 +434,23 @@ function extractProjectData(page: PageObjectResponse): Project {
     ? prop.Description.rich_text[0].plain_text : ''
   const tags = 'Tags' in prop && 'multi_select' in prop.Tags
     ? prop.Tags.multi_select.map((t) => t.name) : []
-  const url = 'URL' in prop && 'url' in prop.URL ? prop.URL.url : null
-  const github = 'GitHub' in prop && 'url' in prop.GitHub ? prop.GitHub.url : null
-  const date = 'Date' in prop && 'date' in prop.Date && prop.Date.date
-    ? prop.Date.date.start : ''
+  // Handle URL/GitHub as either url or rich_text property types
+  const url = 'URL' in prop
+    ? ('url' in prop.URL ? prop.URL.url
+      : 'rich_text' in prop.URL && prop.URL.rich_text[0] ? prop.URL.rich_text[0].plain_text
+      : null)
+    : null
+  const github = 'GitHub' in prop
+    ? ('url' in prop.GitHub ? prop.GitHub.url
+      : 'rich_text' in prop.GitHub && prop.GitHub.rich_text[0] ? prop.GitHub.rich_text[0].plain_text
+      : null)
+    : null
+  // Handle Date as either date or rich_text property type
+  const date = 'Date' in prop
+    ? ('date' in prop.Date && prop.Date.date ? prop.Date.date.start
+      : 'rich_text' in prop.Date && prop.Date.rich_text[0] ? prop.Date.rich_text[0].plain_text
+      : '')
+    : ''
   const order = 'Order' in prop && 'number' in prop.Order && prop.Order.number !== null
     ? prop.Order.number : 999
 

@@ -1,6 +1,6 @@
 import { Client } from '@notionhq/client'
 import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, ColumnBlockObjectResponse, ColumnListBlockObjectResponse, ListBlockChildrenParameters, MultiSelectPropertyItemObjectResponse, NumberedListItemBlockObjectResponse, PageObjectResponse, PartialBlockObjectResponse, QueryDatabaseParameters, TableBlockObjectResponse, TableRowBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
-import { NOTION_DATABASE_ID, NOTION_INTEGRATION_TOKEN } from '@/constants/env'
+import { NOTION_DATABASE_ID, NOTION_PROJECTS_DATABASE_ID, NOTION_INTEGRATION_TOKEN } from '@/constants/env'
 import { NUMBER_OF_POSTS_PER_PAGE } from '@/constants/index'
 import { getPostExcerpt, getReadingTime, getPostGradient, getFullPostText } from '@/libs/helpers/blog'
 import { OPENAI_API_KEY } from '@/constants/env'
@@ -346,4 +346,151 @@ export async function generatePostEmbeddings(): Promise<PostEmbedding[]> {
 
   embeddingsCache = results
   return embeddingsCache
+}
+
+// --- Projects data ---
+
+export type Project = {
+  id: string
+  name: string
+  slug: string
+  description: string
+  tags: string[]
+  url: string | null
+  github: string | null
+  coverUrl: string | null
+  images: string[]
+  gradient: string
+  date: string
+  order: number
+}
+
+let allProjectsCache: PageObjectResponse[] | null = null
+
+function isValidProject(page: PageObjectResponse): boolean {
+  const prop = page.properties
+  return (
+    'Name' in prop && 'title' in prop.Name && prop.Name.title.length > 0 &&
+    'Slug' in prop && 'rich_text' in prop.Slug && prop.Slug.rich_text.length > 0
+  )
+}
+
+export async function getAllProjects(): Promise<PageObjectResponse[]> {
+  if (allProjectsCache !== null) {
+    return allProjectsCache
+  }
+
+  if (!NOTION_PROJECTS_DATABASE_ID) {
+    console.warn('NOTION_PROJECTS_DATABASE_ID not set, skipping projects')
+    return []
+  }
+
+  const params: QueryDatabaseParameters = {
+    database_id: NOTION_PROJECTS_DATABASE_ID,
+    filter: {
+      property: 'Published',
+      checkbox: {
+        equals: true,
+      },
+    },
+    sorts: [
+      {
+        property: 'Order',
+        direction: 'ascending',
+      },
+    ],
+    page_size: 100,
+  }
+
+  let results: PageObjectResponse[] = []
+
+  try {
+    while (true) {
+      const res = await client.databases.query(params)
+      results = results.concat(res.results as PageObjectResponse[])
+
+      if (!res.has_more || !res.next_cursor) {
+        break
+      }
+
+      params['start_cursor'] = res.next_cursor
+    }
+  } catch (error) {
+    console.warn('Failed to fetch projects from Notion:', (error as Error).message)
+    return []
+  }
+
+  allProjectsCache = results.filter(isValidProject)
+  return allProjectsCache
+}
+
+function extractProjectData(page: PageObjectResponse): Project {
+  const prop = page.properties
+
+  const name = 'title' in prop.Name ? prop.Name.title[0].plain_text : ''
+  const slug = 'rich_text' in prop.Slug && prop.Slug.rich_text[0]
+    ? prop.Slug.rich_text[0].plain_text : ''
+  const description = 'Description' in prop && 'rich_text' in prop.Description && prop.Description.rich_text[0]
+    ? prop.Description.rich_text[0].plain_text : ''
+  const tags = 'Tags' in prop && 'multi_select' in prop.Tags
+    ? prop.Tags.multi_select.map((t) => t.name) : []
+  // Handle URL/GitHub as either url or rich_text property types
+  const url = 'URL' in prop
+    ? ('url' in prop.URL ? prop.URL.url
+      : 'rich_text' in prop.URL && prop.URL.rich_text[0] ? prop.URL.rich_text[0].plain_text
+      : null)
+    : null
+  const github = 'GitHub' in prop
+    ? ('url' in prop.GitHub ? prop.GitHub.url
+      : 'rich_text' in prop.GitHub && prop.GitHub.rich_text[0] ? prop.GitHub.rich_text[0].plain_text
+      : null)
+    : null
+  // Handle Date as either date or rich_text property type
+  const date = 'Date' in prop
+    ? ('date' in prop.Date && prop.Date.date ? prop.Date.date.start
+      : 'rich_text' in prop.Date && prop.Date.rich_text[0] ? prop.Date.rich_text[0].plain_text
+      : '')
+    : ''
+  const order = 'Order' in prop && 'number' in prop.Order && prop.Order.number !== null
+    ? prop.Order.number : 999
+
+  const images: string[] = []
+  if ('Screenshots' in prop && 'files' in prop.Screenshots) {
+    for (const file of prop.Screenshots.files) {
+      if (file.type === 'external') images.push(file.external.url)
+      else if (file.type === 'file') images.push(file.file.url)
+    }
+  }
+
+  const coverUrl = getCoverUrl(page)
+
+  return {
+    id: page.id,
+    name,
+    slug,
+    description,
+    tags,
+    url,
+    github,
+    coverUrl,
+    images: coverUrl ? [coverUrl, ...images] : images,
+    gradient: getPostGradient(name),
+    date,
+    order,
+  }
+}
+
+export async function getAllProjectData(): Promise<Project[]> {
+  const pages = await getAllProjects()
+  return pages.map(extractProjectData)
+}
+
+export async function getProjectBySlug(slug: string): Promise<PageObjectResponse | null> {
+  const allProjects = await getAllProjects()
+  return allProjects.find(project => {
+    const prop = project.properties
+    const s = 'rich_text' in prop.Slug && prop.Slug.rich_text[0]
+      ? prop.Slug.rich_text[0].plain_text : ''
+    return s === slug
+  }) ?? null
 }

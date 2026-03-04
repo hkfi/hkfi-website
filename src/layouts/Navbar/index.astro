@@ -3,20 +3,23 @@ import ThemeIcon from '@/components/ThemeIcon.astro'
 import NavbarLink from './NavbarLink.astro'
 import GithubIcon from './icons/Github.astro'
 import XIcon from './icons/X.astro'
+import LinkedinIcon from './icons/Linkedin.astro'
 ---
 
 <div class='flex h-[72px] w-full justify-center'>
   <div
     id='navbar'
-    class='duration-400 flex w-full max-w-6xl items-center gap-2 p-2 transition-all ease-in-out'
+    class='flex w-full max-w-6xl items-center gap-2 p-2 transition-all duration-300 ease-in-out'
     transition:persist
   >
-    <div class='flex w-2/5 items-center gap-4'>
+    <!-- Desktop layout -->
+    <div class='hidden w-2/5 items-center gap-4 md:flex'>
       <ThemeIcon />
       <GithubIcon />
       <XIcon />
+      <LinkedinIcon />
       <button
-        id='command-palette-trigger'
+        id='command-palette-trigger-desktop'
         class='search-trigger border-0 bg-none'
         aria-label='Search (⌘K)'
         onclick='document.dispatchEvent(new CustomEvent("open-command-palette"))'
@@ -37,13 +40,108 @@ import XIcon from './icons/X.astro'
         <span class='search-tooltip' id='search-shortcut-hint'>⌘K</span>
       </button>
     </div>
-    <div class='flex w-1/5 justify-center'>
+    <div class='hidden w-1/5 justify-center md:flex'>
       <NavbarLink href='/' label='hkfi' />
     </div>
-    <div class='flex w-2/5 items-center justify-end gap-2'>
+    <div class='hidden w-2/5 items-center justify-end gap-2 md:flex'>
       <NavbarLink href='/projects' label='Projects' />
       <NavbarLink href='/about' label='About' />
       <NavbarLink href='/blog' label='Blog' />
+    </div>
+
+    <!-- Mobile layout -->
+    <div class='flex w-full items-center justify-between md:hidden'>
+      <NavbarLink href='/' label='hkfi' />
+      <div class='flex items-center gap-3'>
+        <ThemeIcon />
+        <button
+          id='command-palette-trigger-mobile'
+          class='search-trigger border-0 bg-none'
+          aria-label='Search'
+          onclick='document.dispatchEvent(new CustomEvent("open-command-palette"))'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            class='h-6 stroke-text hover:stroke-primary'
+          >
+            <circle cx='11' cy='11' r='8'></circle>
+            <line x1='21' x2='16.65' y1='21' y2='16.65'></line>
+          </svg>
+        </button>
+        <button
+          id='mobile-menu-toggle'
+          class='flex h-8 w-8 items-center justify-center text-default hover:text-primary'
+          aria-label='Toggle menu'
+        >
+          <svg
+            id='hamburger-icon'
+            xmlns='http://www.w3.org/2000/svg'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            class='h-6 w-6'
+          >
+            <line x1='4' x2='20' y1='6' y2='6'></line>
+            <line x1='4' x2='20' y1='12' y2='12'></line>
+            <line x1='4' x2='20' y1='18' y2='18'></line>
+          </svg>
+          <svg
+            id='close-icon'
+            xmlns='http://www.w3.org/2000/svg'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            class='hidden h-6 w-6'
+          >
+            <line x1='18' x2='6' y1='6' y2='18'></line>
+            <line x1='6' x2='18' y1='6' y2='18'></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu panel -->
+  <div
+    id='mobile-menu'
+    class='fixed inset-x-0 top-[72px] z-20 hidden bg-background/95 backdrop-blur md:hidden'
+  >
+    <div class='flex flex-col px-6 py-4'>
+      <a
+        href='/projects'
+        class='border-b border-secondary/30 py-4 font-bold tracking-widest text-default hover:text-primary'
+      >
+        Projects
+      </a>
+      <a
+        href='/about'
+        class='border-b border-secondary/30 py-4 font-bold tracking-widest text-default hover:text-primary'
+      >
+        About
+      </a>
+      <a
+        href='/blog'
+        class='py-4 font-bold tracking-widest text-default hover:text-primary'
+      >
+        Blog
+      </a>
+      <div class='flex items-center gap-5 pt-4'>
+        <GithubIcon />
+        <XIcon />
+        <LinkedinIcon />
+      </div>
     </div>
   </div>
 
@@ -81,16 +179,51 @@ import XIcon from './icons/X.astro'
       const scrollDirection = e.deltaY < 1 ? 1 : e.deltaY > 1 ? -1 : 0
 
       const navbar = document.getElementById('navbar')
+      const mobileMenu = document.getElementById('mobile-menu')
 
       if (scrollDirection === 1 && window.scrollY >= 50) {
         // Scroll up and scrolled over 50px
         navbar?.classList.remove('-translate-y-20', 'invisible', 'opacity-0')
         navbar?.classList.add('visible', 'opacity-100')
+        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.remove('-translate-y-20', 'invisible', 'opacity-0')
+        }
       } else if (scrollDirection === -1 && window.scrollY >= 50) {
         // Scroll down and scrolled over 50px
         navbar?.classList.add('invisible', 'opacity-0', '-translate-y-20')
         navbar?.classList?.remove('visible', 'opacity-100')
+        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.add('-translate-y-20', 'invisible', 'opacity-0')
+        }
       }
+    })
+
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle')
+    const mobileMenuEl = document.getElementById('mobile-menu')
+    const hamburgerIcon = document.getElementById('hamburger-icon')
+    const closeIcon = document.getElementById('close-icon')
+
+    mobileMenuToggle?.addEventListener('click', () => {
+      const isOpen = !mobileMenuEl?.classList.contains('hidden')
+      if (isOpen) {
+        mobileMenuEl?.classList.add('hidden')
+        hamburgerIcon?.classList.remove('hidden')
+        closeIcon?.classList.add('hidden')
+      } else {
+        mobileMenuEl?.classList.remove('hidden')
+        hamburgerIcon?.classList.add('hidden')
+        closeIcon?.classList.remove('hidden')
+      }
+    })
+
+    // Close mobile menu on link click
+    mobileMenuEl?.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        mobileMenuEl?.classList.add('hidden')
+        hamburgerIcon?.classList.remove('hidden')
+        closeIcon?.classList.add('hidden')
+      })
     })
   </script>
 
@@ -129,6 +262,14 @@ import XIcon from './icons/X.astro'
 
     body.header-not-at-top #navbar {
       @apply fixed mt-1 h-[72px] rounded-lg bg-black/20 shadow-lg backdrop-blur;
+    }
+
+    body.header-not-at-top #mobile-menu {
+      @apply fixed;
+    }
+
+    #mobile-menu {
+      @apply transition-all duration-300 ease-in-out;
     }
   </style>
 </div>

@@ -30,7 +30,7 @@ const commandPaletteItems = allPosts.map((post) => ({
   tags:
     'Tags' in post.properties && 'multi_select' in post.properties.Tags
       ? post.properties.Tags.multi_select.map((t) => t.name)
-      : [],
+      : []
 }))
 ---
 
@@ -45,6 +45,7 @@ const commandPaletteItems = allPosts.map((post) => ({
     <title>{title}</title>
     <ClientRouter />
     <PostHog />
+    <script async is:inline data-astro-rerun src="https://shadowcl.one/widget.js" data-widget-token="pub_a5a0dfd62921686f5cd7c34e9524b15d"></script>
   </head>
   <body
     class='text-default flex min-h-screen flex-col items-center bg-background'
@@ -101,7 +102,9 @@ const commandPaletteItems = allPosts.map((post) => ({
        * Re-initialises after every Astro view-transition swap.
        */
       function initScrollReveal() {
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        const prefersReducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches
         if (prefersReducedMotion) {
           document.querySelectorAll('.scroll-reveal').forEach((el) => {
             el.classList.add('is-visible')
@@ -109,7 +112,9 @@ const commandPaletteItems = allPosts.map((post) => ({
           return
         }
 
-        const elements = document.querySelectorAll<HTMLElement>('.scroll-reveal:not(.scroll-reveal-init)')
+        const elements = document.querySelectorAll<HTMLElement>(
+          '.scroll-reveal:not(.scroll-reveal-init)'
+        )
 
         elements.forEach((el) => {
           el.classList.add('scroll-reveal-init')
@@ -118,7 +123,9 @@ const commandPaletteItems = allPosts.map((post) => ({
           const delay = parseInt(el.dataset.scrollDelay || '0', 10)
           const threshold = parseFloat(el.dataset.scrollThreshold || '0.1')
           const once = el.dataset.scrollOnce !== 'false'
-          const stagger = el.dataset.scrollStagger ? parseInt(el.dataset.scrollStagger, 10) : null
+          const stagger = el.dataset.scrollStagger
+            ? parseInt(el.dataset.scrollStagger, 10)
+            : null
 
           // Apply transition timing via inline style
           el.style.transitionDuration = `${duration}ms`
@@ -158,10 +165,13 @@ const commandPaletteItems = allPosts.map((post) => ({
        * translateY shift based on scroll position.
        */
       function initParallax() {
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        const prefersReducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches
         if (prefersReducedMotion) return
 
-        const parallaxElements = document.querySelectorAll<HTMLElement>('[data-parallax]')
+        const parallaxElements =
+          document.querySelectorAll<HTMLElement>('[data-parallax]')
         if (parallaxElements.length === 0) return
 
         let ticking = false

@@ -7,16 +7,9 @@ export type Props = {
 
 const { richText } = Astro.props
 ---
-
-{
-  richText.href ? (
-    <a
-      href={richText.href}
-      class='underline decoration-accent hover:bg-accent transition ease-in-out'
-    >
-      <slot />
-    </a>
-  ) : (
-    <slot />
-  )
-}
+{richText.href ? (
+  <a
+    href={richText.href}
+    class='underline decoration-accent hover:bg-accent transition ease-in-out'
+  ><slot /></a>
+) : <slot />}

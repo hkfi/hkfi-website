@@ -7,13 +7,4 @@ export type Props = {
 
 const { richText } = Astro.props
 ---
-
-{
-  richText.annotations.underline ? (
-    <u>
-      <slot />
-    </u>
-  ) : (
-    <slot />
-  )
-}
+{richText.annotations.underline ? <u><slot /></u> : <slot />}

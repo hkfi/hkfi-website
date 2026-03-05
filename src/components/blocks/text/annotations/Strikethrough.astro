@@ -7,13 +7,4 @@ export type Props = {
 
 const { richText } = Astro.props
 ---
-
-{
-  richText.annotations.strikethrough ? (
-    <s>
-      <slot />
-    </s>
-  ) : (
-    <slot />
-  )
-}
+{richText.annotations.strikethrough ? <s><slot /></s> : <slot />}

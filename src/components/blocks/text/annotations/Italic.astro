@@ -8,12 +8,5 @@ export type Props = {
 const { richText } = Astro.props
 ---
 
-{
-  richText.annotations.italic ? (
-    <i>
-      <slot />
-    </i>
-  ) : (
-    <slot />
-  )
-}
+<!-- prettier-ignore -->
+{richText.annotations.italic ? <i><slot /></i> : <slot />}

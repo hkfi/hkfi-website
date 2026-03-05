@@ -84,7 +84,10 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
   <div class='flex w-full'>
     <!-- Tags in left section -->
     <div class='hidden min-w-40 flex-grow flex-col p-2 lg:flex'>
-      <div id='post-info-section' class='fixed flex w-36 flex-col gap-2'>
+      <div
+        id='post-info-section'
+        class='fixed flex w-36 flex-col gap-2 transition-opacity duration-300 ease-in-out'
+      >
         <div class='text-xl'>
           {date}
         </div>
@@ -121,22 +124,25 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
     </div>
     <!-- Table of contents in the right -->
     <div class='hidden min-w-40 flex-grow flex-col p-2 md:flex'>
-      <div id='table-of-contents' class='fixed flex w-40 flex-grow flex-col'>
+      <div
+        id='table-of-contents'
+        class='fixed flex w-40 flex-grow flex-col gap-2 transition-opacity duration-300 ease-in-out'
+      >
         {
           headingBlocks.map((headingBlock) => {
             const headingBlockType = headingBlock.type
             const headingString = buildHeadingId(headingBlock)
-            const leftPaddingMap = {
-              heading_1: 'pl-0',
-              heading_2: 'pl-4',
-              heading_3: 'pl-8'
+            const paddingMap = {
+              heading_1: 'pl-0 text-base font-semibold',
+              heading_2: 'pl-4 text-sm mt-1',
+              heading_3: 'pl-8 text-sm text-default/80 mt-1'
             }
 
             return (
               <a
                 href={`#${headingString}`}
-                class={`${leftPaddingMap[headingBlockType]} 
-                hover:text-primary hover:decoration-primary`}
+                class={`${paddingMap[headingBlockType]} 
+                hover:text-primary hover:decoration-primary leading-tight`}
               >
                 {headingString}
               </a>
@@ -164,16 +170,16 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
         headingBlocks.map((headingBlock) => {
           const headingBlockType = headingBlock.type
           const headingString = buildHeadingId(headingBlock)
-          const leftPaddingMap = {
-            heading_1: 'pl-0',
-            heading_2: 'pl-4',
-            heading_3: 'pl-8'
+          const paddingMap = {
+            heading_1: 'pl-0 text-base font-semibold',
+            heading_2: 'pl-4 text-sm mt-1',
+            heading_3: 'pl-8 text-sm text-default/80 mt-1'
           }
 
           return (
             <a
               href={`#${headingString}`}
-              class={`${leftPaddingMap[headingBlockType]} w-full text-center text-lg text-notion-default hover:text-primary hover:decoration-primary`}
+              class={`${paddingMap[headingBlockType]} w-full text-center text-notion-default hover:text-primary hover:decoration-primary leading-tight mb-2`}
             >
               {headingString}
             </a>

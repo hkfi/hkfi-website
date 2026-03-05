@@ -10,64 +10,96 @@ const { images, gradient, alt = '', class: className = '' } = Astro.props
 const hasMultiple = images.length > 1
 ---
 
-<div class:list={['image-carousel relative overflow-hidden', className]} data-carousel>
-  {images.length === 0 ? (
-    <div
-      class='h-full w-full'
-      style={`background: ${gradient}`}
-    />
-  ) : hasMultiple ? (
-    <>
-      <div class='carousel-track flex h-full transition-transform duration-300 ease-out' data-carousel-track>
-        {images.map((src, i) => (
-          <img
-            src={src}
-            alt={alt}
-            class='h-full w-full flex-shrink-0 object-cover'
-            loading='lazy'
-            draggable='false'
-          />
-        ))}
-      </div>
+<div
+  class:list={['image-carousel relative overflow-hidden', className]}
+  data-carousel
+>
+  {
+    images.length === 0 ? (
+      <div class='h-full w-full' style={`background: ${gradient}`} />
+    ) : hasMultiple ? (
+      <>
+        <div
+          class='carousel-track flex h-full transition-transform duration-300 ease-out'
+          data-carousel-track
+        >
+          {images.map((src, i) => (
+            <img
+              src={src}
+              alt={alt}
+              class='h-full w-full flex-shrink-0 object-cover'
+              loading='lazy'
+              draggable='false'
+            />
+          ))}
+        </div>
 
-      {/* Navigation arrows */}
-      <button
-        class='carousel-btn absolute left-1.5 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-black/60'
-        data-carousel-prev
-        aria-label='Previous image'
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button
-        class='carousel-btn absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-black/60'
-        data-carousel-next
-        aria-label='Next image'
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
+        {/* Navigation arrows */}
+        <button
+          class='carousel-btn absolute left-1.5 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-black/60'
+          data-carousel-prev
+          aria-label='Previous image'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='14'
+            height='14'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2.5'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+          >
+            <polyline points='15 18 9 12 15 6' />
+          </svg>
+        </button>
+        <button
+          class='carousel-btn absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-black/60'
+          data-carousel-next
+          aria-label='Next image'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='14'
+            height='14'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2.5'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+          >
+            <polyline points='9 18 15 12 9 6' />
+          </svg>
+        </button>
 
-      {/* Dot indicators */}
-      <div class='absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1' data-carousel-dots>
-        {images.map((_, i) => (
-          <button
-            class:list={[
-              'h-1.5 w-1.5 rounded-full transition-all',
-              i === 0 ? 'bg-white scale-110' : 'bg-white/50'
-            ]}
-            data-dot={i}
-            aria-label={`Go to image ${i + 1}`}
-          />
-        ))}
-      </div>
-    </>
-  ) : (
-    <img
-      src={images[0]}
-      alt={alt}
-      class='h-full w-full object-cover'
-      loading='lazy'
-    />
-  )}
+        {/* Dot indicators */}
+        <div
+          class='absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1'
+          data-carousel-dots
+        >
+          {images.map((_, i) => (
+            <button
+              class:list={[
+                'h-1.5 w-1.5 rounded-full transition-all',
+                i === 0 ? 'scale-110 bg-white' : 'bg-white/50'
+              ]}
+              data-dot={i}
+              aria-label={`Go to image ${i + 1}`}
+            />
+          ))}
+        </div>
+      </>
+    ) : (
+      <img
+        src={images[0]}
+        alt={alt}
+        class='h-full w-full object-cover'
+        loading='lazy'
+      />
+    )
+  }
 </div>
 
 <style>
@@ -78,50 +110,58 @@ const hasMultiple = images.length > 1
 
 <script>
   function initCarousels() {
-    document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((carousel) => {
-      if (carousel.dataset.carouselInit) return
-      carousel.dataset.carouselInit = 'true'
+    document
+      .querySelectorAll<HTMLElement>('[data-carousel]')
+      .forEach((carousel) => {
+        if (carousel.dataset.carouselInit) return
+        carousel.dataset.carouselInit = 'true'
 
-      const track = carousel.querySelector<HTMLElement>('[data-carousel-track]')
-      const prevBtn = carousel.querySelector<HTMLElement>('[data-carousel-prev]')
-      const nextBtn = carousel.querySelector<HTMLElement>('[data-carousel-next]')
-      const dots = carousel.querySelectorAll<HTMLElement>('[data-dot]')
+        const track = carousel.querySelector<HTMLElement>(
+          '[data-carousel-track]'
+        )
+        const prevBtn = carousel.querySelector<HTMLElement>(
+          '[data-carousel-prev]'
+        )
+        const nextBtn = carousel.querySelector<HTMLElement>(
+          '[data-carousel-next]'
+        )
+        const dots = carousel.querySelectorAll<HTMLElement>('[data-dot]')
 
-      if (!track || dots.length === 0) return
+        if (!track || dots.length === 0) return
 
-      let current = 0
-      const total = dots.length
+        let current = 0
+        const total = dots.length
 
-      function goTo(index: number) {
-        current = (index + total) % total
-        track!.style.transform = `translateX(-${current * 100}%)`
-        dots.forEach((dot, i) => {
-          dot.classList.toggle('bg-white', i === current)
-          dot.classList.toggle('scale-110', i === current)
-          dot.classList.toggle('bg-white/50', i !== current)
-        })
-      }
+        function goTo(index: number) {
+          current = (index + total) % total
+          track!.style.transform = `translateX(-${current * 100}%)`
+          dots.forEach((dot, i) => {
+            dot.classList.toggle('bg-white', i === current)
+            dot.classList.toggle('scale-110', i === current)
+            dot.classList.toggle('bg-white/50', i !== current)
+          })
+        }
 
-      prevBtn?.addEventListener('click', (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        goTo(current - 1)
-      })
-
-      nextBtn?.addEventListener('click', (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        goTo(current + 1)
-      })
-
-      dots.forEach((dot) => {
-        dot.addEventListener('click', (e) => {
+        prevBtn?.addEventListener('click', (e) => {
           e.preventDefault()
           e.stopPropagation()
-          goTo(Number(dot.dataset.dot))
+          goTo(current - 1)
+        })
+
+        nextBtn?.addEventListener('click', (e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          goTo(current + 1)
+        })
+
+        dots.forEach((dot) => {
+          dot.addEventListener('click', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            goTo(Number(dot.dataset.dot))
+          })
         })
       })
-    })
   }
 
   initCarousels()

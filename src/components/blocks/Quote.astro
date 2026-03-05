@@ -14,4 +14,6 @@ const { block } = Astro.props
   class={`${
     NotionTextColorsMap[block.quote.color]
   } text-lg italic font-semibold border-l-4 px-4 py-2`}
->{block.quote.rich_text.map((richText) => <RichText richText={richText} />)}</blockquote>
+>
+  {block.quote.rich_text.map((richText) => <RichText richText={richText} />)}
+</blockquote>

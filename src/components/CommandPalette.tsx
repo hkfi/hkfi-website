@@ -27,11 +27,13 @@ const PAGES = [
   { title: 'Home', href: '/' },
   { title: 'Projects', href: '/projects' },
   { title: 'About', href: '/about' },
-  { title: 'Blog', href: '/blog/1' },
+  { title: 'Blog', href: '/blog/1' }
 ]
 
 function cosineSimilarity(a: number[], b: number[]): number {
-  let dot = 0, normA = 0, normB = 0
+  let dot = 0,
+    normA = 0,
+    normB = 0
   for (let i = 0; i < a.length; i++) {
     dot += a[i] * b[i]
     normA += a[i] * a[i]
@@ -123,7 +125,8 @@ export default function CommandPalette({ posts }: CommandPaletteProps) {
   useEffect(() => {
     const handleOpen = () => setOpen(true)
     document.addEventListener('open-command-palette', handleOpen)
-    return () => document.removeEventListener('open-command-palette', handleOpen)
+    return () =>
+      document.removeEventListener('open-command-palette', handleOpen)
   }, [])
 
   // Clear semantic results when dialog closes
@@ -175,8 +178,8 @@ export default function CommandPalette({ posts }: CommandPaletteProps) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: search }),
-            signal: controller.signal,
-          }),
+            signal: controller.signal
+          })
         ])
 
         if (!embeddings || !embedRes.ok) {
@@ -195,7 +198,7 @@ export default function CommandPalette({ posts }: CommandPaletteProps) {
           .map((post) => ({
             slug: post.slug,
             title: post.title,
-            score: cosineSimilarity(queryEmbedding, post.embedding),
+            score: cosineSimilarity(queryEmbedding, post.embedding)
           }))
           .sort((a, b) => b.score - a.score)
           .slice(0, 5)

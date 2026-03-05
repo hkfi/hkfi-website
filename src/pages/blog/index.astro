@@ -6,15 +6,17 @@ import ArrowLeft from '@/components/icons/ArrowLeft.astro'
 import ArrowRight from '@/components/icons/ArrowRight.astro'
 import { NUMBER_OF_POSTS_PER_PAGE } from '@/constants/index'
 import Layout from '@/layouts/Layout.astro'
-import { getAllPosts, getAllTags, getAllPostCardData } from '@/libs/notion/client'
+import {
+  getAllPosts,
+  getAllTags,
+  getAllPostCardData
+} from '@/libs/notion/client'
 
 const allPosts = await getAllPosts()
 const tags = await getAllTags()
 const cardDataMap = await getAllPostCardData()
 
-function getPostTagNames(
-  post: (typeof allPosts)[number]
-): string[] {
+function getPostTagNames(post: (typeof allPosts)[number]): string[] {
   return post.properties.Tags?.type === 'multi_select'
     ? post.properties.Tags.multi_select.map((t) => t.name)
     : []
@@ -68,21 +70,23 @@ function getPostTagNames(
     >
       <button
         id='prev-page'
-        class='flex items-center justify-center rounded-lg bg-secondary/50 px-4 py-3 text-primary transition-all hover:-translate-x-1 hover:bg-secondary hover:shadow-sm disabled:pointer-events-none disabled:opacity-30'
+        class='bg-secondary/50 flex items-center justify-center rounded-lg px-4 py-3 text-primary transition-all hover:-translate-x-1 hover:bg-secondary hover:shadow-sm disabled:pointer-events-none disabled:opacity-30'
         aria-label='Previous Page'
         disabled
       >
         <ArrowLeft />
       </button>
 
-      <div class='font-medium text-default/60'>
-        Page <span id='current-page' class='font-bold text-primary'>1</span> of{' '}
+      <div class='text-default/60 font-medium'>
+        Page <span id='current-page' class='font-bold text-primary'>1</span> of{
+          ' '
+        }
         <span id='total-pages'>1</span>
       </div>
 
       <button
         id='next-page'
-        class='flex items-center justify-center rounded-lg bg-secondary/50 px-4 py-3 text-primary transition-all hover:translate-x-1 hover:bg-secondary hover:shadow-sm disabled:pointer-events-none disabled:opacity-30'
+        class='bg-secondary/50 flex items-center justify-center rounded-lg px-4 py-3 text-primary transition-all hover:translate-x-1 hover:bg-secondary hover:shadow-sm disabled:pointer-events-none disabled:opacity-30'
         aria-label='Next Page'
       >
         <ArrowRight />
@@ -170,9 +174,7 @@ function getPostTagNames(
       function getFilteredCards(): HTMLElement[] {
         if (activeTags.size === 0) return allCards
         return allCards.filter((card) => {
-          const cardTags = (card.dataset.tags || '')
-            .split(',')
-            .filter(Boolean)
+          const cardTags = (card.dataset.tags || '').split(',').filter(Boolean)
           return Array.from(activeTags).some((tag) => cardTags.includes(tag))
         })
       }

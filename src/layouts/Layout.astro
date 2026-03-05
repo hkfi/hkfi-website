@@ -1,5 +1,5 @@
 ---
-import '@fontsource/outfit'
+import { AstroFont } from 'astro-font'
 import '../styles/global.css'
 import { ClientRouter } from 'astro:transitions'
 import Navbar from './Navbar/index.astro'
@@ -43,6 +43,20 @@ const commandPaletteItems = allPosts.map((post) => ({
     <meta name='generator' content={Astro.generator} />
     <AstroSeo {...seo} />
     <title>{title}</title>
+    <AstroFont
+      config={[
+        {
+          src: [],
+          name: 'Outfit',
+          googleFontsURL:
+            'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap',
+          preload: true,
+          display: 'swap',
+          selector: 'html',
+          fallback: 'sans-serif'
+        }
+      ]}
+    />
     <ClientRouter />
     <PostHog />
     <script

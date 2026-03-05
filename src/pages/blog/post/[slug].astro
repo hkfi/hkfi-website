@@ -98,18 +98,24 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
     </div>
     <!-- Post content in the middle -->
     <div class='mx-auto flex w-full max-w-3xl flex-grow flex-col gap-6 md:mx-0'>
-      <ScrollReveal animation='fade-up' duration={600} class='flex flex-col items-center gap-4 border-b border-default/10 pb-8 text-center'>
+      <ScrollReveal
+        animation='fade-up'
+        duration={600}
+        class='border-default/10 flex flex-col items-center gap-4 border-b pb-8 text-center'
+      >
         <h1
           class='text-4xl font-extrabold tracking-tight text-text md:text-5xl'
           transition:name={`post-${post.id}`}
         >
           {title}
         </h1>
-        <div class='flex flex-wrap items-center justify-center gap-4 text-default/60'>
+        <div
+          class='text-default/60 flex flex-wrap items-center justify-center gap-4'
+        >
           <div class='text-lg font-medium'>
             {date}
           </div>
-          <div class='h-1 w-1 rounded-full bg-default/40'></div>
+          <div class='bg-default/40 h-1 w-1 rounded-full'></div>
           <div class='flex gap-2'>
             {tags.map((tag) => <BlogTag tag={tag} link />)}
           </div>
@@ -142,7 +148,7 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
               <a
                 href={`#${headingString}`}
                 class={`${paddingMap[headingBlockType]} 
-                hover:text-primary hover:decoration-primary leading-tight`}
+                leading-tight hover:text-primary hover:decoration-primary`}
               >
                 {headingString}
               </a>
@@ -179,7 +185,7 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
           return (
             <a
               href={`#${headingString}`}
-              class={`${paddingMap[headingBlockType]} w-full text-center text-notion-default hover:text-primary hover:decoration-primary leading-tight mb-2`}
+              class={`${paddingMap[headingBlockType]} mb-2 w-full text-center leading-tight text-notion-default hover:text-primary hover:decoration-primary`}
             >
               {headingString}
             </a>

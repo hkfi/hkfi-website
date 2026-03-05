@@ -1,0 +1,18 @@
+# Build output
+dist/
+.vercel/
+.astro/
+
+# Dependencies
+node_modules/
+.pnpm-store
+
+# Public assets/third-party minified scripts
+public/draco/
+public/**/*.min.js
+public/**/*.wasm
+
+# Other
+.claude/
+.agent/
+.worktrees/

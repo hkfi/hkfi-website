@@ -6,7 +6,7 @@ export async function GET(_context: APIContext) {
 
   return new Response(JSON.stringify(embeddings), {
     headers: {
-      'Content-Type': 'application/json',
-    },
+      'Content-Type': 'application/json'
+    }
   })
 }

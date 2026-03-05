@@ -2,7 +2,11 @@
 import Layout from '@/layouts/Layout.astro'
 import PostBody from '@/components/PostBody.astro'
 import ScrollReveal from '@/components/ScrollReveal.astro'
-import { getAllProjects, getAllProjectData, getAllBlocksByBlockId } from '@/libs/notion/client'
+import {
+  getAllProjects,
+  getAllProjectData,
+  getAllBlocksByBlockId
+} from '@/libs/notion/client'
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { getPostExcerpt } from '@/libs/helpers/blog'
 
@@ -13,7 +17,7 @@ export async function getStaticPaths() {
   return projects.map((project, i) => {
     return {
       params: { slug: projectData[i].slug },
-      props: { project, data: projectData[i] },
+      props: { project, data: projectData[i] }
     }
   })
 }
@@ -24,7 +28,10 @@ const blocks = await getAllBlocksByBlockId(project.id)
 
 const { name, description, tags, url, github, date } = data
 
-const seoDescription = description || getPostExcerpt(blocks as BlockObjectResponse[], 160) || `${name} — a project by Hiroki Furuichi`
+const seoDescription =
+  description ||
+  getPostExcerpt(blocks as BlockObjectResponse[], 160) ||
+  `${name} — a project by Hiroki Furuichi`
 ---
 
 <Layout
@@ -35,76 +42,131 @@ const seoDescription = description || getPostExcerpt(blocks as BlockObjectRespon
 >
   <div class='mx-auto flex w-full max-w-3xl flex-col gap-6 py-8'>
     {/* Header */}
-    <ScrollReveal animation='fade-up' duration={600} class='flex flex-col gap-4 border-b border-default/10 pb-8'>
+    <ScrollReveal
+      animation='fade-up'
+      duration={600}
+      class='border-default/10 flex flex-col gap-4 border-b pb-8'
+    >
       <h1 class='text-4xl font-extrabold tracking-tight text-text md:text-5xl'>
         {name}
       </h1>
 
-      {description && (
-        <p class='text-lg text-default/60'>{description}</p>
-      )}
+      {description && <p class='text-default/60 text-lg'>{description}</p>}
 
       <div class='flex flex-wrap items-center gap-3'>
         {/* Tags */}
-        {tags.length > 0 && (
-          <div class='flex flex-wrap gap-1.5'>
-            {tags.map((tag) => (
-              <span class='rounded-full bg-secondary/60 px-2.5 py-0.5 text-sm font-medium text-default/70'>
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+        {
+          tags.length > 0 && (
+            <div class='flex flex-wrap gap-1.5'>
+              {tags.map((tag) => (
+                <span class='bg-secondary/60 text-default/70 rounded-full px-2.5 py-0.5 text-sm font-medium'>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )
+        }
 
-        {date && (
-          <>
-            <span class='h-1 w-1 rounded-full bg-default/40'></span>
-            <span class='text-sm text-default/50'>{date}</span>
-          </>
-        )}
+        {
+          date && (
+            <>
+              <span class='bg-default/40 h-1 w-1 rounded-full' />
+              <span class='text-default/50 text-sm'>{date}</span>
+            </>
+          )
+        }
       </div>
 
       {/* Links */}
-      {(url || github) && (
-        <div class='flex gap-3'>
-          {url && (
-            <a
-              href={url}
-              target='_blank'
-              rel='noopener noreferrer'
-              class='inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary/80'
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-              Live Demo
-            </a>
-          )}
-          {github && (
-            <a
-              href={github}
-              target='_blank'
-              rel='noopener noreferrer'
-              class='inline-flex items-center gap-2 rounded-lg border border-secondary bg-secondary/20 px-4 py-2 text-sm font-medium text-default/80 transition-colors hover:bg-secondary/40'
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-              View Source
-            </a>
-          )}
-        </div>
-      )}
+      {
+        (url || github) && (
+          <div class='flex gap-3'>
+            {url && (
+              <a
+                href={url}
+                target='_blank'
+                rel='noopener noreferrer'
+                class='hover:bg-primary/80 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-background transition-colors'
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='14'
+                  height='14'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  stroke-width='2'
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                >
+                  <path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' />
+                  <polyline points='15 3 21 3 21 9' />
+                  <line x1='10' x2='21' y1='14' y2='3' />
+                </svg>
+                Live Demo
+              </a>
+            )}
+            {github && (
+              <a
+                href={github}
+                target='_blank'
+                rel='noopener noreferrer'
+                class='bg-secondary/20 text-default/80 hover:bg-secondary/40 inline-flex items-center gap-2 rounded-lg border border-secondary px-4 py-2 text-sm font-medium transition-colors'
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='14'
+                  height='14'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  stroke-width='2'
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                >
+                  <path d='M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4' />
+                  <path d='M9 18c-4.51 2-5-2-7-2' />
+                </svg>
+                View Source
+              </a>
+            )}
+          </div>
+        )
+      }
     </ScrollReveal>
 
     {/* Content */}
-    <ScrollReveal animation='fade-up' delay={100} duration={600} class='prose prose-lg dark:prose-invert max-w-none'>
+    <ScrollReveal
+      animation='fade-up'
+      delay={100}
+      duration={600}
+      class='prose prose-lg dark:prose-invert max-w-none'
+    >
       <PostBody blocks={blocks} />
     </ScrollReveal>
 
     {/* Back link */}
-    <ScrollReveal animation='fade' delay={200} class='border-t border-default/10 pt-6'>
+    <ScrollReveal
+      animation='fade'
+      delay={200}
+      class='border-default/10 border-t pt-6'
+    >
       <a
         href='/projects'
-        class='inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/80'
+        class='hover:text-primary/80 inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors'
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          width='14'
+          height='14'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+          stroke-linecap='round'
+          stroke-linejoin='round'
+          ><path d='m12 19-7-7 7-7'></path><path d='M19 12H5'></path></svg
+        >
         All Projects
       </a>
     </ScrollReveal>

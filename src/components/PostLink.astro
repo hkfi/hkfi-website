@@ -33,55 +33,66 @@ const tags =
 const excerpt = cardData?.excerpt ?? ''
 const readingTime = cardData?.readingTime ?? ''
 const coverUrl = cardData?.coverUrl ?? null
-const gradient = cardData?.gradient ?? 'linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 30%, transparent) 0%, color-mix(in srgb, var(--color-secondary) 50%, transparent) 100%)'
+const gradient =
+  cardData?.gradient ??
+  'linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 30%, transparent) 0%, color-mix(in srgb, var(--color-secondary) 50%, transparent) 100%)'
 ---
 
 <a
   transition:name={`post-link-${post.id}`}
-  class='group flex h-full flex-col overflow-hidden rounded-xl border border-transparent bg-secondary/20 transition-all duration-300 hover:scale-[1.02] hover:border-primary/20 hover:shadow-xl'
+  class='bg-secondary/20 hover:border-primary/20 group flex h-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300 hover:scale-[1.02] hover:shadow-xl'
   href={`/blog/post/${slug}`}
 >
   <!-- Cover image or gradient -->
   <div class='relative h-32 w-full overflow-hidden'>
-    {coverUrl ? (
-      <img
-        src={coverUrl}
-        alt=''
-        class='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105'
-        loading='lazy'
-      />
-    ) : (
-      <div class='h-full w-full transition-opacity duration-300 group-hover:opacity-80' style={`background: ${gradient}`} />
-    )}
+    {
+      coverUrl ? (
+        <img
+          src={coverUrl}
+          alt=''
+          class='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105'
+          loading='lazy'
+        />
+      ) : (
+        <div
+          class='h-full w-full transition-opacity duration-300 group-hover:opacity-80'
+          style={`background: ${gradient}`}
+        />
+      )
+    }
   </div>
 
   <!-- Content -->
   <div class='flex flex-grow flex-col justify-between p-4'>
     <div>
       <div
-        class='text-xl font-bold tracking-tight text-primary transition-colors group-hover:text-primary/80'
+        class='group-hover:text-primary/80 text-xl font-bold tracking-tight text-primary transition-colors'
         transition:name={`post-${post.id}`}
       >
         {title}
       </div>
-      {excerpt && (
-        <p class='mt-2 line-clamp-2 text-sm leading-relaxed text-default/50'>
-          {excerpt}
-        </p>
-      )}
+      {
+        excerpt && (
+          <p class='text-default/50 mt-2 line-clamp-2 text-sm leading-relaxed'>
+            {excerpt}
+          </p>
+        )
+      }
     </div>
 
     <div class='mt-4 flex items-end justify-between'>
       <div class='flex flex-wrap gap-1.5'>
         {tags.map((tag) => <Tag tag={tag} size='sm' />)}
       </div>
-      <div class='flex shrink-0 items-center gap-1.5 text-xs text-default/40'>
-        {readingTime && (
-          <>
-            <span>{readingTime}</span>
-            <span>·</span>
-          </>
-        )}
+      <div class='text-default/40 flex shrink-0 items-center gap-1.5 text-xs'>
+        {
+          readingTime && (
+            <>
+              <span>{readingTime}</span>
+              <span>·</span>
+            </>
+          )
+        }
         <span>{date}</span>
       </div>
     </div>

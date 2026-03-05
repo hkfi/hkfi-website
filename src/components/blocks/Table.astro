@@ -22,19 +22,19 @@ const { block } = Astro.props
                 (block.table.has_column_header && j === 0)
               ) {
                 return (
-                  <th class='px-4 py-2 border border-solid'>{
-                    cell.map((richText) => {
+                  <th class='border border-solid px-4 py-2'>
+                    {cell.map((richText) => {
                       return <RichText richText={richText} />
-                    })
-                  }</th>
+                    })}
+                  </th>
                 )
               }
               return (
-                <td class='px-4 py-2 border border-solid'>{
-                  cell.map((richText) => {
+                <td class='border border-solid px-4 py-2'>
+                  {cell.map((richText) => {
                     return <RichText richText={richText} />
-                  })
-                }</td>
+                  })}
+                </td>
               )
             })}
           </tr>

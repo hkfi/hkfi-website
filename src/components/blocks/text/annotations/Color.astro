@@ -8,6 +8,13 @@ export type Props = {
 
 const { richText } = Astro.props
 ---
-{richText.annotations.color && richText.annotations.color !== 'default' ? (
-  <span class={NotionTextColorsMap[richText.annotations.color]}><slot /></span>
-) : <slot />}
+
+{
+  richText.annotations.color && richText.annotations.color !== 'default' ? (
+    <span class={NotionTextColorsMap[richText.annotations.color]}>
+      <slot />
+    </span>
+  ) : (
+    <slot />
+  )
+}

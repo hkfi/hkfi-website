@@ -16,8 +16,40 @@ export type Props = {
 const { richText } = Astro.props
 ---
 
-<Anchor richText={richText}><Code richText={richText}><Color richText={richText}><Underline richText={richText}><Strikethrough richText={richText}><Italic richText={richText}><Bold richText={richText}>{
-  'text' in richText && richText.text && richText.text.content.split('\n').map((content, i) => i === 0 ? content : <><br />{content}</>)
-}{
-  'equation' in richText && richText.equation && <span set:html={katex.renderToString(richText.equation.expression, { throwOnError: false, output: 'mathml' })} />
-}</Bold></Italic></Strikethrough></Underline></Color></Code></Anchor>
+<Anchor richText={richText}>
+  <Code richText={richText}>
+    <Color richText={richText}>
+      <Underline richText={richText}>
+        <Strikethrough richText={richText}>
+          <Italic richText={richText}>
+            <Bold richText={richText}>
+              {
+                'text' in richText &&
+                  richText.text &&
+                  richText.text.content.split('\n').map((content, i) =>
+                    i === 0 ? (
+                      content
+                    ) : (
+                      <>
+                        <br />
+                        {content}
+                      </>
+                    )
+                  )
+              }{
+                'equation' in richText && richText.equation && (
+                  <span
+                    set:html={katex.renderToString(
+                      richText.equation.expression,
+                      { throwOnError: false, output: 'mathml' }
+                    )}
+                  />
+                )
+              }
+            </Bold>
+          </Italic>
+        </Strikethrough>
+      </Underline>
+    </Color>
+  </Code>
+</Anchor>

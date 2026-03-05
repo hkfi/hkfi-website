@@ -10,6 +10,10 @@ export type Props = {
 const { block } = Astro.props
 ---
 
-<p class={NotionTextColorsMap[block.paragraph.color]}>{
-  block.paragraph.rich_text.map((richText) => <RichText richText={richText} />)
-}</p>
+<p class={NotionTextColorsMap[block.paragraph.color]}>
+  {
+    block.paragraph.rich_text.map((richText) => (
+      <RichText richText={richText} />
+    ))
+  }
+</p>

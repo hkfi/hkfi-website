@@ -1,16 +1,32 @@
-import type { BlockObjectResponse, Heading1BlockObjectResponse, Heading2BlockObjectResponse, Heading3BlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
+import type {
+  BlockObjectResponse,
+  Heading1BlockObjectResponse,
+  Heading2BlockObjectResponse,
+  Heading3BlockObjectResponse
+} from '@notionhq/client/build/src/api-endpoints'
 
-type HeadingBlockObjectResponse = Heading1BlockObjectResponse | Heading2BlockObjectResponse | Heading3BlockObjectResponse
+type HeadingBlockObjectResponse =
+  | Heading1BlockObjectResponse
+  | Heading2BlockObjectResponse
+  | Heading3BlockObjectResponse
 
 export const buildHeadingId = (block: HeadingBlockObjectResponse) => {
-  const heading = 'heading_1' in block ? block.heading_1 : 'heading_2' in block ? block.heading_2 : block.heading_3
+  const heading =
+    'heading_1' in block
+      ? block.heading_1
+      : 'heading_2' in block
+        ? block.heading_2
+        : block.heading_3
 
-  return heading.rich_text.map((richText) => {
-    if (!('text' in richText)) {
-      return ''
-    }
-    return richText.plain_text
-  }).join('').trim()
+  return heading.rich_text
+    .map((richText) => {
+      if (!('text' in richText)) {
+        return ''
+      }
+      return richText.plain_text
+    })
+    .join('')
+    .trim()
 }
 
 /**
@@ -18,15 +34,23 @@ export const buildHeadingId = (block: HeadingBlockObjectResponse) => {
  */
 export function extractBlockText(block: BlockObjectResponse): string {
   const richText =
-    block.type === 'paragraph' ? block.paragraph.rich_text :
-    block.type === 'heading_1' ? block.heading_1.rich_text :
-    block.type === 'heading_2' ? block.heading_2.rich_text :
-    block.type === 'heading_3' ? block.heading_3.rich_text :
-    block.type === 'quote' ? block.quote.rich_text :
-    block.type === 'bulleted_list_item' ? block.bulleted_list_item.rich_text :
-    block.type === 'numbered_list_item' ? block.numbered_list_item.rich_text :
-    block.type === 'code' ? block.code.rich_text :
-    null
+    block.type === 'paragraph'
+      ? block.paragraph.rich_text
+      : block.type === 'heading_1'
+        ? block.heading_1.rich_text
+        : block.type === 'heading_2'
+          ? block.heading_2.rich_text
+          : block.type === 'heading_3'
+            ? block.heading_3.rich_text
+            : block.type === 'quote'
+              ? block.quote.rich_text
+              : block.type === 'bulleted_list_item'
+                ? block.bulleted_list_item.rich_text
+                : block.type === 'numbered_list_item'
+                  ? block.numbered_list_item.rich_text
+                  : block.type === 'code'
+                    ? block.code.rich_text
+                    : null
 
   if (!richText) return ''
   return richText.map((rt) => rt.plain_text).join('')
@@ -45,10 +69,16 @@ export function getFullPostText(blocks: BlockObjectResponse[]): string {
 /**
  * Get the first meaningful paragraph as an excerpt for a blog post card.
  */
-export function getPostExcerpt(blocks: BlockObjectResponse[], maxLength = 140): string {
+export function getPostExcerpt(
+  blocks: BlockObjectResponse[],
+  maxLength = 140
+): string {
   for (const block of blocks) {
     if (block.type === 'paragraph' && block.paragraph.rich_text.length > 0) {
-      const text = block.paragraph.rich_text.map((rt) => rt.plain_text).join('').trim()
+      const text = block.paragraph.rich_text
+        .map((rt) => rt.plain_text)
+        .join('')
+        .trim()
       if (text.length > 0) {
         if (text.length <= maxLength) return text
         return text.slice(0, maxLength).trimEnd() + '…'
@@ -87,7 +117,7 @@ const GRADIENTS: [string, string][] = [
   ['var(--color-secondary)', 'var(--color-accent)'],
   ['var(--color-accent)', 'var(--color-secondary)'],
   ['var(--color-primary)', 'var(--color-muted)'],
-  ['var(--color-muted)', 'var(--color-primary)'],
+  ['var(--color-muted)', 'var(--color-primary)']
 ]
 
 export function getPostGradient(title: string): string {

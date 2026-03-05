@@ -15,13 +15,13 @@ function GlobalTracker() {
     }
 
     if (typeof window !== 'undefined') {
-        window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mousemove', handleMouseMove)
     }
-    
+
     return () => {
-        if (typeof window !== 'undefined') {
-            window.removeEventListener('mousemove', handleMouseMove)
-        }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('mousemove', handleMouseMove)
+      }
     }
   }, [])
   return null
@@ -42,24 +42,24 @@ function Model({ onReady }: ModelProps) {
 
   useFrame(() => {
     if (ref.current) {
-        // Create a target vector for the model to look at
-        const target = new THREE.Vector3(mouse.x * 5, mouse.y * 5, 5)
-        
-        // We can use linear interpolation for smoothness if desired,
-        // but lookAt directly is responsive and snappy.
-        ref.current.lookAt(target)
+      // Create a target vector for the model to look at
+      const target = new THREE.Vector3(mouse.x * 5, mouse.y * 5, 5)
+
+      // We can use linear interpolation for smoothness if desired,
+      // but lookAt directly is responsive and snappy.
+      ref.current.lookAt(target)
     }
   })
 
   // Clone scene to avoid re-use issues if multiple instances (though likely singleton here)
   const { viewport } = useThree()
-  
+
   // Responsive scale logic
   // Base scale is 1.3 for desktop
   // If viewport is small (mobile), scale down
   // Viewport width in Three.js units depends on camera distance
   const scale = viewport.width < 5 ? 0.9 : 1.3
-  
+
   const primitive = scene.clone()
 
   return (
@@ -76,27 +76,37 @@ interface ThinkingEmojiSceneProps {
   onReady?: () => void
 }
 
-export default function ThinkingEmojiScene({ onReady }: ThinkingEmojiSceneProps) {
+export default function ThinkingEmojiScene({
+  onReady
+}: ThinkingEmojiSceneProps) {
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      <Canvas 
-        camera={{ position: [0, 0, 5], fov: 45 }} 
+    <div className='flex h-full w-full items-center justify-center'>
+      <Canvas
+        camera={{ position: [0, 0, 5], fov: 45 }}
         style={{ background: 'transparent' }}
       >
         <GlobalTracker />
-        
+
         {/* Lights */}
         <ambientLight intensity={1.5} />
         <directionalLight position={[10, 10, 5]} intensity={1.0} />
-        <pointLight position={[-10, -10, -5]} intensity={0.5} color="#ffd0d0" />
-        
+        <pointLight position={[-10, -10, -5]} intensity={0.5} color='#ffd0d0' />
+
         {/* Environment for shiny reflections if the model has PBR materials */}
-        <Environment preset="city" />
+        <Environment preset='city' />
 
         <Model onReady={onReady} />
 
         {/* Shadows for grounded feel */}
-        <ContactShadows position={[0, -1.5, 0]} opacity={0.4} scale={5} blur={2.5} far={4} resolution={128} frames={1} />
+        <ContactShadows
+          position={[0, -1.5, 0]}
+          opacity={0.4}
+          scale={5}
+          blur={2.5}
+          far={4}
+          resolution={128}
+          frames={1}
+        />
       </Canvas>
     </div>
   )

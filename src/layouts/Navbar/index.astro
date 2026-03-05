@@ -76,7 +76,7 @@ import LinkedinIcon from './icons/Linkedin.astro'
         </button>
         <button
           id='mobile-menu-toggle'
-          class='flex h-8 w-8 items-center justify-center text-default hover:text-primary'
+          class='text-default flex h-8 w-8 items-center justify-center hover:text-primary'
           aria-label='Toggle menu'
         >
           <svg
@@ -116,24 +116,24 @@ import LinkedinIcon from './icons/Linkedin.astro'
   <!-- Mobile menu panel -->
   <div
     id='mobile-menu'
-    class='fixed inset-x-0 top-[72px] z-20 hidden bg-background/95 backdrop-blur md:hidden'
+    class='bg-background/95 fixed inset-x-0 top-[72px] z-20 hidden backdrop-blur md:hidden'
   >
     <div class='flex flex-col px-6 py-4'>
       <a
         href='/projects'
-        class='border-b border-secondary/30 py-4 font-bold tracking-widest text-default hover:text-primary'
+        class='border-secondary/30 text-default border-b py-4 font-bold tracking-widest hover:text-primary'
       >
         Projects
       </a>
       <a
         href='/about'
-        class='border-b border-secondary/30 py-4 font-bold tracking-widest text-default hover:text-primary'
+        class='border-secondary/30 text-default border-b py-4 font-bold tracking-widest hover:text-primary'
       >
         About
       </a>
       <a
         href='/blog'
-        class='py-4 font-bold tracking-widest text-default hover:text-primary'
+        class='text-default py-4 font-bold tracking-widest hover:text-primary'
       >
         Blog
       </a>
@@ -186,7 +186,11 @@ import LinkedinIcon from './icons/Linkedin.astro'
         navbar?.classList.remove('-translate-y-20', 'invisible', 'opacity-0')
         navbar?.classList.add('visible', 'opacity-100')
         if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-          mobileMenu.classList.remove('-translate-y-20', 'invisible', 'opacity-0')
+          mobileMenu.classList.remove(
+            '-translate-y-20',
+            'invisible',
+            'opacity-0'
+          )
         }
       } else if (scrollDirection === -1 && window.scrollY >= 50) {
         // Scroll down and scrolled over 50px

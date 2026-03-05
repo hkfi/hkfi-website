@@ -21,31 +21,48 @@ const cardDataMap = await getAllPostCardData()
       'Portfolio and engineering blog of Hiroki Furuichi, a software engineer building web experiences with TypeScript and Python.'
   }}
 >
-  <div class='flex w-full justify-between p-4 items-center'>
-    <ScrollReveal animation='fade-up' duration={700} class='flex min-h-[400px] flex-grow flex-col justify-center gap-4'>
+  <div class='flex w-full items-center justify-between p-4'>
+    <ScrollReveal
+      animation='fade-up'
+      duration={700}
+      class='flex min-h-[400px] flex-grow flex-col justify-center gap-4'
+    >
       <div class='text-5xl font-extrabold tracking-tight md:text-6xl'>
         Hello <span class='animate-pulse'>👋</span>
       </div>
-      <div class='text-5xl font-bold tracking-tight text-default/90 md:text-6xl'>
+      <div
+        class='text-default/90 text-5xl font-bold tracking-tight md:text-6xl'
+      >
         I'm <span class='text-primary'>Hiroki</span>
       </div>
-      <div class='text-2xl font-medium text-default/80'>
+      <div class='text-default/80 text-2xl font-medium'>
         <span class='text-primary'>Software Engineer</span>
       </div>
-      <div class='max-w-xl text-lg text-default/60'>
+      <div class='text-default/60 max-w-xl text-lg'>
         Building web experiences with TypeScript and Python
       </div>
     </ScrollReveal>
-    <div class='h-[400px] w-[200px] lg:w-[400px]' id='eye-3d' data-parallax='0.08'>
-      <ThinkingEmoji client:only="react">
-         <div slot="fallback" class="w-full h-full flex items-center justify-center">
-            <span class="text-[180px] animate-pulse">🤔</span>
-         </div>
+    <div
+      class='h-[400px] w-[200px] lg:w-[400px]'
+      id='eye-3d'
+      data-parallax='0.08'
+    >
+      <ThinkingEmoji client:only='react'>
+        <div
+          slot='fallback'
+          class='flex h-full w-full items-center justify-center'
+        >
+          <span class='animate-pulse text-[180px]'>🤔</span>
+        </div>
       </ThinkingEmoji>
     </div>
   </div>
 
-  <ScrollReveal animation='fade-up' delay={100} class='mb-6 mt-12 text-3xl font-bold tracking-tight px-3'>
+  <ScrollReveal
+    animation='fade-up'
+    delay={100}
+    class='mb-6 mt-12 px-3 text-3xl font-bold tracking-tight'
+  >
     Recent Posts
   </ScrollReveal>
 

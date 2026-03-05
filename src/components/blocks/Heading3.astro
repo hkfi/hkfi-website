@@ -15,9 +15,11 @@ const id = buildHeadingId(block)
 {
   (
     <div class='group relative text-text'>
-      <h3 class='text-xl font-bold '>{
-        block.heading_3.rich_text.map((richText) => <RichText richText={richText} />)
-      }</h3>
+      <h3 class='text-xl font-bold '>
+        {block.heading_3.rich_text.map((richText) => (
+          <RichText richText={richText} />
+        ))}
+      </h3>
       <a
         href={`#${id}`}
         id={id}

@@ -1,8 +1,30 @@
 import { Client } from '@notionhq/client'
-import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, ColumnBlockObjectResponse, ColumnListBlockObjectResponse, ListBlockChildrenParameters, MultiSelectPropertyItemObjectResponse, NumberedListItemBlockObjectResponse, PageObjectResponse, PartialBlockObjectResponse, QueryDatabaseParameters, TableBlockObjectResponse, TableRowBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
-import { NOTION_DATABASE_ID, NOTION_PROJECTS_DATABASE_ID, NOTION_INTEGRATION_TOKEN } from '@/constants/env'
+import type {
+  BlockObjectResponse,
+  BulletedListItemBlockObjectResponse,
+  ColumnBlockObjectResponse,
+  ColumnListBlockObjectResponse,
+  ListBlockChildrenParameters,
+  MultiSelectPropertyItemObjectResponse,
+  NumberedListItemBlockObjectResponse,
+  PageObjectResponse,
+  PartialBlockObjectResponse,
+  QueryDatabaseParameters,
+  TableBlockObjectResponse,
+  TableRowBlockObjectResponse
+} from '@notionhq/client/build/src/api-endpoints'
+import {
+  NOTION_DATABASE_ID,
+  NOTION_PROJECTS_DATABASE_ID,
+  NOTION_INTEGRATION_TOKEN
+} from '@/constants/env'
 import { NUMBER_OF_POSTS_PER_PAGE } from '@/constants/index'
-import { getPostExcerpt, getReadingTime, getPostGradient, getFullPostText } from '@/libs/helpers/blog'
+import {
+  getPostExcerpt,
+  getReadingTime,
+  getPostGradient,
+  getFullPostText
+} from '@/libs/helpers/blog'
 import { OPENAI_API_KEY } from '@/constants/env'
 import OpenAI from 'openai'
 import pLimit from 'p-limit'
@@ -12,43 +34,55 @@ export type CustomTableBlockObjectResponse = TableBlockObjectResponse & {
     rows: TableRowBlockObjectResponse[]
   }
 }
-export type CustomColumnListBlockObjectResponse = ColumnListBlockObjectResponse & {
-  column_list: {
-    columns: ColumnBlockObjectResponse[]
+export type CustomColumnListBlockObjectResponse =
+  ColumnListBlockObjectResponse & {
+    column_list: {
+      columns: ColumnBlockObjectResponse[]
+    }
   }
-}
-export type CustomBulletedListItemBlockObjectResponse = BulletedListItemBlockObjectResponse & {
-  bulleted_list_item: {
-    children?: BulletedListItemBlockObjectResponse[]
+export type CustomBulletedListItemBlockObjectResponse =
+  BulletedListItemBlockObjectResponse & {
+    bulleted_list_item: {
+      children?: BulletedListItemBlockObjectResponse[]
+    }
   }
-}
-export type CustomNumberedListItemBlockObjectResponse = NumberedListItemBlockObjectResponse & {
-  numbered_list_item: {
-    children: NumberedListItemBlockObjectResponse[]
+export type CustomNumberedListItemBlockObjectResponse =
+  NumberedListItemBlockObjectResponse & {
+    numbered_list_item: {
+      children: NumberedListItemBlockObjectResponse[]
+    }
   }
-}
 
-export type CustomBlockObjectResponse = BlockObjectResponse | CustomTableBlockObjectResponse | CustomColumnListBlockObjectResponse | CustomBulletedListItemBlockObjectResponse | CustomNumberedListItemBlockObjectResponse
+export type CustomBlockObjectResponse =
+  | BlockObjectResponse
+  | CustomTableBlockObjectResponse
+  | CustomColumnListBlockObjectResponse
+  | CustomBulletedListItemBlockObjectResponse
+  | CustomNumberedListItemBlockObjectResponse
 
 const client = new Client({
-  auth: NOTION_INTEGRATION_TOKEN,
+  auth: NOTION_INTEGRATION_TOKEN
 })
 
 let allPostsCache: PageObjectResponse[] | null = null
 
-let allTagsCache: MultiSelectPropertyItemObjectResponse['multi_select'] | null = null
+let allTagsCache: MultiSelectPropertyItemObjectResponse['multi_select'] | null =
+  null
 
 function isValidPageObject(pageObject: PageObjectResponse): boolean {
   const prop = pageObject.properties
   return (
-    'title' in prop.Title && prop.Title.title.length > 0 &&
-    'rich_text' in prop.Slug && prop.Slug.rich_text.length > 0 &&
+    'title' in prop.Title &&
+    prop.Title.title.length > 0 &&
+    'rich_text' in prop.Slug &&
+    prop.Slug.rich_text.length > 0 &&
     'date' in prop.Date
   )
 }
 
-
-function isBlockObjectResponse(block: (BlockObjectResponse | PartialBlockObjectResponse)): block is BlockObjectResponse {
+function isBlockObjectResponse(
+  block: BlockObjectResponse | PartialBlockObjectResponse
+): block is BlockObjectResponse {
   return 'type' in block
 }
 
@@ -65,31 +99,30 @@ export async function getAllPosts() {
         {
           property: 'Published',
           checkbox: {
-            equals: true,
-          },
+            equals: true
+          }
         },
         {
           property: 'Date',
           date: {
-            on_or_before: new Date().toISOString(),
-          },
-        },
-      ],
+            on_or_before: new Date().toISOString()
+          }
+        }
+      ]
     },
     sorts: [
       {
         property: 'Date',
-        direction: 'descending',
-      },
+        direction: 'descending'
+      }
     ],
-    page_size: 100,
+    page_size: 100
   }
 
   let results: PageObjectResponse[] = []
 
   // Keep querying until there are no more pages
   while (true) {
-
     const res = await client.databases.query(params)
 
     results = results.concat(res.results as PageObjectResponse[])
@@ -101,8 +134,7 @@ export async function getAllPosts() {
     params['start_cursor'] = res.next_cursor
   }
 
-  allPostsCache = results
-    .filter(pageObject => isValidPageObject(pageObject))
+  allPostsCache = results.filter((pageObject) => isValidPageObject(pageObject))
 
   return allPostsCache
 }
@@ -126,26 +158,34 @@ export async function getPostsByPage(page: number) {
   return allPosts.slice(startIndex, endIndex)
 }
 
-export async function getPostBySlug(slug: string): Promise<PageObjectResponse | null> {
+export async function getPostBySlug(
+  slug: string
+): Promise<PageObjectResponse | null> {
   const allPosts = await getAllPosts()
 
-  return allPosts.find(post => {
-    const properties = post.properties
-    const a = 'rich_text' in properties.Slug ? properties.Slug.rich_text[0].plain_text : ''
-    return a === slug
-  }) ?? null
+  return (
+    allPosts.find((post) => {
+      const properties = post.properties
+      const a =
+        'rich_text' in properties.Slug
+          ? properties.Slug.rich_text[0].plain_text
+          : ''
+      return a === slug
+    }) ?? null
+  )
 }
 
 // Only called when we know the block is a table
-async function getTableRows(blockId: string): Promise<TableRowBlockObjectResponse[]> {
+async function getTableRows(
+  blockId: string
+): Promise<TableRowBlockObjectResponse[]> {
   let results: TableRowBlockObjectResponse[] = []
 
   const params: ListBlockChildrenParameters = {
-    block_id: blockId,
+    block_id: blockId
   }
 
   while (true) {
-
     const res = await client.blocks.children.list(params)
 
     results = results.concat(res.results as TableRowBlockObjectResponse[])
@@ -157,24 +197,22 @@ async function getTableRows(blockId: string): Promise<TableRowBlockObjectRespons
     params['start_cursor'] = res.next_cursor as string
   }
 
-
   return results
 }
-
-
 
 export async function getAllBlocksByBlockId(blockId: string) {
   let results: Array<BlockObjectResponse> = []
 
-
   const params: ListBlockChildrenParameters = {
-    block_id: blockId,
+    block_id: blockId
   }
 
   while (true) {
     const res = await client.blocks.children.list(params)
 
-    const blockObjectReponses = res.results.filter((block) => isBlockObjectResponse(block)) as BlockObjectResponse[]
+    const blockObjectReponses = res.results.filter((block) =>
+      isBlockObjectResponse(block)
+    ) as BlockObjectResponse[]
 
     results = results.concat(blockObjectReponses)
 
@@ -185,7 +223,8 @@ export async function getAllBlocksByBlockId(blockId: string) {
     params['start_cursor'] = res.next_cursor as string
   }
 
-  const allBlocks: Array<BlockObjectResponse | CustomBlockObjectResponse> = results
+  const allBlocks: Array<BlockObjectResponse | CustomBlockObjectResponse> =
+    results
 
   for (let i = 0; i < allBlocks.length; i++) {
     const block = allBlocks[i]
@@ -195,11 +234,15 @@ export async function getAllBlocksByBlockId(blockId: string) {
     }
 
     if (block.type === 'table' && block.table) {
-      (block as CustomTableBlockObjectResponse).table.rows = await getTableRows(block.id)
-    } else if (block.type === 'bulleted_list_item' && block.bulleted_list_item && block.has_children) {
+      ;(block as CustomTableBlockObjectResponse).table.rows =
+        await getTableRows(block.id)
+    } else if (
+      block.type === 'bulleted_list_item' &&
+      block.bulleted_list_item &&
+      block.has_children
+    ) {
       block.bulleted_list_item.children = await getAllBlocksByBlockId(block.id)
     }
-
   }
 
   return allBlocks
@@ -212,7 +255,17 @@ export async function getAllTags() {
 
   const allPosts = await getAllPosts()
 
-  const tags = [...new Map((allPosts.flatMap(post => 'Tags' in post.properties && 'multi_select' in post.properties.Tags ? post.properties.Tags.multi_select : [])).map(item => [item.id, item])).values()]
+  const tags = [
+    ...new Map(
+      allPosts
+        .flatMap((post) =>
+          'Tags' in post.properties && 'multi_select' in post.properties.Tags
+            ? post.properties.Tags.multi_select
+            : []
+        )
+        .map((item) => [item.id, item])
+    ).values()
+  ]
 
   allTagsCache = tags
 
@@ -254,19 +307,21 @@ export async function getAllPostCardData(): Promise<Map<string, CardData>> {
   // Limit concurrency to avoid hitting Notion API rate limits (3 req/s)
   const limit = pLimit(3)
   const results = await Promise.all(
-    allPosts.map((post) => limit(async () => {
-      const blocks = await getAllBlocksByBlockId(post.id)
-      const title = getPostTitle(post)
-      return {
-        id: post.id,
-        cardData: {
-          excerpt: getPostExcerpt(blocks as BlockObjectResponse[], 140),
-          readingTime: getReadingTime(blocks as BlockObjectResponse[]),
-          coverUrl: getCoverUrl(post),
-          gradient: getPostGradient(title),
+    allPosts.map((post) =>
+      limit(async () => {
+        const blocks = await getAllBlocksByBlockId(post.id)
+        const title = getPostTitle(post)
+        return {
+          id: post.id,
+          cardData: {
+            excerpt: getPostExcerpt(blocks as BlockObjectResponse[], 140),
+            readingTime: getReadingTime(blocks as BlockObjectResponse[]),
+            coverUrl: getCoverUrl(post),
+            gradient: getPostGradient(title)
+          }
         }
-      }
-    }))
+      })
+    )
   )
 
   for (const { id, cardData } of results) {
@@ -315,33 +370,37 @@ export async function generatePostEmbeddings(): Promise<PostEmbedding[]> {
   // Fetch blocks for all posts with concurrency limit
   const limit = pLimit(3)
   const postsWithBlocks = await Promise.all(
-    allPosts.map((post) => limit(async () => {
-      const blocks = await getAllBlocksByBlockId(post.id)
-      return { post, blocks: blocks as BlockObjectResponse[] }
-    }))
+    allPosts.map((post) =>
+      limit(async () => {
+        const blocks = await getAllBlocksByBlockId(post.id)
+        return { post, blocks: blocks as BlockObjectResponse[] }
+      })
+    )
   )
 
   // Generate embeddings with concurrency limit for OpenAI API
   const embeddingLimit = pLimit(5)
   const results = await Promise.all(
-    postsWithBlocks.map(({ post, blocks }) => embeddingLimit(async () => {
-      const title = getPostTitle(post)
-      const tags = getPostTags(post)
-      const fullText = getFullPostText(blocks)
-      const input = `${title} ${tags.join(' ')} ${fullText}`.slice(0, 8000)
+    postsWithBlocks.map(({ post, blocks }) =>
+      embeddingLimit(async () => {
+        const title = getPostTitle(post)
+        const tags = getPostTags(post)
+        const fullText = getFullPostText(blocks)
+        const input = `${title} ${tags.join(' ')} ${fullText}`.slice(0, 8000)
 
-      const response = await openai.embeddings.create({
-        model: 'text-embedding-3-small',
-        input,
-        dimensions: 256,
+        const response = await openai.embeddings.create({
+          model: 'text-embedding-3-small',
+          input,
+          dimensions: 256
+        })
+
+        return {
+          slug: getPostSlug(post),
+          title,
+          embedding: response.data[0].embedding
+        }
       })
-
-      return {
-        slug: getPostSlug(post),
-        title,
-        embedding: response.data[0].embedding,
-      }
-    }))
+    )
   )
 
   embeddingsCache = results
@@ -370,8 +429,12 @@ let allProjectsCache: PageObjectResponse[] | null = null
 function isValidProject(page: PageObjectResponse): boolean {
   const prop = page.properties
   return (
-    'Name' in prop && 'title' in prop.Name && prop.Name.title.length > 0 &&
-    'Slug' in prop && 'rich_text' in prop.Slug && prop.Slug.rich_text.length > 0
+    'Name' in prop &&
+    'title' in prop.Name &&
+    prop.Name.title.length > 0 &&
+    'Slug' in prop &&
+    'rich_text' in prop.Slug &&
+    prop.Slug.rich_text.length > 0
   )
 }
 
@@ -390,16 +453,16 @@ export async function getAllProjects(): Promise<PageObjectResponse[]> {
     filter: {
       property: 'Published',
       checkbox: {
-        equals: true,
-      },
+        equals: true
+      }
     },
     sorts: [
       {
         property: 'Order',
-        direction: 'ascending',
-      },
+        direction: 'ascending'
+      }
     ],
-    page_size: 100,
+    page_size: 100
   }
 
   let results: PageObjectResponse[] = []
@@ -416,7 +479,10 @@ export async function getAllProjects(): Promise<PageObjectResponse[]> {
       params['start_cursor'] = res.next_cursor
     }
   } catch (error) {
-    console.warn('Failed to fetch projects from Notion:', (error as Error).message)
+    console.warn(
+      'Failed to fetch projects from Notion:',
+      (error as Error).message
+    )
     return []
   }
 
@@ -428,31 +494,50 @@ function extractProjectData(page: PageObjectResponse): Project {
   const prop = page.properties
 
   const name = 'title' in prop.Name ? prop.Name.title[0].plain_text : ''
-  const slug = 'rich_text' in prop.Slug && prop.Slug.rich_text[0]
-    ? prop.Slug.rich_text[0].plain_text : ''
-  const description = 'Description' in prop && 'rich_text' in prop.Description && prop.Description.rich_text[0]
-    ? prop.Description.rich_text[0].plain_text : ''
-  const tags = 'Tags' in prop && 'multi_select' in prop.Tags
-    ? prop.Tags.multi_select.map((t) => t.name) : []
+  const slug =
+    'rich_text' in prop.Slug && prop.Slug.rich_text[0]
+      ? prop.Slug.rich_text[0].plain_text
+      : ''
+  const description =
+    'Description' in prop &&
+    'rich_text' in prop.Description &&
+    prop.Description.rich_text[0]
+      ? prop.Description.rich_text[0].plain_text
+      : ''
+  const tags =
+    'Tags' in prop && 'multi_select' in prop.Tags
+      ? prop.Tags.multi_select.map((t) => t.name)
+      : []
   // Handle URL/GitHub as either url or rich_text property types
-  const url = 'URL' in prop
-    ? ('url' in prop.URL ? prop.URL.url
-      : 'rich_text' in prop.URL && prop.URL.rich_text[0] ? prop.URL.rich_text[0].plain_text
-      : null)
-    : null
-  const github = 'GitHub' in prop
-    ? ('url' in prop.GitHub ? prop.GitHub.url
-      : 'rich_text' in prop.GitHub && prop.GitHub.rich_text[0] ? prop.GitHub.rich_text[0].plain_text
-      : null)
-    : null
+  const url =
+    'URL' in prop
+      ? 'url' in prop.URL
+        ? prop.URL.url
+        : 'rich_text' in prop.URL && prop.URL.rich_text[0]
+          ? prop.URL.rich_text[0].plain_text
+          : null
+      : null
+  const github =
+    'GitHub' in prop
+      ? 'url' in prop.GitHub
+        ? prop.GitHub.url
+        : 'rich_text' in prop.GitHub && prop.GitHub.rich_text[0]
+          ? prop.GitHub.rich_text[0].plain_text
+          : null
+      : null
   // Handle Date as either date or rich_text property type
-  const date = 'Date' in prop
-    ? ('date' in prop.Date && prop.Date.date ? prop.Date.date.start
-      : 'rich_text' in prop.Date && prop.Date.rich_text[0] ? prop.Date.rich_text[0].plain_text
-      : '')
-    : ''
-  const order = 'Order' in prop && 'number' in prop.Order && prop.Order.number !== null
-    ? prop.Order.number : 999
+  const date =
+    'Date' in prop
+      ? 'date' in prop.Date && prop.Date.date
+        ? prop.Date.date.start
+        : 'rich_text' in prop.Date && prop.Date.rich_text[0]
+          ? prop.Date.rich_text[0].plain_text
+          : ''
+      : ''
+  const order =
+    'Order' in prop && 'number' in prop.Order && prop.Order.number !== null
+      ? prop.Order.number
+      : 999
 
   const images: string[] = []
   if ('Screenshots' in prop && 'files' in prop.Screenshots) {
@@ -476,7 +561,7 @@ function extractProjectData(page: PageObjectResponse): Project {
     images: coverUrl ? [coverUrl, ...images] : images,
     gradient: getPostGradient(name),
     date,
-    order,
+    order
   }
 }
 
@@ -485,12 +570,18 @@ export async function getAllProjectData(): Promise<Project[]> {
   return pages.map(extractProjectData)
 }
 
-export async function getProjectBySlug(slug: string): Promise<PageObjectResponse | null> {
+export async function getProjectBySlug(
+  slug: string
+): Promise<PageObjectResponse | null> {
   const allProjects = await getAllProjects()
-  return allProjects.find(project => {
-    const prop = project.properties
-    const s = 'rich_text' in prop.Slug && prop.Slug.rich_text[0]
-      ? prop.Slug.rich_text[0].plain_text : ''
-    return s === slug
-  }) ?? null
+  return (
+    allProjects.find((project) => {
+      const prop = project.properties
+      const s =
+        'rich_text' in prop.Slug && prop.Slug.rich_text[0]
+          ? prop.Slug.rich_text[0].plain_text
+          : ''
+      return s === slug
+    }) ?? null
+  )
 }

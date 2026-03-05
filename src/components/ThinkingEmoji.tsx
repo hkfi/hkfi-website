@@ -5,8 +5,8 @@ const ThinkingEmojiScene = lazy(() => import('./ThinkingEmojiScene'))
 export default function ThinkingEmoji() {
   // Matches the fallback in index.astro for seamless transition
   const Fallback = (
-    <div className="w-full h-full flex items-center justify-center pointer-events-none select-none">
-       <span className="text-[180px]">🤔</span>
+    <div className='pointer-events-none flex h-full w-full select-none items-center justify-center'>
+      <span className='text-[180px]'>🤔</span>
     </div>
   )
 
@@ -25,16 +25,12 @@ export default function ThinkingEmoji() {
   }, [])
 
   return (
-    <div className="relative w-full h-full">
+    <div className='relative h-full w-full'>
       {/* 
         The Fallback stays visible until the scene reports it is ready.
         It is absolutely positioned to sit on top (or behind) the canvas during the transition.
       */}
-      {!isSceneReady && (
-        <div className="absolute inset-0 z-10">
-          {Fallback}
-        </div>
-      )}
+      {!isSceneReady && <div className='absolute inset-0 z-10'>{Fallback}</div>}
 
       {/* 
         We load the scene in the background. 
@@ -42,10 +38,9 @@ export default function ThinkingEmoji() {
       */}
       {shouldLoad && (
         <Suspense fallback={null}>
-           <ThinkingEmojiScene onReady={() => setIsSceneReady(true)} />
+          <ThinkingEmojiScene onReady={() => setIsSceneReady(true)} />
         </Suspense>
       )}
     </div>
   )
 }
-

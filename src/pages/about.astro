@@ -18,7 +18,7 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
     <ScrollReveal
       animation='fade-up'
       duration={700}
-      class='flex w-full max-w-4xl flex-col items-center gap-8 rounded-2xl bg-secondary/20 p-8 shadow-sm md:flex-row md:gap-12'
+      class='bg-secondary/20 flex w-full max-w-4xl flex-col items-center gap-8 rounded-2xl p-8 shadow-sm md:flex-row md:gap-12'
     >
       <Image
         class='h-48 w-48 rounded-full border-4 border-background shadow-md'
@@ -30,15 +30,20 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
         <h1 class='text-4xl font-bold tracking-tight text-primary'>
           Hi, I'm Hiroki 👋
         </h1>
-        <div class='flex flex-col gap-3 text-lg text-default/80'>
+        <div class='text-default/80 flex flex-col gap-3 text-lg'>
           <p>
-            I'm a <span class='font-medium text-primary'>Software Engineer</span> focused on building fast, user-friendly web products.
+            I'm a <span class='font-medium text-primary'>Software Engineer</span
+            > focused on building fast, user-friendly web products.
           </p>
           <p>
-            I mainly work in <span class='font-medium'>TypeScript</span> and <span class='font-medium'>Python</span>, and I enjoy turning product ideas into reliable, polished experiences.
+            I mainly work in <span class='font-medium'>TypeScript</span> and <span
+              class='font-medium'>Python</span
+            >, and I enjoy turning product ideas into reliable, polished
+            experiences.
           </p>
           <p>
-            When I'm not coding, you can find me traveling 🌍, trying new foods 🍜, and learning languages.
+            When I'm not coding, you can find me traveling 🌍, trying new foods
+            🍜, and learning languages.
           </p>
         </div>
       </div>
@@ -49,17 +54,28 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
       animation='fade-up'
       delay={150}
       duration={700}
-      class='flex w-full max-w-4xl flex-col gap-6 rounded-2xl bg-secondary/10 p-8'
+      class='bg-secondary/10 flex w-full max-w-4xl flex-col gap-6 rounded-2xl p-8'
     >
       <div class='flex flex-col gap-2'>
         <h2 class='text-2xl font-bold'>Performance &amp; Build Approach</h2>
       </div>
 
-      <div class='flex flex-col items-center gap-6 md:flex-row md:justify-around'>
-        <Image src={lighthouseMetrics} alt='lighthouse-scores' class='w-full max-w-md rounded-lg shadow-sm' />
+      <div
+        class='flex flex-col items-center gap-6 md:flex-row md:justify-around'
+      >
+        <Image
+          src={lighthouseMetrics}
+          alt='lighthouse-scores'
+          class='w-full max-w-md rounded-lg shadow-sm'
+        />
 
-        <div class='flex flex-col gap-4 text-base text-default/70'>
-          <p>This site is built with <span class='font-semibold'>Astro</span> and <span class='font-semibold'>Tailwind</span> for fast, content-first pages. Posts are authored in <span class='font-semibold'>Notion</span> and fetched at build time via the <span class='font-semibold'>Notion API</span>.</p>
+        <div class='text-default/70 flex flex-col gap-4 text-base'>
+          <p>
+            This site is built with <span class='font-semibold'>Astro</span> and
+            <span class='font-semibold'>Tailwind</span> for fast, content-first pages.
+            Posts are authored in <span class='font-semibold'>Notion</span> and fetched
+            at build time via the <span class='font-semibold'>Notion API</span>.
+          </p>
           <p>
             Curious about the code?
             <a
@@ -68,7 +84,19 @@ import lighthouseMetrics from '../assets/lighthouse-score-2024-07-15.png'
               class='inline-flex items-center gap-1 font-medium text-primary hover:underline'
             >
               View Source on GitHub
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='16'
+                height='16'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                stroke-width='2'
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                class='lucide lucide-arrow-up-right'
+                ><path d='M7 7h10v10'></path><path d='M7 17 17 7'></path></svg
+              >
             </a>
           </p>
         </div>

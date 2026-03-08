@@ -16,6 +16,7 @@ import Layout from 'src/layouts/Layout.astro'
 import ScrollReveal from '@/components/ScrollReveal.astro'
 import BurgerMenu from '@/components/icons/BurgerMenu.astro'
 import Modal from '@/components/Modal.astro'
+import ViewCounter from '@/components/ViewCounter.astro'
 
 export async function getStaticPaths() {
   const posts = await getAllPosts()
@@ -88,8 +89,13 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
         id='post-info-section'
         class='fixed flex w-36 flex-col gap-2 transition-opacity duration-300 ease-in-out'
       >
-        <div class='text-xl'>
-          {date}
+        <div class='flex flex-col gap-1'>
+          <div class='text-xl'>
+            {date}
+          </div>
+          <div class='text-default/60'>
+            <ViewCounter slug={slug} />
+          </div>
         </div>
         <div class='flex flex-wrap gap-2'>
           {tags.map((tag) => <BlogTag tag={tag} link />)}
@@ -115,6 +121,8 @@ const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
           <div class='text-lg font-medium'>
             {date}
           </div>
+          <div class='bg-default/40 h-1 w-1 rounded-full'></div>
+          <ViewCounter slug={slug} />
           <div class='bg-default/40 h-1 w-1 rounded-full'></div>
           <div class='flex gap-2'>
             {tags.map((tag) => <BlogTag tag={tag} link />)}

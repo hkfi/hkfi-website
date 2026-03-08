@@ -1,0 +1,68 @@
+---
+interface Props {
+  slug: string
+}
+
+const { slug } = Astro.props
+---
+
+<div class='flex items-center gap-1.5' title='Views'>
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    width='16'
+    height='16'
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    stroke-width='2'
+    stroke-linecap='round'
+    stroke-linejoin='round'
+    class='lucide lucide-eye opacity-70'
+    ><path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'></path><circle
+      cx='12'
+      cy='12'
+      r='3'></circle></svg
+  >
+  <span class='post-view-counter text-sm font-medium' data-slug={slug}>--</span>
+</div>
+
+<script>
+  // Client-side script to fetch views for all counters on page
+  async function fetchViews() {
+    const counters = document.querySelectorAll('.post-view-counter')
+
+    // We can fetch views for each distinct slug
+    // In this case we usually only have one, but we group them anyway
+    const slugsToFetch = new Set<string>()
+    counters.forEach((counter) => {
+      const slug = counter.getAttribute('data-slug')
+      if (slug) slugsToFetch.add(slug)
+    })
+
+    for (const slug of slugsToFetch) {
+      try {
+        const response = await fetch(`/api/views/${slug}`)
+        if (response.ok) {
+          const data = await response.json()
+          // Update all counters with this slug
+          const countersForSlug = document.querySelectorAll(
+            `.post-view-counter[data-slug="${slug}"]`
+          )
+          countersForSlug.forEach((counter) => {
+            // Format number with commas
+            counter.textContent = new Intl.NumberFormat().format(
+              data.views || 0
+            )
+          })
+        }
+      } catch (error) {
+        console.error(`Failed to fetch views for ${slug}:`, error)
+      }
+    }
+  }
+
+  // Fetch views when DOM is loaded
+  document.addEventListener('DOMContentLoaded', fetchViews)
+  // Also hook into Astro's view transitions if they are used
+  document.addEventListener('astro:page-load', fetchViews)
+</script>

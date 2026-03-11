@@ -3,7 +3,7 @@ import PostLink from '@/components/PostLink.astro'
 import ScrollReveal from '@/components/ScrollReveal.astro'
 import ThinkingEmoji from '@/components/ThinkingEmoji'
 import { getAllPosts, getAllPostCardData } from '@/libs/notion/client'
-import { t, DEFAULT_LOCALE } from '@/i18n/index'
+import { t, tHtml, DEFAULT_LOCALE } from '@/i18n/index'
 import type { Locale } from '@/i18n/types'
 
 interface Props {
@@ -27,13 +27,8 @@ const cardDataMap = await getAllPostCardData()
     </div>
     <div
       class='text-default/90 text-5xl font-bold tracking-tight md:text-6xl'
-    >
-      {locale === 'ja' ? (
-        <><span class='text-primary'>Hiroki</span> です</>
-      ) : (
-        <>I'm <span class='text-primary'>Hiroki</span></>
-      )}
-    </div>
+      set:html={tHtml(locale, 'home.imName')}
+    />
     <div class='text-default/80 text-2xl font-medium'>
       <span class='text-primary'>{t(locale, 'home.role')}</span>
     </div>

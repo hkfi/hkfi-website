@@ -21,7 +21,7 @@
     "greeting": "Hi, I'm Hiroki",
     "bio1": "I'm a <accent>Software Engineer</accent> focused on building fast, user-friendly web products.",
     "bio2": "I mainly work in <b>TypeScript</b> and <b>Python</b>, and I enjoy turning product ideas into reliable, polished experiences.",
-    "bio3": "When I'm not coding, you can find me traveling, trying new foods, and learning languages.",
+    "bio3": "When I'm not coding, you can find me traveling 🌍, trying new foods 🍜, and learning languages.",
     "performanceHeading": "Performance & Build Approach",
     "perfDescription": "This site is built with <b>Astro</b> and <b>Tailwind</b> for fast, content-first pages. Posts are authored in <b>Notion</b> and fetched at build time via the <b>Notion API</b>.",
     "curiousAboutCode": "Curious about the code?",

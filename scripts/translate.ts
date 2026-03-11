@@ -106,17 +106,22 @@ function getTranslationStatus(
     return { ...post, translated: false, stale: false }
   }
 
-  const translation = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-  const sourceTime = new Date(post.lastEditedTime).getTime()
-  const translatedSourceTime = new Date(
-    translation.sourceLastEditedAt
-  ).getTime()
+  try {
+    const translation = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+    const sourceTime = new Date(post.lastEditedTime).getTime()
+    const translatedSourceTime = new Date(
+      translation.sourceLastEditedAt
+    ).getTime()
 
-  return {
-    ...post,
-    translated: true,
-    stale: sourceTime > translatedSourceTime,
-    translatedAt: translation.translatedAt
+    return {
+      ...post,
+      translated: true,
+      stale: sourceTime > translatedSourceTime,
+      translatedAt: translation.translatedAt
+    }
+  } catch {
+    console.warn(`Warning: Could not parse translation file for "${post.slug}", treating as untranslated.`)
+    return { ...post, translated: false, stale: false }
   }
 }
 

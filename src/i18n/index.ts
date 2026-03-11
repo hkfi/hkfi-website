@@ -82,4 +82,27 @@ export function stripLocalePrefix(pathname: string, locale: Locale): string {
   return pathname
 }
 
+/**
+ * Get a translated string with semantic HTML markup.
+ * Converts <accent>text</accent> to a primary-colored span
+ * and <b>text</b> to a semibold span.
+ * Use with Astro's set:html directive.
+ */
+export function tHtml(
+  locale: Locale,
+  key: TranslationKey,
+  vars?: Record<string, string | number>
+): string {
+  let result = t(locale, key, vars)
+  result = result.replace(
+    /<accent>(.*?)<\/accent>/g,
+    '<span class="text-primary">$1</span>'
+  )
+  result = result.replace(
+    /<b>(.*?)<\/b>/g,
+    '<span class="font-semibold">$1</span>'
+  )
+  return result
+}
+
 export type { TranslationKey, Locale }

@@ -22,7 +22,12 @@ export function getTranslatedPost(
   if (locale === 'en') return null
   const filePath = path.join(CONTENT_DIR, locale, 'posts', `${slug}.json`)
   if (!fs.existsSync(filePath)) return null
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+  } catch {
+    console.warn(`Warning: Could not parse translation file: ${filePath}`)
+    return null
+  }
 }
 
 export function getTranslatedProject(
@@ -32,7 +37,12 @@ export function getTranslatedProject(
   if (locale === 'en') return null
   const filePath = path.join(CONTENT_DIR, locale, 'projects', `${slug}.json`)
   if (!fs.existsSync(filePath)) return null
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+  } catch {
+    console.warn(`Warning: Could not parse translation file: ${filePath}`)
+    return null
+  }
 }
 
 export function getAllTranslatedSlugs(

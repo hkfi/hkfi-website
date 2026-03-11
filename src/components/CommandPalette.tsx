@@ -15,7 +15,19 @@ interface CommandPaletteProps {
 }
 
 // Inline translations for the React component (avoids importing server-only i18n module)
-const CP_STRINGS: Record<Locale, { placeholder: string; noResults: string; pages: string; blogPosts: string; aiSearch: string; home: string; projects: string; about: string; blog: string }> = {
+interface CPStrings {
+  placeholder: string
+  noResults: string
+  pages: string
+  blogPosts: string
+  aiSearch: string
+  home: string
+  projects: string
+  about: string
+  blog: string
+}
+
+const CP_STRINGS: Record<Locale, CPStrings> = {
   en: { placeholder: 'Search pages and posts...', noResults: 'No results found.', pages: 'Pages', blogPosts: 'Blog Posts', aiSearch: 'AI Search', home: 'Home', projects: 'Projects', about: 'About', blog: 'Blog' },
   ja: { placeholder: 'ページや記事を検索...', noResults: '結果が見つかりません。', pages: 'ページ', blogPosts: 'ブログ記事', aiSearch: 'AI検索', home: 'ホーム', projects: 'プロジェクト', about: '自己紹介', blog: 'ブログ' }
 }
@@ -37,7 +49,7 @@ interface SemanticResult {
   score: number
 }
 
-function getPages(locale: Locale, strings: typeof CP_STRINGS['en']) {
+function getPages(locale: Locale, strings: CPStrings) {
   return [
     { title: strings.home, href: getLocalePath(locale, '/') },
     { title: strings.projects, href: getLocalePath(locale, '/projects') },

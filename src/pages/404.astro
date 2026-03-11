@@ -1,14 +1,16 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { t } from '@/i18n/index'
+import { t, getLocale, localePath } from '@/i18n/index'
+
+const locale = getLocale(Astro.currentLocale)
 ---
 
-<Layout title='404 | hkfi'>
+<Layout title='404 | hkfi' locale={locale}>
   <div class='flex flex-grow flex-col items-center justify-center'>
-    <h1>{t('en', 'error.pageNotFound')}</h1>
-    <div>{t('en', 'error.linkOutdated')}</div>
+    <h1>{t(locale, 'error.pageNotFound')}</h1>
+    <div>{t(locale, 'error.linkOutdated')}</div>
     <div>
-      <a href='/'>{t('en', 'error.goBackHome')}</a> {t('en', 'error.orBrowseBlog')} <a href='/blog'>blog</a>.
+      <a href={localePath(locale, '/')}>{t(locale, 'error.goBackHome')}</a> {t(locale, 'error.orBrowseBlog')} <a href={localePath(locale, '/blog')}>{t(locale, 'nav.blog').toLowerCase()}</a>.
     </div>
   </div>
 </Layout>

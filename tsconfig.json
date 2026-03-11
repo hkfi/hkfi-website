@@ -6,7 +6,8 @@
       "@/components/*": ["src/components/*"],
       "@/libs/*": ["src/libs/*"],
       "@/constants/*": ["src/constants/*"],
-      "@/layouts/*": ["src/layouts/*"]
+      "@/layouts/*": ["src/layouts/*"],
+      "@/i18n/*": ["src/i18n/*"]
     }
   },
   "include": [".astro/types.d.ts", "**/*"],

@@ -1,0 +1,113 @@
+---
+import { Image } from 'astro:assets'
+import ScrollReveal from '@/components/ScrollReveal.astro'
+import profilePicture from '../../assets/avatar.jpeg'
+import lighthouseMetrics from '../../assets/lighthouse-score-2024-07-15.png'
+import { t, DEFAULT_LOCALE } from '@/i18n/index'
+import type { Locale } from '@/i18n/types'
+
+interface Props {
+  locale?: Locale
+}
+
+const { locale = DEFAULT_LOCALE } = Astro.props
+---
+
+<div class='flex w-full flex-col items-center gap-8 py-8'>
+  <!-- Profile Section -->
+  <ScrollReveal
+    animation='fade-up'
+    duration={700}
+    class='bg-secondary/20 flex w-full max-w-4xl flex-col items-center gap-8 rounded-2xl p-8 shadow-sm md:flex-row md:gap-12'
+  >
+    <Image
+      class='h-48 w-48 rounded-full border-4 border-background shadow-md'
+      src={profilePicture}
+      alt='profile picture'
+    />
+
+    <div class='flex flex-col gap-4'>
+      <h1 class='text-4xl font-bold tracking-tight text-primary'>
+        {t(locale, 'about.greeting')} 👋
+      </h1>
+      <div class='text-default/80 flex flex-col gap-3 text-lg'>
+        <p>
+          {locale === 'ja' ? (
+            <>快適で使いやすいWebプロダクトの構築に注力する<span class='font-medium text-primary'>ソフトウェアエンジニア</span>です。</>
+          ) : (
+            <>I'm a <span class='font-medium text-primary'>Software Engineer</span> focused on building fast, user-friendly web products.</>
+          )}
+        </p>
+        <p>
+          {locale === 'ja' ? (
+            <>主に<span class='font-medium'>TypeScript</span>と<span class='font-medium'>Python</span>を使い、プロダクトのアイデアを信頼性の高い、洗練された体験に変えることを楽しんでいます。</>
+          ) : (
+            <>I mainly work in <span class='font-medium'>TypeScript</span> and <span class='font-medium'>Python</span>, and I enjoy turning product ideas into reliable, polished experiences.</>
+          )}
+        </p>
+        <p>
+          {locale === 'ja' ? (
+            <>コーディング以外の時間は、旅行🌍、新しい食べ物を試すこと🍜、言語学習をしています。</>
+          ) : (
+            <>When I'm not coding, you can find me traveling 🌍, trying new foods 🍜, and learning languages.</>
+          )}
+        </p>
+      </div>
+    </div>
+  </ScrollReveal>
+
+  <!-- Tech Stack / Lighthouse Section -->
+  <ScrollReveal
+    animation='fade-up'
+    delay={150}
+    duration={700}
+    class='bg-secondary/10 flex w-full max-w-4xl flex-col gap-6 rounded-2xl p-8'
+  >
+    <div class='flex flex-col gap-2'>
+      <h2 class='text-2xl font-bold'>{t(locale, 'about.performanceHeading')}</h2>
+    </div>
+
+    <div
+      class='flex flex-col items-center gap-6 md:flex-row md:justify-around'
+    >
+      <Image
+        src={lighthouseMetrics}
+        alt='lighthouse-scores'
+        class='w-full max-w-md rounded-lg shadow-sm'
+      />
+
+      <div class='text-default/70 flex flex-col gap-4 text-base'>
+        <p>
+          {locale === 'ja' ? (
+            <>このサイトは<span class='font-semibold'>Astro</span>と<span class='font-semibold'>Tailwind</span>で構築された高速でコンテンツファーストなページです。記事は<span class='font-semibold'>Notion</span>で執筆し、ビルド時に<span class='font-semibold'>Notion API</span>で取得しています。</>
+          ) : (
+            <>This site is built with <span class='font-semibold'>Astro</span> and <span class='font-semibold'>Tailwind</span> for fast, content-first pages. Posts are authored in <span class='font-semibold'>Notion</span> and fetched at build time via the <span class='font-semibold'>Notion API</span>.</>
+          )}
+        </p>
+        <p>
+          {t(locale, 'about.curiousAboutCode')}
+          <a
+            href='https://github.com/hkfi/hkfi-website'
+            target='_blank'
+            class='inline-flex items-center gap-1 font-medium text-primary hover:underline'
+          >
+            {t(locale, 'about.viewSource')}
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='16'
+              height='16'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              stroke-width='2'
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              class='lucide lucide-arrow-up-right'
+              ><path d='M7 7h10v10'></path><path d='M7 17 17 7'></path></svg
+            >
+          </a>
+        </p>
+      </div>
+    </div>
+  </ScrollReveal>
+</div>

@@ -1,14 +1,15 @@
 ---
-import Layout from '../layouts/Layout.astro'
+import Layout from '@/layouts/Layout.astro'
 import HomePage from '@/components/pages/HomePage.astro'
 import { t } from '@/i18n/index'
 ---
 
 <Layout
   title='hkfi'
+  locale='ja'
   seo={{
-    description: t('en', 'site.description')
+    description: t('ja', 'site.description')
   }}
 >
-  <HomePage locale='en' />
+  <HomePage locale='ja' />
 </Layout>

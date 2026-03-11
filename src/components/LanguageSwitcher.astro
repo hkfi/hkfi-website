@@ -1,0 +1,39 @@
+---
+import { LOCALES, DEFAULT_LOCALE, localePath } from '@/i18n/index'
+import type { Locale } from '@/i18n/types'
+
+interface Props {
+  currentLocale: Locale
+  currentPath: string
+}
+
+const { currentLocale, currentPath } = Astro.props
+
+const LABELS: Record<Locale, string> = {
+  en: 'EN',
+  ja: 'JA'
+}
+---
+
+<div class='flex items-center gap-1 text-sm'>
+  {
+    LOCALES.map((loc) => {
+      const href = localePath(loc, currentPath)
+      const isActive = loc === currentLocale
+      return (
+        <a
+          href={href}
+          class:list={[
+            'rounded px-1.5 py-0.5 font-medium transition-colors',
+            isActive
+              ? 'text-primary'
+              : 'text-default/40 hover:text-primary/70'
+          ]}
+          aria-current={isActive ? 'page' : undefined}
+        >
+          {LABELS[loc]}
+        </a>
+      )
+    })
+  }
+</div>

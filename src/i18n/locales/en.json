@@ -1,0 +1,67 @@
+{
+  "site": {
+    "title": "hkfi",
+    "description": "Portfolio and engineering blog of Hiroki Furuichi, a software engineer building web experiences with TypeScript and Python."
+  },
+  "nav": {
+    "blog": "Blog",
+    "projects": "Projects",
+    "about": "About"
+  },
+  "home": {
+    "hello": "Hello",
+    "imName": "I'm <accent>Hiroki</accent>",
+    "role": "Software Engineer",
+    "tagline": "Building web experiences with TypeScript and Python",
+    "recentPosts": "Recent Posts"
+  },
+  "about": {
+    "title": "About | hkfi",
+    "seoDescription": "About Hiroki Furuichi, a software engineer focused on building performant web experiences.",
+    "greeting": "Hi, I'm Hiroki",
+    "bio1": "I'm a <accent>Software Engineer</accent> focused on building fast, user-friendly web products.",
+    "bio2": "I mainly work in <b>TypeScript</b> and <b>Python</b>, and I enjoy turning product ideas into reliable, polished experiences.",
+    "bio3": "When I'm not coding, you can find me traveling, trying new foods, and learning languages.",
+    "performanceHeading": "Performance & Build Approach",
+    "perfDescription": "This site is built with <b>Astro</b> and <b>Tailwind</b> for fast, content-first pages. Posts are authored in <b>Notion</b> and fetched at build time via the <b>Notion API</b>.",
+    "curiousAboutCode": "Curious about the code?",
+    "viewSource": "View Source on GitHub"
+  },
+  "blog": {
+    "title": "Blog | hkfi",
+    "seoDescription": "Engineering notes on web development, TypeScript, Python, and product-focused software work.",
+    "page": "Page",
+    "of": "of"
+  },
+  "projects": {
+    "title": "Projects | hkfi",
+    "seoDescription": "Projects by Hiroki Furuichi — web apps, tools, and experiments built with TypeScript, React, Python, and more.",
+    "heading": "Projects",
+    "subtitle": "Things I've built and worked on.",
+    "noProjects": "No projects yet. Check back soon!",
+    "live": "Live",
+    "source": "Source",
+    "liveDemo": "Live Demo",
+    "viewSource": "View Source",
+    "allProjects": "All Projects"
+  },
+  "error": {
+    "pageNotFound": "Page not found",
+    "linkOutdated": "That link may be outdated or moved.",
+    "goBackHome": "Go back home",
+    "orBrowseBlog": "or browse the blog"
+  },
+  "footer": {
+    "copyright": "\u00a9 {year} hkfi. All rights reserved."
+  },
+  "commandPalette": {
+    "placeholder": "Search pages and posts...",
+    "noResults": "No results found.",
+    "pages": "Pages",
+    "blogPosts": "Blog Posts",
+    "aiSearch": "AI Search"
+  },
+  "common": {
+    "home": "Home"
+  }
+}

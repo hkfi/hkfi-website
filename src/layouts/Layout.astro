@@ -9,13 +9,18 @@ import type { AstroSeoProps } from '@astrolib/seo'
 import { AstroSeo } from '@astrolib/seo'
 import CommandPalette from '@/components/CommandPalette'
 import { getAllPosts } from '@/libs/notion/client'
+import { getLocale, stripLocalePrefix, LOCALES, DEFAULT_LOCALE, localePath } from '@/i18n/index'
+import type { Locale } from '@/i18n/types'
 
 export type Props = {
   title: string
   seo?: AstroSeoProps
+  locale?: Locale
 }
 
-const { title, seo } = Astro.props
+const { title, seo, locale: localeProp } = Astro.props
+const locale = localeProp ?? getLocale(Astro.currentLocale)
+const currentPath = stripLocalePrefix(Astro.url.pathname, locale)
 
 const allPosts = await getAllPosts()
 const commandPaletteItems = allPosts.map((post) => ({
@@ -35,12 +40,24 @@ const commandPaletteItems = allPosts.map((post) => ({
 ---
 
 <!doctype html>
-<html lang='en'>
+<html lang={locale}>
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width' />
     <link rel='icon' type='image/svg+xml' href='/favicon.ico' />
     <meta name='generator' content={Astro.generator} />
+    {LOCALES.map((loc) => (
+      <link
+        rel='alternate'
+        hreflang={loc}
+        href={`https://hkfi.dev${localePath(loc, currentPath)}`}
+      />
+    ))}
+    <link
+      rel='alternate'
+      hreflang='x-default'
+      href={`https://hkfi.dev${currentPath}`}
+    />
     <AstroSeo {...seo} />
     <title>{title}</title>
     <AstroFont
@@ -69,13 +86,13 @@ const commandPaletteItems = allPosts.map((post) => ({
   <body
     class='text-default flex min-h-screen flex-col items-center bg-background'
   >
-    <Navbar />
+    <Navbar locale={locale} currentPath={currentPath} />
     <main class='flex w-full max-w-6xl flex-grow flex-col gap-2 p-2'>
       <slot />
     </main>
-    <Footer />
+    <Footer locale={locale} />
     <div transition:persist='command-palette'>
-      <CommandPalette client:only='react' posts={commandPaletteItems} />
+      <CommandPalette client:only='react' posts={commandPaletteItems} locale={locale} />
     </div>
 
     <style is:global>

@@ -1,5 +1,13 @@
 ---
+import { t, DEFAULT_LOCALE } from '@/i18n/index'
+import type { Locale } from '@/i18n/types'
+
+interface Props {
+  locale?: Locale
+}
+
+const { locale = DEFAULT_LOCALE } = Astro.props
 const currentYear = new Date().getFullYear()
 ---
 
-<footer class='p-2'>© {currentYear} hkfi. All rights reserved.</footer>
+<footer class='p-2'>{t(locale, 'footer.copyright', { year: currentYear })}</footer>

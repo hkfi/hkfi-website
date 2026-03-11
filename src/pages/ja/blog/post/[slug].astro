@@ -1,20 +1,25 @@
 ---
-import Layout from 'src/layouts/Layout.astro'
+import Layout from '@/layouts/Layout.astro'
 import BlogPostPage from '@/components/pages/BlogPostPage.astro'
 import { getAllPosts, getPostBySlug, getAllBlocksByBlockId } from '@/libs/notion/client'
 import { getPostExcerpt } from '@/libs/helpers/blog'
+import { hasTranslation } from '@/i18n/content'
+import { getTranslatedPost } from '@/i18n/content'
 
 export async function getStaticPaths() {
   const posts = await getAllPosts()
+  const paths = []
 
-  return posts.map((post) => {
-    const properties = post.properties
+  for (const post of posts) {
     const slug =
-      'rich_text' in properties.Slug
-        ? properties.Slug.rich_text[0].plain_text
+      'rich_text' in post.properties.Slug
+        ? post.properties.Slug.rich_text[0].plain_text
         : ''
-    return { params: { slug } }
-  })
+    if (slug && hasTranslation('ja', 'posts', slug)) {
+      paths.push({ params: { slug } })
+    }
+  }
+  return paths
 }
 
 const { slug } = Astro.params
@@ -29,16 +34,18 @@ if (!post) {
 }
 
 const blocks = await getAllBlocksByBlockId(post.id)
-const title =
-  'title' in post.properties.Title
+const translated = getTranslatedPost('ja', slug)
+const title = translated?.title ??
+  ('title' in post.properties.Title
     ? post.properties.Title.title[0].plain_text
-    : ''
-const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
+    : '')
+const seoDescription = translated?.excerpt || getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
 ---
 
 <Layout
   title={`${title} | hkfi`}
+  locale='ja'
   seo={{ description: seoDescription }}
 >
-  <BlogPostPage slug={slug} locale='en' />
+  <BlogPostPage slug={slug} locale='ja' />
 </Layout>

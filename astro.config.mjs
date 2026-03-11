@@ -10,6 +10,13 @@ import vercel from '@astrojs/vercel'
 export default defineConfig({
   site: 'https://hkfi.dev',
   adapter: vercel(),
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'ja'],
+    routing: {
+      prefixDefaultLocale: false
+    }
+  },
   redirects: {
     '/blog/1': '/blog'
   },

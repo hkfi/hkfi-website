@@ -1,0 +1,221 @@
+---
+import BlogTag from '@/components/BlogTag.astro'
+import PostBody from '@/components/PostBody.astro'
+import { buildHeadingId, getPostExcerpt } from '@/libs/helpers/blog'
+import {
+  getPostBySlug,
+  getAllBlocksByBlockId
+} from '@/libs/notion/client'
+import type {
+  Heading1BlockObjectResponse,
+  Heading2BlockObjectResponse,
+  Heading3BlockObjectResponse
+} from '@notionhq/client/build/src/api-endpoints'
+import ScrollReveal from '@/components/ScrollReveal.astro'
+import BurgerMenu from '@/components/icons/BurgerMenu.astro'
+import Modal from '@/components/Modal.astro'
+import ViewCounter from '@/components/ViewCounter.astro'
+import { DEFAULT_LOCALE } from '@/i18n/index'
+import { getTranslatedPost } from '@/i18n/content'
+import { mergeTranslatedBlocks } from '@/i18n/merge-blocks'
+import type { Locale } from '@/i18n/types'
+
+interface Props {
+  slug: string
+  locale?: Locale
+}
+
+const { slug, locale = DEFAULT_LOCALE } = Astro.props
+
+const post = await getPostBySlug(slug)
+
+if (!post) {
+  throw new Error(`Post not found. slug: ${slug}`)
+}
+
+const originalBlocks = await getAllBlocksByBlockId(post.id)
+
+let blocks = originalBlocks
+let title =
+  'title' in post.properties.Title
+    ? post.properties.Title.title[0].plain_text
+    : ''
+
+// Apply translation if available
+if (locale !== 'en') {
+  const translated = getTranslatedPost(locale, slug)
+  if (translated) {
+    title = translated.title
+    blocks = mergeTranslatedBlocks(originalBlocks, translated.blocks)
+  }
+}
+
+const tags =
+  'multi_select' in post.properties.Tags
+    ? post.properties.Tags.multi_select
+    : []
+
+const date =
+  'date' in post.properties.Date ? post.properties.Date.date?.start : ''
+
+type HeadingBlockObjectResponse =
+  | Heading1BlockObjectResponse
+  | Heading2BlockObjectResponse
+  | Heading3BlockObjectResponse
+
+const headingBlocks = blocks.filter((block) =>
+  ['heading_1', 'heading_2', 'heading_3'].includes(block.type)
+) as HeadingBlockObjectResponse[]
+
+const seoDescription = getPostExcerpt(blocks, 160) || `Read ${title} on hkfi`
+---
+
+<div class='flex w-full'>
+  <!-- Tags in left section -->
+  <div class='hidden min-w-40 flex-grow flex-col p-2 lg:flex'>
+    <div
+      id='post-info-section'
+      class='fixed flex w-36 flex-col gap-2 transition-opacity duration-300 ease-in-out'
+    >
+      <div class='flex flex-col gap-1'>
+        <div class='text-xl'>
+          {date}
+        </div>
+        <div class='text-default/60'>
+          <ViewCounter slug={slug} />
+        </div>
+      </div>
+      <div class='flex flex-wrap gap-2'>
+        {tags.map((tag) => <BlogTag tag={tag} link />)}
+      </div>
+    </div>
+  </div>
+  <!-- Post content in the middle -->
+  <div class='mx-auto flex w-full max-w-3xl flex-grow flex-col gap-6 md:mx-0'>
+    <ScrollReveal
+      animation='fade-up'
+      duration={600}
+      class='border-default/10 flex flex-col items-center gap-4 border-b pb-8 text-center'
+    >
+      <h1
+        class='text-4xl font-extrabold tracking-tight text-text md:text-5xl'
+        transition:name={`post-${post.id}`}
+      >
+        {title}
+      </h1>
+      <div
+        class='text-default/60 flex flex-wrap items-center justify-center gap-4'
+      >
+        <div class='text-lg font-medium'>
+          {date}
+        </div>
+        <div class='bg-default/40 h-1 w-1 rounded-full'></div>
+        <ViewCounter slug={slug} />
+        <div class='bg-default/40 h-1 w-1 rounded-full'></div>
+        <div class='flex gap-2'>
+          {tags.map((tag) => <BlogTag tag={tag} link />)}
+        </div>
+      </div>
+    </ScrollReveal>
+
+    <ScrollReveal animation='fade-up' delay={150} duration={700}>
+      <div class='prose prose-lg dark:prose-invert max-w-none pt-4'>
+        <PostBody blocks={blocks} />
+      </div>
+    </ScrollReveal>
+  </div>
+  <!-- Table of contents in the right -->
+  <div class='hidden min-w-40 flex-grow flex-col p-2 md:flex'>
+    <div
+      id='table-of-contents'
+      class='fixed flex w-40 flex-grow flex-col gap-2 transition-opacity duration-300 ease-in-out'
+    >
+      {
+        headingBlocks.map((headingBlock) => {
+          const headingBlockType = headingBlock.type
+          const headingString = buildHeadingId(headingBlock)
+          const paddingMap = {
+            heading_1: 'pl-0 text-base font-semibold',
+            heading_2: 'pl-4 text-sm mt-1',
+            heading_3: 'pl-8 text-sm text-default/80 mt-1'
+          }
+
+          return (
+            <a
+              href={`#${headingString}`}
+              class={`${paddingMap[headingBlockType]}
+              leading-tight hover:text-primary hover:decoration-primary`}
+            >
+              {headingString}
+            </a>
+          )
+        })
+      }
+    </div>
+  </div>
+</div>
+
+<button
+  id='show-table-of-contents-button'
+  class='fixed bottom-0 right-10 z-30 flex h-16 w-16 -translate-y-10 items-center justify-center rounded-full bg-primary transition-all duration-200 ease-in-out hover:bg-secondary md:hidden'
+  onclick='window.dialog.showModal()'
+>
+  <BurgerMenu />
+</button>
+
+<Modal>
+  <div
+    slot='dialog-content'
+    class='flex flex-col items-center rounded-md bg-background'
+  >
+    {
+      headingBlocks.map((headingBlock) => {
+        const headingBlockType = headingBlock.type
+        const headingString = buildHeadingId(headingBlock)
+        const paddingMap = {
+          heading_1: 'pl-0 text-base font-semibold',
+          heading_2: 'pl-4 text-sm mt-1',
+          heading_3: 'pl-8 text-sm text-default/80 mt-1'
+        }
+
+        return (
+          <a
+            href={`#${headingString}`}
+            class={`${paddingMap[headingBlockType]} mb-2 w-full text-center leading-tight text-notion-default hover:text-primary hover:decoration-primary`}
+          >
+            {headingString}
+          </a>
+        )
+      })
+    }
+  </div>
+</Modal>
+
+<script>
+  window.addEventListener('wheel', (e) => {
+    const scrollDirection = e.deltaY < 1 ? 1 : e.deltaY > 1 ? -1 : 0
+
+    const tableOfContents = document.getElementById('table-of-contents')
+    const postInfoSection = document.getElementById('post-info-section')
+
+    const showTableOfContentsButton = document.getElementById(
+      'show-table-of-contents-button'
+    )
+
+    if (scrollDirection === 1 && window.scrollY > 0) {
+      tableOfContents?.classList.add('visible', 'opacity-100')
+      tableOfContents?.classList.remove('invisible', 'opacity-0')
+      postInfoSection?.classList.add('visible', 'opacity-100')
+      postInfoSection?.classList.remove('invisible', 'opacity-0')
+      showTableOfContentsButton?.classList.add('visible', 'opacity-100')
+      showTableOfContentsButton?.classList.remove('invisible', 'opacity-0')
+    } else if (scrollDirection === -1) {
+      tableOfContents?.classList.add('invisible', 'opacity-0')
+      tableOfContents?.classList.remove('visible', 'opacity-100')
+      postInfoSection?.classList.add('invisible', 'opacity-0')
+      postInfoSection?.classList.remove('visible', 'opacity-100')
+      showTableOfContentsButton?.classList.add('invisible', 'opacity-0')
+      showTableOfContentsButton?.classList.remove('visible', 'opacity-100')
+    }
+  })
+</script>

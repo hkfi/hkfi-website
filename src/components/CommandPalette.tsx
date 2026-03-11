@@ -7,8 +7,34 @@ export interface CommandPaletteItem {
   tags: string[]
 }
 
+type Locale = 'en' | 'ja'
+
 interface CommandPaletteProps {
   posts: CommandPaletteItem[]
+  locale?: Locale
+}
+
+// Inline translations for the React component (avoids importing server-only i18n module)
+interface CPStrings {
+  placeholder: string
+  noResults: string
+  pages: string
+  blogPosts: string
+  aiSearch: string
+  home: string
+  projects: string
+  about: string
+  blog: string
+}
+
+const CP_STRINGS: Record<Locale, CPStrings> = {
+  en: { placeholder: 'Search pages and posts...', noResults: 'No results found.', pages: 'Pages', blogPosts: 'Blog Posts', aiSearch: 'AI Search', home: 'Home', projects: 'Projects', about: 'About', blog: 'Blog' },
+  ja: { placeholder: 'ページや記事を検索...', noResults: '結果が見つかりません。', pages: 'ページ', blogPosts: 'ブログ記事', aiSearch: 'AI検索', home: 'ホーム', projects: 'プロジェクト', about: '自己紹介', blog: 'ブログ' }
+}
+
+function getLocalePath(locale: Locale, path: string): string {
+  if (locale === 'en') return path
+  return `/${locale}${path}`
 }
 
 interface PostEmbedding {
@@ -23,12 +49,14 @@ interface SemanticResult {
   score: number
 }
 
-const PAGES = [
-  { title: 'Home', href: '/' },
-  { title: 'Projects', href: '/projects' },
-  { title: 'About', href: '/about' },
-  { title: 'Blog', href: '/blog/1' }
-]
+function getPages(locale: Locale, strings: CPStrings) {
+  return [
+    { title: strings.home, href: getLocalePath(locale, '/') },
+    { title: strings.projects, href: getLocalePath(locale, '/projects') },
+    { title: strings.about, href: getLocalePath(locale, '/about') },
+    { title: strings.blog, href: getLocalePath(locale, '/blog') }
+  ]
+}
 
 function cosineSimilarity(a: number[], b: number[]): number {
   let dot = 0,
@@ -101,7 +129,9 @@ function SparkleIcon() {
   )
 }
 
-export default function CommandPalette({ posts }: CommandPaletteProps) {
+export default function CommandPalette({ posts, locale = 'en' }: CommandPaletteProps) {
+  const strings = CP_STRINGS[locale]
+  const PAGES = getPages(locale, strings)
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [semanticResults, setSemanticResults] = useState<SemanticResult[]>([])
@@ -236,14 +266,14 @@ export default function CommandPalette({ posts }: CommandPaletteProps) {
   return (
     <Command.Dialog open={open} onOpenChange={setOpen} label='Command Palette'>
       <Command.Input
-        placeholder='Search pages and posts...'
+        placeholder={strings.placeholder}
         value={search}
         onValueChange={setSearch}
       />
       <Command.List>
-        <Command.Empty>No results found.</Command.Empty>
+        <Command.Empty>{strings.noResults}</Command.Empty>
 
-        <Command.Group heading='Pages'>
+        <Command.Group heading={strings.pages}>
           {PAGES.map((page) => (
             <Command.Item
               key={page.href}
@@ -256,12 +286,12 @@ export default function CommandPalette({ posts }: CommandPaletteProps) {
           ))}
         </Command.Group>
 
-        <Command.Group heading='Blog Posts'>
+        <Command.Group heading={strings.blogPosts}>
           {posts.map((post) => (
             <Command.Item
               key={post.slug}
               value={`${post.title} ${post.tags.join(' ')}`}
-              onSelect={() => handleSelect(`/blog/post/${post.slug}`)}
+              onSelect={() => handleSelect(getLocalePath(locale, `/blog/post/${post.slug}`))}
             >
               <PostIcon />
               <span>{post.title}</span>
@@ -280,7 +310,7 @@ export default function CommandPalette({ posts }: CommandPaletteProps) {
 
         {/* AI Semantic Search Results */}
         {(isSearching || semanticResults.length > 0) && (
-          <Command.Group heading='AI Search'>
+          <Command.Group heading={strings.aiSearch}>
             {isSearching && semanticResults.length === 0 && (
               <div className='semantic-loading'>
                 <span className='semantic-loading-dot' />
@@ -292,7 +322,7 @@ export default function CommandPalette({ posts }: CommandPaletteProps) {
               <Command.Item
                 key={`ai-${result.slug}`}
                 value={`ai-semantic-${result.title}`}
-                onSelect={() => handleSelect(`/blog/post/${result.slug}`)}
+                onSelect={() => handleSelect(getLocalePath(locale, `/blog/post/${result.slug}`))}
                 forceMount
               >
                 <SparkleIcon />

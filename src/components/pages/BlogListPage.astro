@@ -1,0 +1,311 @@
+---
+import BlogTag from '@/components/BlogTag.astro'
+import PostLink from '@/components/PostLink.astro'
+import ScrollReveal from '@/components/ScrollReveal.astro'
+import ArrowLeft from '@/components/icons/ArrowLeft.astro'
+import ArrowRight from '@/components/icons/ArrowRight.astro'
+import { NUMBER_OF_POSTS_PER_PAGE } from '@/constants/index'
+import {
+  getAllPosts,
+  getAllTags,
+  getAllPostCardData
+} from '@/libs/notion/client'
+import { t, localePath, DEFAULT_LOCALE } from '@/i18n/index'
+import type { Locale } from '@/i18n/types'
+
+interface Props {
+  locale?: Locale
+}
+
+const { locale = DEFAULT_LOCALE } = Astro.props
+
+const allPosts = await getAllPosts()
+const tags = await getAllTags()
+const cardDataMap = await getAllPostCardData()
+
+function getPostTagNames(post: (typeof allPosts)[number]): string[] {
+  return post.properties.Tags?.type === 'multi_select'
+    ? post.properties.Tags.multi_select.map((t) => t.name)
+    : []
+}
+
+const blogBasePath = localePath(locale, '/blog')
+---
+
+<div class='flex w-full flex-col gap-6 py-4'>
+  <!-- Tags Filter -->
+  <ScrollReveal animation='fade-up' duration={500}>
+    <div id='blog-tags' class='flex flex-wrap gap-2 p-2'>
+      {tags.map((tag) => <BlogTag tag={tag} />)}
+    </div>
+  </ScrollReveal>
+
+  <!-- Blog Grid — all posts rendered, JS controls visibility -->
+  <div
+    id='blog-grid'
+    class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'
+    data-page-size={NUMBER_OF_POSTS_PER_PAGE}
+    data-blog-base-path={blogBasePath}
+  >
+    {
+      allPosts.map((post, index) => (
+        <div
+          class={`blog-post-card h-full ${index >= NUMBER_OF_POSTS_PER_PAGE ? 'hidden' : ''}`}
+          data-tags={getPostTagNames(post).join(',')}
+        >
+          <ScrollReveal
+            animation='fade-up'
+            delay={(index % NUMBER_OF_POSTS_PER_PAGE) * 75}
+            duration={500}
+            class='h-full'
+          >
+            <PostLink post={post} cardData={cardDataMap.get(post.id)} locale={locale} />
+          </ScrollReveal>
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- Pagination — client-controlled -->
+  <div
+    id='blog-pagination'
+    class='mt-8 flex w-full items-center justify-center gap-6'
+  >
+    <button
+      id='prev-page'
+      class='bg-secondary/50 flex items-center justify-center rounded-lg px-4 py-3 text-primary transition-all hover:-translate-x-1 hover:bg-secondary hover:shadow-sm disabled:pointer-events-none disabled:opacity-30'
+      aria-label='Previous Page'
+      disabled
+    >
+      <ArrowLeft />
+    </button>
+
+    <div class='text-default/60 font-medium'>
+      {t(locale, 'blog.page')} <span id='current-page' class='font-bold text-primary'>1</span> {t(locale, 'blog.of')}{' '}
+      <span id='total-pages'>1</span>
+    </div>
+
+    <button
+      id='next-page'
+      class='bg-secondary/50 flex items-center justify-center rounded-lg px-4 py-3 text-primary transition-all hover:translate-x-1 hover:bg-secondary hover:shadow-sm disabled:pointer-events-none disabled:opacity-30'
+      aria-label='Next Page'
+    >
+      <ArrowRight />
+    </button>
+  </div>
+</div>
+
+<script>
+  let blogFilterAbort: AbortController | null = null
+  let isRendering = false
+
+  function initBlogFiltering() {
+    if (isRendering) return
+
+    const grid = document.getElementById('blog-grid')
+    if (!grid) return
+
+    const POSTS_PER_PAGE = parseInt(grid.dataset.pageSize || '10', 10)
+    const blogBasePath = grid.dataset.blogBasePath || '/blog'
+
+    blogFilterAbort?.abort()
+    blogFilterAbort = new AbortController()
+    const { signal } = blogFilterAbort
+
+    const allCards = Array.from(
+      grid.querySelectorAll<HTMLElement>('.blog-post-card')
+    )
+    const tagContainer = document.getElementById('blog-tags')
+    const prevBtn = document.getElementById(
+      'prev-page'
+    ) as HTMLButtonElement | null
+    const nextBtn = document.getElementById(
+      'next-page'
+    ) as HTMLButtonElement | null
+    const currentPageSpan = document.getElementById('current-page')
+    const totalPagesSpan = document.getElementById('total-pages')
+    const paginationEl = document.getElementById('blog-pagination')
+
+    if (!prevBtn || !nextBtn || !currentPageSpan || !totalPagesSpan) return
+
+    let activeTags = new Set<string>()
+    let currentPage = 1
+
+    function readStateFromURL() {
+      const params = new URLSearchParams(window.location.search)
+      const tagsParam = params.get('tags')
+      activeTags = tagsParam
+        ? new Set(
+            tagsParam
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+          )
+        : new Set()
+      currentPage = Math.max(1, parseInt(params.get('page') || '1', 10))
+    }
+
+    function writeStateToURL({ replace = false } = {}) {
+      const params = new URLSearchParams()
+      if (activeTags.size > 0) {
+        params.set('tags', Array.from(activeTags).join(','))
+      }
+      if (currentPage > 1) {
+        params.set('page', String(currentPage))
+      }
+      const search = params.toString()
+      const url = search ? `${blogBasePath}?${search}` : blogBasePath
+
+      if (replace) {
+        history.replaceState(
+          { tags: Array.from(activeTags), page: currentPage },
+          '',
+          url
+        )
+      } else {
+        history.pushState(
+          { tags: Array.from(activeTags), page: currentPage },
+          '',
+          url
+        )
+      }
+    }
+
+    function getFilteredCards(): HTMLElement[] {
+      if (activeTags.size === 0) return allCards
+      return allCards.filter((card) => {
+        const cardTags = (card.dataset.tags || '').split(',').filter(Boolean)
+        return Array.from(activeTags).some((tag) => cardTags.includes(tag))
+      })
+    }
+
+    function render() {
+      const filtered = getFilteredCards()
+      const totalPages = Math.max(
+        1,
+        Math.ceil(filtered.length / POSTS_PER_PAGE)
+      )
+
+      if (currentPage > totalPages) currentPage = totalPages
+      if (currentPage < 1) currentPage = 1
+
+      const startIdx = (currentPage - 1) * POSTS_PER_PAGE
+      const endIdx = startIdx + POSTS_PER_PAGE
+      const pageCards = filtered.slice(startIdx, endIdx)
+      const visibleSet = new Set(pageCards)
+
+      allCards.forEach((card) => {
+        if (visibleSet.has(card)) {
+          card.classList.remove('hidden')
+        } else {
+          card.classList.add('hidden')
+        }
+      })
+
+      tagContainer
+        ?.querySelectorAll<HTMLButtonElement>('.blog-tag-btn')
+        .forEach((btn) => {
+          const tagName = btn.dataset.tag!
+          const isActive = activeTags.has(tagName)
+          btn.setAttribute('aria-pressed', String(isActive))
+          if (isActive) {
+            btn.classList.remove('bg-muted')
+            btn.classList.add('bg-secondary')
+          } else {
+            btn.classList.remove('bg-secondary')
+            btn.classList.add('bg-muted')
+          }
+        })
+
+      currentPageSpan!.textContent = String(currentPage)
+      totalPagesSpan!.textContent = String(totalPages)
+      prevBtn!.disabled = currentPage <= 1
+      nextBtn!.disabled = currentPage >= totalPages
+
+      if (paginationEl) {
+        if (totalPages <= 1) {
+          paginationEl.classList.add('hidden')
+        } else {
+          paginationEl.classList.remove('hidden')
+        }
+      }
+
+      pageCards.forEach((card, index) => {
+        const revealEl = card.querySelector<HTMLElement>('.scroll-reveal')
+        if (revealEl) {
+          revealEl.classList.remove('scroll-reveal-init', 'is-visible')
+          revealEl.style.transitionDelay = `${index * 75}ms`
+          revealEl.dataset.scrollDelay = String(index * 75)
+        }
+      })
+
+      isRendering = true
+      document.dispatchEvent(new Event('astro:page-load'))
+      isRendering = false
+    }
+
+    tagContainer?.addEventListener(
+      'click',
+      (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+          '.blog-tag-btn'
+        )
+        if (!btn) return
+
+        const tagName = btn.dataset.tag!
+        if (activeTags.has(tagName)) {
+          activeTags.delete(tagName)
+        } else {
+          activeTags.add(tagName)
+        }
+        currentPage = 1
+        writeStateToURL()
+        render()
+      },
+      { signal }
+    )
+
+    prevBtn.addEventListener(
+      'click',
+      () => {
+        if (currentPage > 1) {
+          currentPage--
+          writeStateToURL()
+          render()
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+      },
+      { signal }
+    )
+
+    nextBtn.addEventListener(
+      'click',
+      () => {
+        const filtered = getFilteredCards()
+        const totalPages = Math.ceil(filtered.length / POSTS_PER_PAGE)
+        if (currentPage < totalPages) {
+          currentPage++
+          writeStateToURL()
+          render()
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+      },
+      { signal }
+    )
+
+    window.addEventListener(
+      'popstate',
+      () => {
+        readStateFromURL()
+        render()
+      },
+      { signal }
+    )
+
+    readStateFromURL()
+    render()
+    writeStateToURL({ replace: true })
+  }
+
+  document.addEventListener('astro:page-load', initBlogFiltering)
+</script>

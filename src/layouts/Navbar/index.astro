@@ -4,6 +4,16 @@ import NavbarLink from './NavbarLink.astro'
 import GithubIcon from './icons/Github.astro'
 import XIcon from './icons/X.astro'
 import LinkedinIcon from './icons/Linkedin.astro'
+import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
+import { localePath, t, DEFAULT_LOCALE } from '@/i18n/index'
+import type { Locale } from '@/i18n/types'
+
+interface Props {
+  locale?: Locale
+  currentPath?: string
+}
+
+const { locale = DEFAULT_LOCALE, currentPath = '/' } = Astro.props
 ---
 
 <div class='flex h-[72px] w-full justify-center'>
@@ -18,6 +28,7 @@ import LinkedinIcon from './icons/Linkedin.astro'
       <GithubIcon />
       <XIcon />
       <LinkedinIcon />
+      <LanguageSwitcher currentLocale={locale} currentPath={currentPath} />
       <button
         id='command-palette-trigger-desktop'
         class='search-trigger border-0 bg-none'
@@ -41,17 +52,17 @@ import LinkedinIcon from './icons/Linkedin.astro'
       </button>
     </div>
     <div class='hidden w-1/5 justify-center md:flex'>
-      <NavbarLink href='/' label='hkfi' />
+      <NavbarLink href={localePath(locale, '/')} label='hkfi' />
     </div>
     <div class='hidden w-2/5 items-center justify-end gap-2 md:flex'>
-      <NavbarLink href='/projects' label='Projects' />
-      <NavbarLink href='/about' label='About' />
-      <NavbarLink href='/blog' label='Blog' />
+      <NavbarLink href={localePath(locale, '/projects')} label={t(locale, 'nav.projects')} />
+      <NavbarLink href={localePath(locale, '/about')} label={t(locale, 'nav.about')} />
+      <NavbarLink href={localePath(locale, '/blog')} label={t(locale, 'nav.blog')} />
     </div>
 
     <!-- Mobile layout -->
     <div class='flex w-full items-center justify-between md:hidden'>
-      <NavbarLink href='/' label='hkfi' />
+      <NavbarLink href={localePath(locale, '/')} label='hkfi' />
       <div class='flex items-center gap-3'>
         <ThemeIcon />
         <button
@@ -120,24 +131,25 @@ import LinkedinIcon from './icons/Linkedin.astro'
   >
     <div class='flex flex-col px-6 py-4'>
       <a
-        href='/projects'
+        href={localePath(locale, '/projects')}
         class='border-secondary/30 text-default border-b py-4 font-bold tracking-widest hover:text-primary'
       >
-        Projects
+        {t(locale, 'nav.projects')}
       </a>
       <a
-        href='/about'
+        href={localePath(locale, '/about')}
         class='border-secondary/30 text-default border-b py-4 font-bold tracking-widest hover:text-primary'
       >
-        About
+        {t(locale, 'nav.about')}
       </a>
       <a
-        href='/blog'
+        href={localePath(locale, '/blog')}
         class='text-default py-4 font-bold tracking-widest hover:text-primary'
       >
-        Blog
+        {t(locale, 'nav.blog')}
       </a>
       <div class='flex items-center gap-5 pt-4'>
+        <LanguageSwitcher currentLocale={locale} currentPath={currentPath} />
         <GithubIcon />
         <XIcon />
         <LinkedinIcon />

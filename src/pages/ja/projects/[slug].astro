@@ -1,0 +1,50 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import ProjectDetailPage from '@/components/pages/ProjectDetailPage.astro'
+import {
+  getAllProjects,
+  getAllProjectData,
+  getAllBlocksByBlockId
+} from '@/libs/notion/client'
+import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import { getPostExcerpt } from '@/libs/helpers/blog'
+import { hasTranslation, getTranslatedProject } from '@/i18n/content'
+import { t } from '@/i18n/index'
+
+export async function getStaticPaths() {
+  const projects = await getAllProjects()
+  const projectData = await getAllProjectData()
+  const paths = []
+
+  for (let i = 0; i < projects.length; i++) {
+    const slug = projectData[i].slug
+    if (slug && hasTranslation('ja', 'projects', slug)) {
+      paths.push({
+        params: { slug },
+        props: { project: projects[i], data: projectData[i] }
+      })
+    }
+  }
+  return paths
+}
+
+const { project, data } = Astro.props
+const blocks = await getAllBlocksByBlockId(project.id)
+const translated = getTranslatedProject('ja', data.slug)
+
+const name = translated?.name ?? data.name
+const description = translated?.description ?? data.description
+
+const seoDescription =
+  description ||
+  getPostExcerpt(blocks as BlockObjectResponse[], 160) ||
+  `${name} — a project by Hiroki Furuichi`
+---
+
+<Layout
+  title={`${name} | ${t('ja', 'nav.projects')} | hkfi`}
+  locale='ja'
+  seo={{ description: seoDescription }}
+>
+  <ProjectDetailPage project={project} data={data} locale='ja' />
+</Layout>

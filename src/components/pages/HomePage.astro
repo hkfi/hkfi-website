@@ -1,0 +1,71 @@
+---
+import PostLink from '@/components/PostLink.astro'
+import ScrollReveal from '@/components/ScrollReveal.astro'
+import ThinkingEmoji from '@/components/ThinkingEmoji'
+import { getAllPosts, getAllPostCardData } from '@/libs/notion/client'
+import { t, tHtml, DEFAULT_LOCALE } from '@/i18n/index'
+import type { Locale } from '@/i18n/types'
+
+interface Props {
+  locale?: Locale
+}
+
+const { locale = DEFAULT_LOCALE } = Astro.props
+
+const blogPosts = await getAllPosts().then((res) => res.slice(0, 5))
+const cardDataMap = await getAllPostCardData()
+---
+
+<div class='flex w-full items-center justify-between p-4'>
+  <ScrollReveal
+    animation='fade-up'
+    duration={700}
+    class='flex min-h-[400px] flex-grow flex-col justify-center gap-4'
+  >
+    <div class='text-5xl font-extrabold tracking-tight md:text-6xl'>
+      {t(locale, 'home.hello')} <span class='animate-pulse'>👋</span>
+    </div>
+    <div
+      class='text-default/90 text-5xl font-bold tracking-tight md:text-6xl'
+      set:html={tHtml(locale, 'home.imName')}
+    />
+    <div class='text-default/80 text-2xl font-medium'>
+      <span class='text-primary'>{t(locale, 'home.role')}</span>
+    </div>
+    <div class='text-default/60 max-w-xl text-lg'>
+      {t(locale, 'home.tagline')}
+    </div>
+  </ScrollReveal>
+  <div
+    class='h-[400px] w-[200px] lg:w-[400px]'
+    id='eye-3d'
+    data-parallax='0.08'
+  >
+    <ThinkingEmoji client:only='react'>
+      <div
+        slot='fallback'
+        class='flex h-full w-full items-center justify-center'
+      >
+        <span class='animate-pulse text-[180px]'>🤔</span>
+      </div>
+    </ThinkingEmoji>
+  </div>
+</div>
+
+<ScrollReveal
+  animation='fade-up'
+  delay={100}
+  class='mb-6 mt-12 px-3 text-3xl font-bold tracking-tight'
+>
+  {t(locale, 'home.recentPosts')}
+</ScrollReveal>
+
+<div class='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+  {
+    blogPosts?.map((blogPost, index) => (
+      <ScrollReveal animation='fade-up' delay={index * 75} duration={500}>
+        <PostLink post={blogPost} cardData={cardDataMap.get(blogPost.id)} locale={locale} />
+      </ScrollReveal>
+    ))
+  }
+</div>

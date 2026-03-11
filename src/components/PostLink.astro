@@ -2,13 +2,16 @@
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { CardData } from '@/libs/notion/client'
 import Tag from './Tag.astro'
+import { localePath, DEFAULT_LOCALE } from '@/i18n/index'
+import type { Locale } from '@/i18n/types'
 
 type Props = {
   post: PageObjectResponse
   cardData?: CardData
+  locale?: Locale
 }
 
-const { post, cardData } = Astro.props
+const { post, cardData, locale = DEFAULT_LOCALE } = Astro.props
 
 const slug =
   'rich_text' in post.properties.Slug
@@ -41,7 +44,7 @@ const gradient =
 <a
   transition:name={`post-link-${post.id}`}
   class='bg-secondary/20 hover:border-primary/20 group flex h-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300 hover:scale-[1.02] hover:shadow-xl'
-  href={`/blog/post/${slug}`}
+  href={localePath(locale, `/blog/post/${slug}`)}
 >
   <!-- Cover image or gradient -->
   <div class='relative h-32 w-full overflow-hidden'>

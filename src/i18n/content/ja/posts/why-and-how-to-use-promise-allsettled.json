@@ -1,0 +1,309 @@
+{
+  "slug": "why-and-how-to-use-promise-allsettled",
+  "title": "Promise.allSettledの使い方と活用場面",
+  "excerpt": "複数のAPIコールを行い、すべてが完了した後にそれぞれの成功・失敗の状態とともにレスポンスを返したい場合があります。",
+  "blocks": [
+    {
+      "id": "76f334f1-41a9-4b53-b4d9-7a02a9152a9c",
+      "type": "heading_1",
+      "richText": [
+        {
+          "plainText": "なぜ使うのか",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "6f721960-f81b-4c4d-97f2-1898c44573d8",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "複数のAPIコールを行い、すべてが完了した後にそれぞれが正常に完了したかどうかの状態とともにレスポンスを返したい場合があります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "f4e1f7cc-323e-4053-a343-75b0efb1a780",
+      "type": "heading_1",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Promise.allSettled",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "の仕組み",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "d68696db-6fe0-4f69-9ace-63fd09b99020",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "Promiseの配列を受け取ります",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "58b4658f-812e-4789-96ed-e4c26176b738",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "オブジェクトの配列に解決されるPromiseを返します",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3608d368-32b6-4cab-af25-ef1df84f07ef",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "各オブジェクトはそれぞれのPromiseの結果を表し、「fulfilled」のステータスと値、または「rejected」のステータスと理由を含みます",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "cb776314-5920-42f2-974e-d4dddca0f9dc",
+      "type": "heading_1",
+      "richText": [
+        {
+          "plainText": "なぜ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Promise.allSettled",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "を使うのか？",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "7af4137d-8e9a-4335-8e2c-33582125c516",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "Promise.allSettledは、成功・失敗に関わらず複数の非同期処理がすべて完了するのを待つ必要がある場合に特に有用です。例えば：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "0254de2a-fa53-4746-9e5a-b19cc983ead3",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "複数のAPIコールの結果を集約する場合",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "0e2a0d4f-c047-442d-a18c-c7b48ed211ca",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "個々の失敗がプロセス全体を止めるべきでない並列処理を行う場合",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "c123d691-ed62-4407-af3b-599a180d02ea",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "一部が失敗しても全体の結果がまだ有用な、さまざまなソースからデータを収集する場合",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "76278383-599a-4861-a780-e8eb3e58e8f9",
+      "type": "heading_1",
+      "richText": [
+        {
+          "plainText": "使用例",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "45475c5f-8c95-487c-9507-034368d91cc1",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "APIコールの集約",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "52e9f564-ec5f-49c8-b94f-5783379e16af",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "複数ファイルアップロードの処理",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    }
+  ],
+  "sourceLastEditedAt": "2024-08-07T18:55:00.000Z",
+  "translatedAt": "2026-03-12T02:00:00.000Z"
+}

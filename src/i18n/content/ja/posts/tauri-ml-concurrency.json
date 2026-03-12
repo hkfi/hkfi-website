@@ -1,0 +1,1275 @@
+{
+  "slug": "tauri-ml-concurrency",
+  "title": "TauriでUIをブロックせずにMLモデルを実行する方法",
+  "excerpt": "専用スレッド、同期チャネル、oneshotレスポンスを使って、Tauriアプリでフロントエンドをフリーズさせずにrust-bertの推論を実行した方法。",
+  "blocks": [
+    {
+      "id": "91924e72-17ba-4a88-96a6-fccfa6520f80",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "専用スレッド、同期チャネル、oneshotレスポンスを使って、Tauriアプリでフロントエンドをフリーズさせずにrust-bertの推論を実行した方法。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3ce57d06-cb63-4ee5-be87-5d2d38c1eebf",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "デスクトップアプリ内で機械学習モデルを実行したことがある方なら、こんな問題に直面したことがあるでしょう：モデルの推論に1回あたり50〜200msかかり、その間UIが完全にフリーズしてしまいます。ユーザーはこれを嫌います。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "a994ca83-c9d7-4abd-9285-5fd4abf9d14c",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "Tauriはtokioの非同期ランタイム上で動作しており、I/Oバウンドの処理には最適ですが、CPUバウンドのML推論には不向きです。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "await",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "でtokioのワーカースレッド上のブロッキング処理を待つと、ランタイム全体が枯渇します。UIイベント処理を含む他のタスクが進行できなくなります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "38ebf26a-c653-485f-9df4-5f4108bbae02",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "これが",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Insight Notes",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "（AllMiniLM-L12-V2をデバイス上セマンティック検索に使用するノートアプリ）でこの問題を解決した方法です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8fa070de-4822-4449-9f8a-6c2597d84618",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "問題",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "97aab71d-67a1-4488-a894-10765c614887",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "Tauriコマンドはtokioのスレッドプール上で非同期関数として実行されます：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "f8241d3e-e375-435e-b1f0-b6e0bf98dec9",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ここで直接",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "model.encode()",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "を呼ぶと、tokioのワーカースレッドをブロックしてしまいます。デフォルトのtokio設定（通常CPUコア数と同じ）では、数個の同時リクエストでランタイム全体がロックしてしまう可能性があります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "76648900-7164-4cb4-b451-8c55927e6365",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "tokio::task::spawn_blocking",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "で解決できると思うかもしれませんが、問題があります：rust-bertモデルは",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Send + Sync",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ではありません。スレッド間で安全に移動できないのです。モデルは1つのスレッドに存在し、そこにとどまる必要があります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "6cb60be4-972f-4df9-9a43-1db6e6bb06a3",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "解決策：専用推論スレッド",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "f275ab8d-7637-4dd4-a536-2a9ac4a2b02a",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "パターンはシンプルです：モデルを所有する専用のOSスレッドを起動し、チャネルを通じて通信します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "dfff26b9-b099-45a7-a5a3-8ef3b2ab9374",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "SentenceEncoder",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "はチャネルの送信側を保持するだけのハンドルです。実際のモデルは誰もアクセスできない別のスレッド上に存在します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "58dc0c55-b890-4db0-bf49-922faa885a1b",
+      "type": "heading_3",
+      "richText": [
+        {
+          "plainText": "推論スレッドの起動",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "0f33ee7e-39a4-49fc-9f91-6bd6a1acd627",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "thread::spawn",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": " — ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "tokio::spawn",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ではありません。これはtokioのランタイムから完全に独立した本物のOSスレッドです。バウンデッドチャネル（",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "sync_channel(100)",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "）がバックプレッシャーを提供します：100件のリクエストがキューに入ると、空きができるまで送信側がブロックされます。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8c2755e3-bd7b-4d10-af1b-b83d50ee1328",
+      "type": "heading_3",
+      "richText": [
+        {
+          "plainText": "ランナーループ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e2f9c24b-6f8f-47f1-af1e-64b287cfde88",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "モデルはスレッド起動時に一度だけ生成され、その後リクエストを処理するループに入ります。各リクエストには結果を返すための",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "oneshot::Sender",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "が付属しています。チャネルがドロップされると（アプリ終了時）、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "receiver.recv()",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "が",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Err",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "を返し、ループがクリーンに終了します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "2788b69e-edda-440f-a180-d80bf52115aa",
+      "type": "heading_3",
+      "richText": [
+        {
+          "plainText": "非同期ブリッジ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "a69f9d66-0080-40b4-b8f0-e4e8cbb69116",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ここが重要なポイントです — 同期チャネルとTauriの非同期世界をつなぐ部分：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3dd6a6a0-8959-416a-adfe-c6703a18fd2c",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "task::block_in_place",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "がキーです。これはtokioに「これからブロッキング処理をするから、他のタスクをこのスレッドから移動して」と伝えます。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "spawn_blocking",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "とは異なり、クロージャを別スレッドに移動させるのではなく、tokioにスケジューリングを賢く行うようシグナルを送るだけです。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "fd6c9446-8333-4d9c-8c2b-984c5a5f9e53",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "oneshot::channel",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "によりtokio側で",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": ".await",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "できるfutureが得られ、推論スレッドは同期senderを通じて結果を送信します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "c63531eb-f23a-432e-b175-272389fa5c71",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "全体の接続方法",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8cef2537-7960-4ba3-9813-56c99d0b27a3",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "アプリ起動時：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "a5c086e6-df8a-45e2-ad87-6c2f87a37b0d",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "SentenceEncoder",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ハンドルはTauriのマネージドステートに格納されます。エンベディングが必要なすべてのコマンドは単に",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "state.sentence_encoder.encode()",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "を呼ぶだけです。コマンド側から見れば、通常の非同期呼び出しです：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "53632ff2-7371-4632-a1f3-11e49767c4db",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "フロントエンドはML推論が別スレッドで実行されていることを知る必要も気にする必要もありません。単に結果を受け取るだけです。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "f92449d6-f033-47ae-89e0-a9af6748a4d0",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "このパターンが効果的な理由",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e028eb76-c8a9-4d6e-b2e2-c402efeec2bd",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "このアプローチを堅牢にしているいくつかの特性：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "92331db6-5855-49d3-b018-0982c6f634ab",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "モデルの分離。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "rust-bertモデルはスレッド境界を越えません。推論スレッド上で作成され、推論スレッド上で消滅します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Arc<Mutex<Model>>",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "の頭痛の種はありません。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "baafd47d-70ac-4dd5-84c7-f7d5b494b151",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "自然なバックプレッシャー。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "バウンデッドチャネル（容量100）により、バーストを優雅に処理できます。モデルが追いつけない場合、送信側が待機します。無制限キューが永遠に増え続けることはありません。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "36f0ff85-b68b-44d5-bc40-ac3aceb00fcc",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "クリーンなシャットダウン。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "SentenceEncoder",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ハンドルがドロップされると、チャネルが閉じ、ランナーループが終了し、スレッドがjoinします。リソースのリークはありません。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "adc739b5-2500-41e2-b621-4f1a81cd847c",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ゼロコピーレスポンス。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "各リクエストは専用の",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "oneshot",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "チャネルを持つため、結果は呼び出し元に直接届きます。共有結果バッファも競合もありません。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "ec586bdf-9ce4-485d-9b53-9c4af6b1b731",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "より広い教訓",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "5362f7ae-b4a6-4afd-8de8-5591624d7c84",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "このパターンはMLモデルに限ったものではありません。以下のようなリソースを扱う場合はいつでも使えます：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "2a60a3b8-c592-420c-81aa-6610c27d44ab",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "作成コストが高い",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "140a5260-5a8e-4eca-ad92-587d1c28e7d0",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "スレッドセーフでない（",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Send + Sync",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "でない）",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "60641693-fe97-4f9d-a712-0eeab3345459",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "ブロッキングなCPUバウンド処理を実行する",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "ffbf0c17-809e-488e-98f4-4823e6982531",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "...同じ専用スレッド＋チャネルのアプローチが使えます。データベース接続、ハードウェアインターフェース、ビデオエンコーダーなど、どこにでも適用できるパターンです。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8c0d30bb-30e0-4283-8027-15bff2d0e60b",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "重要な洞察は、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "チャネルが同期世界と非同期世界のブリッジである",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ということです。すべてを非同期にする必要はありません。クリーンな境界さえあればよいのです。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "fc9757b5-3493-4f23-b450-e577f61c4bb2",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "SentenceEncoder",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "の全ソースコードは約50行のRustです。プロジェクトで最も小さなファイルの1つでありながら、最も重要なファイルの1つです。最良のアーキテクチャは最もシンプルなものであることもあります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    }
+  ],
+  "sourceLastEditedAt": "2026-03-04T06:47:00.000Z",
+  "translatedAt": "2026-03-12T02:00:00.000Z"
+}

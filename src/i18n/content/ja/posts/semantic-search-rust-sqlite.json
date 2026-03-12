@@ -1,0 +1,981 @@
+{
+  "slug": "semantic-search-rust-sqlite",
+  "title": "RustとSQLiteでデスクトップアプリにセマンティック検索を構築する",
+  "excerpt": "rust-bert、sqlite-vec、Tauriを使って、ノートアプリにオフラインのML搭載セマンティック検索を構築した方法のステップバイステップガイド。",
+  "blocks": [
+    {
+      "id": "5e661bcc-136e-4a23-b8a5-415fb72601a6",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "rust-bert、sqlite-vec、Tauriを使って、ノートアプリにオフラインのML搭載セマンティック検索を構築した方法のステップバイステップガイド。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "1a835cc7-f05a-4890-8d41-5b59bfb6fd2f",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ほとんどのノートアプリはキーワード検索を提供しています。「会議メモ」と入力すると、まさにその単語を含むノートが返されます。しかし、代わりに「チームのスタンドアップまとめ」と書いていたらどうでしょう？キーワード検索では見つかりません。セマンティック検索なら見つかります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "b8c3e8af-d34b-4faa-a1c2-dd0d45c6d358",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "この記事では、Tauriで構築されたデスクトップノートアプリ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Insight Notes",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "に完全オフラインのセマンティック検索を構築した方法を説明します。APIコールなし、クラウドなし — すべてお使いのマシン上で動作します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e5caacd2-3cab-40e3-afa5-a6619182b7a4",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "アーキテクチャの概要",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8e8d10ca-a007-4514-a7cd-0221ebbeb1e8",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "このシステムには4つの重要な要素があります：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "7c361be4-c3b1-4a7d-8cf2-7f2402edb710",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "Markdownチャンキング",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": " — 各ノートを意味のあるセグメントに分割",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3d84cb6c-8898-4aa0-8ff9-4674bd2f4af9",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "エンベディング計算",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": " — 各チャンクを384次元のベクトルに変換",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "f212b03d-8a10-49b6-8070-e3fbee9d8d94",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "ベクトルストレージ",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": " — ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "sqlite-vec",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "拡張を使ってSQLiteにエンベディングを保存",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "dcfbe8a1-51d1-495a-ae8d-45626474f57f",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "類似検索",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": " — クエリのエンベディングを保存されたベクトルと照合",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "1a7c1f34-b4ac-437a-b88c-bfe9a7de650c",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "それぞれについて見ていきましょう。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "7ec64b5b-27e0-4c09-a49d-05d13a9efc3d",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "ステップ1：Markdownのチャンキング",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3fc88894-7add-4bb1-bc4f-7d1275e5bee3",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ノート全体を1つのベクトルとしてエンベッドすることはできません。長いドキュメントは単一のエンベディングに圧縮するとニュアンスが失われます。そこで、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "langchain-rust",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "の",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "MarkdownSplitter",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "を使って各ノートをチャンクに分割しています：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "d83012c2-0ca5-47e7-98d7-04df5aa637f8",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "MarkdownSplitter",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "はMarkdownに対応しているため、文の途中で分割するのではなく、見出しの境界やコードブロックを尊重します。256トークンのチャンクサイズが良いバランスでした — 正確なマッチングには十分小さく、コンテキストを保持するのに十分な大きさです。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "a9ac3cad-ac56-4b1d-a53e-260b3ee93312",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "ステップ2：エンベディングの計算",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "aa720bec-9f95-44f7-a906-da8f2c728930",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "各チャンクは",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "AllMiniLM-L12-V2",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "モデルを",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "rust-bert",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "経由で使って384次元のベクトルに変換されます：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e88215a4-8eba-4727-9363-c4324b246ded",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "各ノートの",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "セントロイドエンベディング",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "も計算しています — すべてのチャンクエンベディングの平均です。これは、個々のチャンクをすべて比較せずに、あるノートに類似したノートを見つけるのに便利です：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3548a30d-b9de-4776-9736-bb6d89295de2",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "ステップ3：SQLiteにベクトルを保存する",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "5e86b113-2892-48b6-9f49-9944c73040ca",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ここが面白いところです。PineconeやQdrantのような専用のベクトルデータベースに頼る代わりに、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "sqlite-vec",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "を使いました — 仮想テーブルを通じてベクトル検索機能を追加するSQLite拡張です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e07d533c-e362-4415-a608-7823705b1ba5",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "スキーマ：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e1f5b1a7-1c8a-4869-8518-d35f130df075",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "これだけです。1行でベクトルインデックスが得られます。エンベディングは通常のノートデータと一緒に挿入されます：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "6b393b3d-b72b-4d15-af7e-4b7a61b4db50",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "sqlite-vec",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "は起動時に自動拡張として読み込まれます：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "4ca8720f-d0d3-4c2e-8f4b-30005560300f",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "ステップ4：ベクトル類似度でクエリする",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "dcc8e24d-2d5e-4fd2-9a75-08c81ff9f021",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ユーザーが検索すると、クエリテキストは同じ384次元空間にエンベッドされ、保存されたベクトルと照合されます：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "7ef3ab55-92a9-4b7a-b32f-a87aeac4f33d",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "MATCH",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "キーワードがベクトル類似検索をトリガーします。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "distance > 0.8",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "の閾値で高い信頼度のマッチ（コサイン類似度）をフィルタリングします。結果は関連度順にランク付けされて返されます。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e8eabecc-b535-4605-91fd-60021aeaf635",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ここでのCTEパターンは重要です — sqlite-vecにまず高コストなベクトル検索を実行させ、その後結合して完全なノートデータを取得します。結合後にフィルタリングするよりもはるかに高速です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "49bff7f7-90da-400e-bc6a-c0acebf8b181",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "結果",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "5637018c-aae7-4315-8e09-728461371cbf",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "この仕組みにより、「プロジェクトの締切」で検索すると、クエリに正確な単語が含まれていなくても「タイムラインのプレッシャー」や「納品日」に関するノートが表示されます。Ctrl+Fと比較すると、まるで魔法のような検索体験です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "733fcabc-7c26-437a-b8b9-29cb55c84e56",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "パイプライン全体が最新のラップトップで100ミリ秒以内に実行されます。ネットワーク遅延なし、APIコストなし、プライバシーの懸念もありません。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e2d63c72-d64e-440f-a0ef-c3b195e5ee12",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "次回変えたいこと",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "b4f03626-e741-4ff2-beff-3d635ed997b2",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "開発中に学んだいくつかのこと：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "1438f087-7f76-4ec8-90c9-1716240c0380",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "チャンクのオーバーラップは重要。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "オーバーラップするチャンクを実装しなかったため、チャンク境界のコンテキストが失われる可能性があります。20〜30%のオーバーラップを追加すると再現率が向上するでしょう。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "6fd611b6-0cf5-4ce7-9596-601a4c629178",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "ハイブリッド検索の方がよい。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ベクトル検索と従来の全文検索（SQLite FTS5）を組み合わせると、ユーザーが実際に完全一致のキーワードマッチを求めているケースにも対応できます。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "6c33a6db-84a1-4041-b585-ec9f0dfe920a",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "リランキングが有効。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "上位10件のベクトルマッチをクロスエンコーダーでリランキングすると精度が向上しますが、レイテンシが増加します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "1d267b30-e9d2-4108-b755-5fa7bffe6ab4",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ローカルファーストのアプリを構築していて、意味を理解する検索が必要な場合、このスタック — rust-bert + sqlite-vec + Tauri — は驚くほど優秀です。エンベディングの知性とSQLiteのシンプルさを両立できます。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    }
+  ],
+  "sourceLastEditedAt": "2026-03-04T06:47:00.000Z",
+  "translatedAt": "2026-03-12T02:00:00.000Z"
+}

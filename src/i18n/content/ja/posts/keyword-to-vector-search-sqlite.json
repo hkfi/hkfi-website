@@ -1,0 +1,1773 @@
+{
+  "slug": "keyword-to-vector-search-sqlite",
+  "title": "キーワード検索からベクトル検索へ：SQLiteを使った実践ガイド",
+  "excerpt": "SQLiteのFTS5とsqlite-vecを使ったキーワード検索とベクトル検索の実践的な比較。それぞれのアプローチが優れている場面を実例で紹介します。",
+  "blocks": [
+    {
+      "id": "c9096d64-95d2-42bd-a03c-76fc6dafbeb1",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "SQLiteのFTS5とsqlite-vecを使ったキーワード検索とベクトル検索の実践的な比較。それぞれのアプローチが優れている場面を実例で紹介します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "61d64c40-aa5f-46dc-a4c2-494978c408d8",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "SQLiteには",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "FTS5",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "という高速で実績のある全文検索エンジンが搭載されており、ほとんどのアプリにとっては十分な機能です。では、なぜわざわざベクトル検索を追加する必要があるのでしょうか？",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "b8b1c69e-18b1-4539-8fec-7ec0bfa995f9",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "キーワード検索には根本的な制限があるからです。文字通り入力した内容しか見つけることができません。メモに「deployment pipeline」と書いてあっても、「CI/CD workflow」で検索するとFTS5は何も返しません。ベクトル検索はこれらのフレーズがほぼ同じ意味であることを理解します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "6af446e3-e90c-4b87-8b6b-2fce153e582f",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "この記事では、自分が作ったメモアプリの実例を使って両方のアプローチを比較し、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "sqlite-vec",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "を使って既存のSQLiteデータベースにベクトル検索を追加する方法を具体的に紹介します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "0424da4b-796e-4dc8-a716-6779d4ba893a",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "FTS5によるキーワード検索：ベースライン",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "83065799-535f-45b6-baee-8fe90758434f",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "SQLiteのFTS5は、テキストに対して転置インデックスを構築する仮想テーブルです：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "0fd9d4d4-c15a-4ebd-b5aa-713cb142a716",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "FTS5はプレフィックスクエリ、フレーズマッチング、ブール演算子（",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "AND",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "OR",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "NOT",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "）、そしてBM25によるランキングをサポートしています。多くのアプリにとっては、これだけで十分です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "9185d749-3257-4dea-b7b1-4ae57cb5779d",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "FTS5が優れている場面：",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "b0c7337a-cee7-4344-803e-33022b580b76",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "完全一致フレーズ検索（「error code 404」）",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "a103b675-ebdb-479e-8e3c-2a07f7e28d4c",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "既知アイテムの検索（正確な単語を覚えている場合）",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "c6afcca8-1e8f-4bb1-9fdc-c4b68b8eb877",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "構造化クエリ（「python AND async NOT javascript」）",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "c4130562-5b8a-4a5f-af4b-58cd0f967f53",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "外部依存関係ゼロ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "252223e0-5db3-4138-b015-d066eb26aa75",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "数万件のドキュメントに対してサブミリ秒のクエリ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "b7ea601f-c418-4fd7-b1c5-de7364a23072",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "FTS5が苦手な場面：",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "00ce8014-42aa-49c1-ae15-178fd7ee6744",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "同義語：「car」は「automobile」にマッチしない",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e923f546-99d6-4c68-94ed-6e09fc326cc8",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "言い換え：「how to fix a bug」は「debugging techniques」にマッチしない",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "069f7bb9-fab9-4dff-a588-1f937a9618fe",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "概念的な検索：「productivity tips」は「getting more done」にマッチしない",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "01a264cd-4d80-4bb1-b515-d93d902b636d",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "タイプミスの許容はプレフィックスマッチングに限定される",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "9640718f-6306-49f6-99d8-030f07987caa",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "sqlite-vecによるベクトル検索：アップグレード",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "0080d14b-ec83-4f1a-911b-cd73db90d48d",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "sqlite-vec",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "はAlex Garcia氏によるSQLite拡張機能で、仮想テーブルを通じてベクトル演算を追加します。単一のCファイルで、外部依存関係もなく、SQLiteが動作するあらゆる環境で使えます。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "998f2a5e-bf11-4d25-98f9-68a511e53d5d",
+      "type": "heading_3",
+      "richText": [
+        {
+          "plainText": "セットアップ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "df3eb253-493f-44ef-b1d7-318f20bc03b1",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "まず、ベクトル用の仮想テーブルを作成します：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "6a3643b2-2a8c-4b8c-ba13-be0142950ffc",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "384",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "は埋め込みの次元数で、使用するモデルによって決まります。私はAllMiniLM-L12-V2を使用しましたが、これは384次元のベクトルを出力します。OpenAIの",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "text-embedding-3-small",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "を使う場合は1536次元になります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "f0f411fd-b127-4c86-8c45-3f178598207b",
+      "type": "heading_3",
+      "richText": [
+        {
+          "plainText": "埋め込みの保存",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "c1ce2a72-056a-4c86-a481-8e388eeee044",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ドキュメントごとに2つのものが必要です：生テキスト（表示用）とその埋め込み（検索用）。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "2dbd721b-b502-4a51-b1fe-300de6353e97",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "パターンは次の通りです：埋め込みを通常のテーブル（後で取得するためのblobとして）と仮想テーブル（インデックス検索用）の両方に保存します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "rowid",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "がそれらを紐付けます：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "ce4ce318-c751-4b55-a4e8-e9f6f01d9079",
+      "type": "heading_3",
+      "richText": [
+        {
+          "plainText": "クエリの実行",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "7a70fc01-4853-4f22-bc04-6502a5a0acab",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "コアとなる検索クエリは以下の通りです：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "0170e869-e84e-40cb-9f1a-ff6c8cbe3aa9",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "これを分解して見てみましょう：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "9ee9c9ad-aacc-44b5-a6e5-ef036bfc4c62",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "MATCH ?1",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": " — クエリの埋め込み（floatのJSON配列として）",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "32680507-268c-407f-bc45-a0226b1d7a1c",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "distance > 0.8",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": " — コサイン類似度の閾値。高いほど類似度が高い。0.8は「明確に関連する」コンテンツに適したカットオフだと分かりました",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "9dcb1e56-4c57-4195-807b-58d5b8cd2010",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "CTEパターンが重要です：まずコストの高いベクトル検索を実行し、その後メタデータをJOINします。これにより、notesテーブル全体のスキャンを避けることができます",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "7327b9c6-6885-4e11-87bf-1073890186d6",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "直接対決：それぞれが勝つのはいつ？",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "a9f15206-0f91-4ab7-8e06-9c9abaa6dcc3",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "私のメモアプリからの実例を紹介します：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "f7d6e8c6-c818-4bbe-93cd-f3eba53fb1d9",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "パターン：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "FTS5は精度が重要な場面で勝つ",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "（正確な用語、コード、識別子）。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ベクトル検索は再現率が重要な場面で勝つ",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "（探索的検索、曖昧な概念、再発見）。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "7e332368-56f2-444e-8d7c-1774d8b95edd",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "距離閾値の問題",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "5af5e42f-e1a6-407a-b070-07749b3eaf2b",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "ベクトル検索で最も難しいのはインフラではなく、適切な類似度閾値の選択です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "b4bc853b-8ad2-4a06-903c-f3db642948d5",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "閾値を高く設定しすぎると（例：0.95）、ほぼ完全一致のみが返され、目的を損ないます。低く設定しすぎると（例：0.5）、ノイズの多い無関係な結果が返されます。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "cbb1da27-6027-4eaf-9de0-9ea7ea5b6f76",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "自分のメモで手動テストした結果、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "0.8",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "に落ち着きました。観察した結果は以下の通りです：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e04f08e6-9751-4a49-8e4b-159cdbd0b4e3",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "> 0.9",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "：非常に類似したコンテンツ、ほぼ言い換え",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8c3d526f-52d8-4e33-a1cd-113bf751244f",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "0.8 - 0.9",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "：明確に関連するトピック、「関連メモ」に最適",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "42f2a727-67c1-4f53-863c-e1ae9f2a376f",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "0.7 - 0.8",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "：緩く関連、発見に役立つこともある",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "b25f858b-259a-4d76-9c5d-0eb88dff93fa",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "< 0.7",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "：通常ノイズ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "c89f314b-cbdb-4b72-9537-db95e43f6efb",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "これらの数値はAllMiniLM-L12-V2に固有のものです。異なるモデルでは距離の分布が異なります。必ず自分のデータでキャリブレーションしてください。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3899305a-557c-4ded-8930-935de02e360d",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "セントロイドのテクニック",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e0da9afe-0ff0-426f-9adf-4122f0b423fb",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "便利なパターンの一つ：各メモの",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "セントロイド埋め込み",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "（全チャンク埋め込みの平均）を計算する方法です。これにより、メモ全体をおおまかに表す単一のベクトルが得られます：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "20447077-683b-42cc-93b9-758e6ae25fe2",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "セントロイドを使えば、すべてのチャンクペアを比較することなく、メモ間の類似度（「このメモに似たメモを表示して」）を計算できます。近似ではありますが、高速で実用的です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "52ca14d2-d43b-4903-8a5b-326bbddee643",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "両方の長所を活かす：ハイブリッド検索",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "5f686788-26c6-444e-814c-6285bdb2481b",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "実際には、両方を使いたいでしょう。ハイブリッドアプローチ：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "542d31db-413e-40eb-8a89-92534b43ffac",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "FTS5で正確なキーワードマッチを実行",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "2e39caeb-9c63-48b2-9378-197b432b4ea8",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "ベクトル検索でセマンティックマッチを実行",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "7e815146-b65e-40c2-9e89-c3714ca8c44c",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "結果をマージして再ランキング",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "0441db16-40c1-449f-b8ea-db83fd0cefda",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "これにより、ユーザーが正確な用語を入力したときは精度が、探索的な検索をしているときは再現率が得られます。多くの本番検索システム（ElasticsearchのkNN、PostgreSQLのpgvector）もこのように動作しています。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "6abbf95a-8f6b-4bb0-8357-1736bd31b94d",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "私のアプリではハイブリッド検索は実装しませんでしたが、もし最初からやり直すなら実装するでしょう。2つのアプローチは競合するものではなく、補完的なものです。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "b6ff3a55-4c16-4580-be66-6af3e43a87be",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "パフォーマンス",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "398f8cb3-a889-4e77-9a7c-b61cf1fd0296",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "約500件のメモ（約2,000チャンク）のデータセットで、M1 MacBookを使用した場合：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "d79e1cbd-cf50-4d70-996d-39a1d7d599f5",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "FTS5クエリ",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "：1ms未満",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "7368f939-b625-4e9e-8f62-8de014de5379",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "ベクトル検索",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "：約5〜15ms（クエリの埋め込み処理を含む）",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "cfeba801-1d3d-4d60-ad1a-785954f6101f",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "挿入処理",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "（チャンク分割＋埋め込み＋インデックス作成）：メモ1件あたり約50〜100ms",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "fb3afe9e-c5b8-478f-abf1-03c20f73f356",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "個人のメモアプリにとっては、どちらも事実上瞬時です。より大規模なデータセット（10万件以上のドキュメント）の場合は、HNSWインデックスや専用のベクトルデータベースを検討する必要があるでしょう。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "58b0d859-3cb9-4feb-bc0f-9fe5190d7b6d",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "はじめ方",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "1ab6627a-8516-4d4e-a0a1-6d714c4a395c",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "既存のSQLiteアプリにベクトル検索を追加したい場合：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "dc8592cb-1a8d-46d9-95d5-27063d7188d5",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "埋め込みモデルを選ぶ。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "AllMiniLMはローカル/オフライン利用に最適です。OpenAIの埋め込みは品質が高いですが、APIコールが必要です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3f35f981-e829-482e-b4fc-166063950b07",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "sqlite-vecをインストールする。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "単一のロード可能な拡張機能です。Rustでは",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "sqlite3_auto_extension",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "経由でロードできます。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "85a46a7f-8d8d-4ca6-b9de-0014a4a7be36",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "vec0仮想テーブルを作成",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "し、埋め込みの次元数を指定します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "48a5994b-caff-4ff0-bb36-6f0ef5882e00",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "ドキュメントをチャンクに分割する。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "チャンクあたり200〜500トークンがほとんどのコンテンツに適しています。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "d108ccf7-cc98-4f97-994b-a6c73068417a",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "距離閾値を設定する。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "0.8から始めて、結果の品質に基づいて調整します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "dd0a52cc-20e5-4ba9-9fdb-eaa09eac70dc",
+      "type": "numbered_list_item",
+      "richText": [
+        {
+          "plainText": "rowidを同期させる。",
+          "annotations": {
+            "bold": true,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "通常テーブルのrowidを仮想テーブルと同期させて、簡単にJOINできるようにします。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "995fc159-2127-490d-97fc-69164cb698fd",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "私のアプリのベクトル検索レイヤー全体は、約100行のSQLと150行のRustで構成されています。SQLite + sqlite-vecは、専用のベクトルデータベースが提供する機能の80%を、運用オーバーヘッドゼロで実現します。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "5e11119e-2138-4565-8339-410a2731d2bf",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "SQLiteは静かにAI搭載アプリケーションの正当なプラットフォームになりつつあります。FTS5、sqlite-vec、そして今後予定されている公式ベクトル検索サポートにより、SQLiteのエコシステムを離れることなく、驚くほど洗練された検索を構築できます。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    }
+  ],
+  "sourceLastEditedAt": "2026-03-04T06:47:00.000Z",
+  "translatedAt": "2026-03-12T02:00:00.000Z"
+}

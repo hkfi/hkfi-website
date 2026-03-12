@@ -1,0 +1,153 @@
+{
+  "slug": "using-environment-variables-within-script-tags-in-astro",
+  "title": "Astroのscriptタグ内で環境変数を使う方法",
+  "excerpt": "Google AnalyticsやPosthogなどのアナリティクスツールのように、クライアント側に公開されることが前提のAPIキーをハードコードすることは、通常問題視されません。しかし、外部サービスのAPIキーは環境変数で管理したいと考えました。",
+  "blocks": [
+    {
+      "id": "81dcb681-52fe-4e5d-93f8-df58dff32daf",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "Google AnalyticsやPosthogなどのアナリティクスツールのように、クライアント側に公開されることが前提のAPIキーをハードコードすることは、通常問題視されません。しかし、外部サービスのAPIキーは管理しやすくするために環境変数に入れておきたいと考えました。キーが漏洩してアナリティクスが荒らされた場合に、すぐに変更できるようにするためでもあります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "08c6c69a-676f-4dcd-ba0f-c15458e49d38",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "Astroでの",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Posthogのセットアップ",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": "https://posthog.com/docs/libraries/astro"
+        },
+        {
+          "plainText": "のドキュメントに従うと、以下のようにscriptタグをコピー＆ペーストすることが推奨されています：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3049cdda-acc5-4d52-8285-627fd8b667dc",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "環境変数を使いたい場合、2つのコードフェンスの間でインポートし、script内で参照するようにしてみるかもしれません：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "2490f2c8-f32c-4065-9261-502e3389985e",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "しかし、これは動作しません。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "is:inline",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ディレクティブがある場合、scriptタグはAstroによって処理されないためです。プロジェクトのビルド時に環境変数をscriptタグに渡すには、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "define:vars",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ディレクティブを使用する必要があります。以下のAstroコンポーネントで動作するはずです：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    }
+  ],
+  "sourceLastEditedAt": "2026-02-15T23:43:00.000Z",
+  "translatedAt": "2026-03-12T02:00:00.000Z"
+}

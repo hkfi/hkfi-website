@@ -1,0 +1,297 @@
+{
+  "slug": "try-to-avoid-css-margins",
+  "title": "CSSのmarginを避けるべき理由",
+  "excerpt": "マージンは事実上の副作用です。スコープ外の要素の配置に影響を与えるため、カプセル化を破壊します。したがって、可能な限り避けるべきです。",
+  "blocks": [
+    {
+      "id": "243ec1f3-4909-4350-baea-2e786625b70b",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "マージンは事実上の副作用です。スコープ外の要素の配置に影響を与えるため、カプセル化を破壊します。したがって、可能な限り避けるべきです。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "2e164b83-1447-48af-965b-c266df6b7280",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "要素にマージンを使ってページ内の要素をレイアウトする代わりに、親要素がページのレイアウトとスペーシングを定義すべきです。FlexboxやGridのgapを使うか、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "> * + *",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "で子要素のマージンを定義することで実現できます（ただし、これはFlexboxとgapを使うよりも好ましくないと思います。多くの場合、最後の子要素にマージンを付けたくないため、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "> *:not(:last-child)",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "のようにさらに具体的に指定する必要があり、gapを定義するよりもはるかに複雑になります）。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "5670a137-6810-4ce4-83c3-61005fdebd0c",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "マージンは、適用される要素が特定のコンテキストでのみ使用される場合（異なるコンテキストで再利用できない場合）にのみ使うべきです。マージンはスコープ外の要素に影響を与えるため、マージンが存在する場所ではその使用コンテキストを理解する必要があり、コードを読む開発者の認知負荷が増大するため面倒です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "be135335-4223-4197-9519-559c2734407e",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "一方で、これはマージンの使用が有効なのは、再利用性が特定のコンテキストに限定される場合のみ、つまり複数のサブコンポーネントで構成されるコンポーネントの場合であることを意味します。例として以下のCardコンポーネントを見てみましょう：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8fdedddc-c305-49a4-b8eb-9d115837e0cb",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "このように使います：",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e61e864c-c932-4830-be23-c2f8f865fb36",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Card",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "を構成するパーツ間のスペーシングが異なる場合、コンテナ（",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Card",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "）に1つのスペーシング値だけを設定することはできません。さらに、",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Card",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "コンポーネントのサブコンポーネントは",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "Card",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "の子要素としてのみ使われるべきなので、ここでのマージンの使用は有効です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "dc709143-9a1a-4d6c-9ff0-94d39a3806bf",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "しかし、このシナリオでも、代わりにpaddingを使うことでマージンを避けることができます。唯一の潜在的な欠点は、paddingは要素内部のスペースですが、要素間のスペースを定義するために使っているため、メンタルモデルとして少し違和感があるかもしれないことです。とはいえ、マージンをどこかで使うこと自体も、すでに述べた理由で欠点と見なせるため、このコンテキストではpaddingとmarginの使用は同等に有効だと考えています。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "c5eda6d4-33ed-4305-b9c1-5d241ecbed39",
+      "type": "paragraph",
+      "richText": [
+        {
+          "plainText": "このように、少数のユースケースを除いてマージンを避けることで、副作用のないより良いコンポーネントを構築することが促され、結果としてより再利用可能で、読みやすく、メンテナンスしやすいコードになります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    }
+  ],
+  "sourceLastEditedAt": "2024-07-15T13:35:00.000Z",
+  "translatedAt": "2026-03-12T02:00:00.000Z"
+}

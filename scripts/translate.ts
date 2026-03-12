@@ -9,6 +9,7 @@
  *   npx tsx scripts/translate.ts --list              # List all posts and their translation status
  *   npx tsx scripts/translate.ts --slug my-post      # Output a specific post for translation
  *   npx tsx scripts/translate.ts --stale             # List posts that need re-translation
+ *   npx tsx scripts/translate.ts --db <id> --stale   # Use a specific Notion database ID
  *
  * After running with --slug, Claude Code translates the output and saves the
  * JSON file. No API costs — uses the Claude Code subscription.
@@ -22,16 +23,21 @@ import type {
 import fs from 'node:fs'
 import path from 'node:path'
 
-// Load env
+// Load env and parse --db flag
+const args = process.argv.slice(2)
+const dbFlagIdx = args.indexOf('--db')
 const NOTION_TOKEN = process.env.NOTION_INTEGRATION_TOKEN
-const NOTION_DB_ID = process.env.NOTION_DATABASE_ID
+const NOTION_DB_ID =
+  dbFlagIdx !== -1 && args[dbFlagIdx + 1]
+    ? args[dbFlagIdx + 1]
+    : process.env.NOTION_DATABASE_ID
 
 if (!NOTION_TOKEN || !NOTION_DB_ID) {
   console.error(
-    'Missing NOTION_INTEGRATION_TOKEN or NOTION_DATABASE_ID environment variables.'
+    'Missing NOTION_INTEGRATION_TOKEN or NOTION_DATABASE_ID.'
   )
   console.error(
-    'Set them in .env or pass them directly: NOTION_INTEGRATION_TOKEN=xxx npx tsx scripts/translate.ts'
+    'Set them in .env, pass them as env vars, or use --db <id>.'
   )
   process.exit(1)
 }
@@ -255,8 +261,6 @@ async function outputPostForTranslation(slug: string) {
 }
 
 async function main() {
-  const args = process.argv.slice(2)
-
   if (args.includes('--list')) {
     const posts = await getAllPosts()
     console.log(`\nFound ${posts.length} published posts:\n`)
@@ -303,6 +307,9 @@ Usage:
   npx tsx scripts/translate.ts --list              List all posts and translation status
   npx tsx scripts/translate.ts --stale             Show posts needing translation
   npx tsx scripts/translate.ts --slug <slug>       Output a post for translation
+
+Options:
+  --db <id>       Override Notion database ID (defaults to NOTION_DATABASE_ID env var)
 `)
 }
 

@@ -1,0 +1,351 @@
+{
+  "slug": "comparison-of-ways-of-typing-typescript",
+  "title": "TypeScriptの型付け方法の比較",
+  "excerpt": "",
+  "blocks": [
+    {
+      "id": "cd3b4fb2-32d7-4b5a-9f94-b27b42c67e44",
+      "type": "heading_1",
+      "richText": [
+        {
+          "plainText": "直接型アノテーション",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "1fe515a1-d501-41a7-969c-496a05e3e15d",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "ユースケース",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "30851395-a619-4f96-886d-25a5dbd31441",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "変数の型を明示的に定義したい場合。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "224e8030-e2ce-4b39-8615-f7359c873c9a",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "TypeScriptの型チェックを活用してエラーを早期に検出したい場合。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "e28151cd-fe86-455a-9217-3db46e7c3396",
+      "type": "heading_1",
+      "richText": [
+        {
+          "plainText": "型アサーション",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8c2bb6f2-a84b-44f5-868d-7d3c4ad1265c",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "ユースケース",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "b1d72558-47bb-4550-900a-32eb9cefba39",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "外部ソース（APIなど）からのデータを扱う際、型について確信があるがTypeScriptが推論できない場合。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "bd247f03-60d7-4ef5-889e-3616975b8e64",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "特定の理由でTypeScriptの推論した型をオーバーライドする必要がある場合。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "de8dc809-b5a2-45ac-81a5-f9c5c9c3f05a",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "型アサーションはできるだけ避けましょう。アサートする型が有効であると確信できる場合にのみ使用してください。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "05828c34-c3b4-4394-a154-ec234f0b3e62",
+      "type": "heading_1",
+      "richText": [
+        {
+          "plainText": "satisfies演算子",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8b009117-1d2f-433b-bce7-99feda7603f5",
+      "type": "heading_2",
+      "richText": [
+        {
+          "plainText": "ユースケース",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "8d8a20d0-6423-45b4-bae6-dc6b3f3b60ce",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "値の推論された型を変更せずに、特定の型に適合することを確認するために使います。オブジェクトが特定の形状や型に一致することを確認しつつ、後続の操作のために元の推論された型を保持したい場合に便利です。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "6a3b7093-cf6e-47d4-b095-06ffb3819675",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "元の推論された型を変更せずに、オブジェクトが特定の型に一致することを確認したい場合。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "d7e6aacc-384e-4ee3-ab4a-ea503880cded",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "元の型推論の柔軟性を保持しつつ、特定の制約を適用したい場合。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    },
+    {
+      "id": "3e7a266b-4e87-4029-8656-34ff9e2c02fd",
+      "type": "bulleted_list_item",
+      "richText": [
+        {
+          "plainText": "通常、設定ファイルで使うのに適しています。変数が設定の型を満たすことを確認したい場合に使います。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "as const",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "と組み合わせると、設定の型で定義された型から実際の値に型を絞り込むのに便利です。例えば、usernameの型が",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "string",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "ではなく",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "\"asdf\"",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": true,
+            "color": "default"
+          },
+          "href": null
+        },
+        {
+          "plainText": "として推論されるようになります。",
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "href": null
+        }
+      ]
+    }
+  ],
+  "sourceLastEditedAt": "2024-07-15T06:54:00.000Z",
+  "translatedAt": "2026-03-12T02:00:00.000Z"
+}

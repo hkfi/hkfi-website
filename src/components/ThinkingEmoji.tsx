@@ -23,7 +23,7 @@ export default function ThinkingEmoji() {
   // Matches the fallback in index.astro for seamless transition
   const Fallback = (
     <div className='pointer-events-none flex h-full w-full select-none items-center justify-center'>
-      <span className='text-[180px]'>🤔</span>
+      <span className='thinking-emoji-fallback text-[180px]'>🤔</span>
     </div>
   )
 
@@ -65,7 +65,7 @@ export default function ThinkingEmoji() {
 
   return (
     <div
-      className='group relative h-full w-full cursor-pointer outline-none'
+      className='thinking-emoji-trigger group relative h-full w-full cursor-pointer outline-none'
       role='button'
       tabIndex={0}
       aria-label='Thinking emoji'

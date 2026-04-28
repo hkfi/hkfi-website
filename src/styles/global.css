@@ -155,6 +155,101 @@ html.dark .thinking-bubble-shell {
   filter: drop-shadow(0 14px 26px rgb(0 0 0 / 0.34));
 }
 
+/* Lightweight delightful motion */
+::view-transition-old(root) {
+  animation: page-soft-out 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+::view-transition-new(root) {
+  animation: page-soft-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.motion-underline {
+  position: relative;
+  text-decoration: none;
+  background-image: linear-gradient(
+    90deg,
+    var(--color-primary),
+    var(--color-accent)
+  );
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0 2px;
+  transition:
+    background-size 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.motion-underline-visible {
+  text-decoration: underline;
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--color-accent) 70%,
+    transparent
+  );
+  text-underline-offset: 0.18em;
+}
+
+.motion-underline:hover,
+.motion-underline:focus-visible {
+  background-size: 100% 2px;
+}
+
+.motion-underline-visible:hover,
+.motion-underline-visible:focus-visible {
+  text-decoration-color: transparent;
+}
+
+.tag-chip,
+.blog-tag-btn,
+a[href^='/blog?tags='],
+.command-palette-tag,
+a[href*='/blog/post/'] .flex.flex-wrap > div.rounded-full,
+a[href*='/projects/'] .flex.flex-wrap > span.rounded-full {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  transform-origin: 50% 70%;
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.tag-chip:hover,
+.tag-chip:focus-visible,
+.blog-tag-btn:hover,
+.blog-tag-btn:focus-visible,
+a[href^='/blog?tags=']:hover,
+a[href^='/blog?tags=']:focus-visible,
+.command-palette-tag:hover,
+a[href*='/blog/post/'] .flex.flex-wrap > div.rounded-full:hover,
+a[href*='/projects/'] .flex.flex-wrap > span.rounded-full:hover {
+  animation: tag-wiggle 360ms ease both;
+}
+
+.thinking-emoji-trigger {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.thinking-emoji-trigger:hover {
+  transform: translateY(-2px) rotate(-0.5deg);
+}
+
+.thinking-emoji-trigger:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.thinking-emoji-fallback {
+  display: inline-block;
+  transform-origin: 50% 62%;
+}
+
+.thinking-emoji-trigger:hover .thinking-emoji-fallback {
+  animation: emoji-think-nod 900ms ease-in-out;
+}
+
 /* Command Palette (cmdk) */
 [cmdk-overlay] {
   position: fixed;
@@ -223,11 +318,15 @@ html.dark .thinking-bubble-shell {
   font-size: 14px;
   color: var(--color-text);
   cursor: pointer;
-  transition: background 100ms ease;
+  transition:
+    background 100ms ease,
+    color 100ms ease,
+    transform 140ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 [cmdk-item][data-selected='true'] {
   background: var(--color-secondary);
+  transform: translateX(2px);
 }
 
 [cmdk-item]:active {
@@ -240,6 +339,11 @@ html.dark .thinking-bubble-shell {
   height: 16px;
   opacity: 0.6;
   flex-shrink: 0;
+  transition: transform 140ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[cmdk-item][data-selected='true'] svg {
+  transform: rotate(-5deg) scale(1.08);
 }
 
 [cmdk-empty] {
@@ -507,6 +611,29 @@ html.dark .coffee-surprise {
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+
+  .motion-underline,
+  .tag-chip,
+  .blog-tag-btn,
+  a[href^='/blog?tags='],
+  .command-palette-tag,
+  a[href*='/blog/post/'] .flex.flex-wrap > div.rounded-full,
+  a[href*='/projects/'] .flex.flex-wrap > span.rounded-full,
+  .thinking-emoji-trigger,
+  .thinking-emoji-fallback,
+  [cmdk-item],
+  [cmdk-item] svg,
+  .coffee-surprise,
+  .coffee-surprise-steam span {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
   .scroll-reveal,
   .scroll-reveal[data-scroll-animation='fade-up'],
   .scroll-reveal[data-scroll-animation='scale'],
@@ -554,6 +681,58 @@ html.dark .coffee-surprise {
   to {
     opacity: 1;
     transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes page-soft-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes page-soft-out {
+  to {
+    opacity: 0;
+    transform: translateY(-3px);
+    filter: blur(1px);
+  }
+}
+
+@keyframes tag-wiggle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+
+  35% {
+    transform: translateY(-1px) rotate(-1.4deg);
+  }
+
+  70% {
+    transform: translateY(-1px) rotate(1.1deg);
+  }
+}
+
+@keyframes emoji-think-nod {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+
+  35% {
+    transform: rotate(-3deg) scale(1.02);
+  }
+
+  70% {
+    transform: rotate(2deg) scale(1);
   }
 }
 

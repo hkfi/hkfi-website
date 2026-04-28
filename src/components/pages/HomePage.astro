@@ -1,10 +1,17 @@
 ---
 import PostLink from '@/components/PostLink.astro'
 import ScrollReveal from '@/components/ScrollReveal.astro'
+import HomeCuriosityStrip from '@/components/HomeCuriosityStrip.astro'
 import ThinkingEmoji from '@/components/ThinkingEmoji'
-import { getAllPosts, getAllPostCardData } from '@/libs/notion/client'
+import {
+  getAllPosts,
+  getAllPostCardData,
+  getAllProjectData,
+  type Project
+} from '@/libs/notion/client'
 import { t, tHtml, DEFAULT_LOCALE } from '@/i18n/index'
 import type { Locale } from '@/i18n/types'
+import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
 interface Props {
   locale?: Locale
@@ -12,8 +19,146 @@ interface Props {
 
 const { locale = DEFAULT_LOCALE } = Astro.props
 
-const blogPosts = await getAllPosts().then((res) => res.slice(0, 5))
-const cardDataMap = await getAllPostCardData()
+type CuriosityItem = {
+  label: string
+  detail: string
+  count: number
+}
+
+type CuriosityTag = {
+  label: string
+  postCount: number
+  projectCount: number
+  score: number
+  latestPostTitle?: string
+  projectName?: string
+}
+
+function getPostTitle(post: PageObjectResponse): string {
+  const titleProperty = post.properties.Title
+  return titleProperty?.type === 'title'
+    ? titleProperty.title[0]?.plain_text ?? ''
+    : ''
+}
+
+function getPostTags(post: PageObjectResponse): string[] {
+  const tagsProperty = post.properties.Tags
+  return tagsProperty?.type === 'multi_select'
+    ? tagsProperty.multi_select.map((tag) => tag.name)
+    : []
+}
+
+function uniqueTags(tags: string[]): string[] {
+  return [
+    ...new Map(
+      tags
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+        .map((tag) => [tag.toLocaleLowerCase(), tag])
+    ).values()
+  ]
+}
+
+function pluralize(word: string, count: number): string {
+  return count === 1 ? word : `${word}s`
+}
+
+function formatCuriosityDetail(tag: CuriosityTag, locale: Locale): string {
+  const totalCount = tag.postCount + tag.projectCount
+
+  if (locale === 'ja') {
+    if (tag.postCount > 0 && tag.projectCount > 0) {
+      return `${tag.postCount}件の記事と${tag.projectCount}件のプロジェクトで登場。最近では「${tag.latestPostTitle}」で触れています。`
+    }
+
+    if (tag.postCount > 0) {
+      return `${tag.postCount}件の記事で登場。最近では「${tag.latestPostTitle}」で触れています。`
+    }
+
+    return `${tag.projectCount}件のプロジェクトで使っています。たとえば「${tag.projectName}」。`
+  }
+
+  if (tag.postCount > 0 && tag.projectCount > 0) {
+    return `${tag.postCount} ${pluralize('post', tag.postCount)} and ${tag.projectCount} ${pluralize('project', tag.projectCount)} touch this; latest note: "${tag.latestPostTitle}".`
+  }
+
+  if (tag.postCount > 0) {
+    const verb = tag.postCount === 1 ? 'touches' : 'touch'
+    return `${tag.postCount} ${pluralize('post', tag.postCount)} ${verb} this; latest note: "${tag.latestPostTitle}".`
+  }
+
+  const verb = totalCount === 1 ? 'uses' : 'use'
+  return `${totalCount} ${pluralize('project', totalCount)} ${verb} this, including "${tag.projectName}".`
+}
+
+function buildCuriosityItems(
+  posts: PageObjectResponse[],
+  projects: Project[],
+  locale: Locale
+): CuriosityItem[] {
+  const tags = new Map<string, CuriosityTag>()
+
+  function getTag(label: string): CuriosityTag {
+    const key = label.toLocaleLowerCase()
+    const existing = tags.get(key)
+    if (existing) return existing
+
+    const tag = {
+      label,
+      postCount: 0,
+      projectCount: 0,
+      score: 0
+    }
+    tags.set(key, tag)
+    return tag
+  }
+
+  posts.forEach((post, index) => {
+    const postTitle = getPostTitle(post)
+    const recencyWeight = Math.max(1, 8 - index)
+
+    uniqueTags(getPostTags(post)).forEach((label) => {
+      const tag = getTag(label)
+      tag.postCount += 1
+      tag.score += recencyWeight
+      tag.latestPostTitle ??= postTitle
+    })
+  })
+
+  projects.forEach((project, index) => {
+    const projectWeight = Math.max(1, 4 - index)
+
+    uniqueTags(project.tags).forEach((label) => {
+      const tag = getTag(label)
+      tag.projectCount += 1
+      tag.score += projectWeight
+      tag.projectName ??= project.name
+    })
+  })
+
+  return [...tags.values()]
+    .sort((a, b) => {
+      const countA = a.postCount + a.projectCount
+      const countB = b.postCount + b.projectCount
+      return (
+        b.score - a.score || countB - countA || a.label.localeCompare(b.label)
+      )
+    })
+    .slice(0, 4)
+    .map((tag) => ({
+      label: tag.label,
+      detail: formatCuriosityDetail(tag, locale),
+      count: tag.postCount + tag.projectCount
+    }))
+}
+
+const allPosts = await getAllPosts()
+const blogPosts = allPosts.slice(0, 5)
+const [cardDataMap, projects] = await Promise.all([
+  getAllPostCardData(),
+  getAllProjectData()
+])
+const curiosityItems = buildCuriosityItems(allPosts, projects, locale)
 ---
 
 <div class='flex w-full items-center justify-between p-4'>
@@ -23,7 +168,8 @@ const cardDataMap = await getAllPostCardData()
     class='flex min-h-[400px] flex-grow flex-col justify-center gap-4'
   >
     <div class='text-5xl font-extrabold tracking-tight md:text-6xl'>
-      {t(locale, 'home.hello')} <span class='animate-pulse'>👋</span>
+      {t(locale, 'home.hello')}
+      <span class='animate-pulse'>👋</span>
     </div>
     <div
       class='text-default/90 text-5xl font-bold tracking-tight md:text-6xl'
@@ -52,6 +198,10 @@ const cardDataMap = await getAllPostCardData()
   </div>
 </div>
 
+<ScrollReveal animation='fade-up' delay={50} duration={500} class='px-3'>
+  <HomeCuriosityStrip locale={locale} items={curiosityItems} />
+</ScrollReveal>
+
 <ScrollReveal
   animation='fade-up'
   delay={100}
@@ -64,7 +214,11 @@ const cardDataMap = await getAllPostCardData()
   {
     blogPosts?.map((blogPost, index) => (
       <ScrollReveal animation='fade-up' delay={index * 75} duration={500}>
-        <PostLink post={blogPost} cardData={cardDataMap.get(blogPost.id)} locale={locale} />
+        <PostLink
+          post={blogPost}
+          cardData={cardDataMap.get(blogPost.id)}
+          locale={locale}
+        />
       </ScrollReveal>
     ))
   }

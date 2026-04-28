@@ -1,5 +1,6 @@
 # build output
 dist/
+.vercel/
 
 # generated types
 .astro/
@@ -23,3 +24,11 @@ pnpm-debug.log*
 # performance artifacts
 lighthouse_report*.json
 check_score.*
+
+# local agent/tooling workspaces
+.agent/
+.claude/
+.worktrees/
+
+# local one-off scripts
+test-posthog.js

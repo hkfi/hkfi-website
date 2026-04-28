@@ -104,6 +104,57 @@ pre.shiki .line::before {
   color: rgba(115, 138, 148, 0.4);
 }
 
+.thinking-bubble {
+  --thinking-bubble-bg: color-mix(
+    in srgb,
+    var(--color-background) 42%,
+    white 58%
+  );
+  --thinking-bubble-border: color-mix(
+    in srgb,
+    var(--color-secondary) 75%,
+    var(--color-text) 25%
+  );
+
+  color: var(--color-text);
+  overflow: visible;
+}
+
+html.dark .thinking-bubble {
+  --thinking-bubble-bg: color-mix(
+    in srgb,
+    var(--color-background) 72%,
+    white 8%
+  );
+  --thinking-bubble-border: color-mix(
+    in srgb,
+    var(--color-secondary) 72%,
+    var(--color-text) 28%
+  );
+
+  color: #f7f8d9;
+}
+
+.thinking-bubble-shell {
+  filter: drop-shadow(
+    0 14px 24px color-mix(in srgb, var(--color-text) 18%, transparent)
+  );
+  height: 140%;
+  pointer-events: none;
+}
+
+.thinking-bubble-shape {
+  fill: var(--thinking-bubble-bg);
+  stroke: var(--thinking-bubble-border);
+  stroke-linejoin: round;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+html.dark .thinking-bubble-shell {
+  filter: drop-shadow(0 14px 26px rgb(0 0 0 / 0.34));
+}
+
 /* Command Palette (cmdk) */
 [cmdk-overlay] {
   position: fixed;

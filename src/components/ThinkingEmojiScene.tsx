@@ -1,6 +1,6 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, Environment, ContactShadows } from '@react-three/drei'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 
 // Shared pointer vector, normalized around the emoji canvas rather than the viewport.
@@ -38,20 +38,33 @@ function GlobalTracker() {
 }
 
 interface ModelProps {
+  reactionSeed: number
   onReady?: () => void
 }
 
-function Model({ onReady }: ModelProps) {
+function Model({ reactionSeed, onReady }: ModelProps) {
   const { scene } = useGLTF('/thinking_emoji/scene-draco.gltf', '/draco/')
   const ref = useRef<THREE.Group>(null)
+  const impulse = useRef(0)
 
   // Signal that the model has loaded and mounted
   useEffect(() => {
     onReady?.()
   }, [onReady])
 
-  useFrame(() => {
+  useEffect(() => {
+    if (reactionSeed > 0) impulse.current = 1
+  }, [reactionSeed])
+
+  useFrame(({ clock }, delta) => {
     if (ref.current) {
+      const time = clock.getElapsedTime()
+      const idleBob = Math.sin(time * 1.6) * 0.08
+      const idleSway = Math.sin(time * 0.9) * 0.04
+      const reaction = impulse.current
+      const bounce = Math.sin(reaction * Math.PI) * 0.28
+      const wobble = Math.sin(reaction * Math.PI * 4) * reaction * 0.18
+
       lookOffset.copy(mouse).clampLength(0, MAX_LOOK_DISTANCE)
       lookTarget.set(
         lookOffset.x * LOOK_OFFSET,
@@ -60,6 +73,11 @@ function Model({ onReady }: ModelProps) {
       )
 
       ref.current.lookAt(lookTarget)
+      ref.current.position.y = idleBob + bounce
+      ref.current.rotation.z += idleSway + wobble
+      ref.current.scale.setScalar(scale * (1 + reaction * 0.08))
+
+      impulse.current = Math.max(0, reaction - delta * 1.9)
     }
   })
 
@@ -72,10 +90,10 @@ function Model({ onReady }: ModelProps) {
   // Viewport width in Three.js units depends on camera distance
   const scale = viewport.width < 5 ? 0.9 : 1.3
 
-  const primitive = scene.clone()
+  const primitive = useMemo(() => scene.clone(), [scene])
 
   return (
-    <group ref={ref} position={[0, 0, 0]} scale={[scale, scale, scale]}>
+    <group ref={ref} position={[0, 0, 0]} scale={scale}>
       <primitive object={primitive} />
     </group>
   )
@@ -85,10 +103,12 @@ function Model({ onReady }: ModelProps) {
 useGLTF.preload('/thinking_emoji/scene-draco.gltf', '/draco/')
 
 interface ThinkingEmojiSceneProps {
+  reactionSeed?: number
   onReady?: () => void
 }
 
 export default function ThinkingEmojiScene({
+  reactionSeed = 0,
   onReady
 }: ThinkingEmojiSceneProps) {
   return (
@@ -107,7 +127,7 @@ export default function ThinkingEmojiScene({
         {/* Environment for shiny reflections if the model has PBR materials */}
         <Environment preset='city' />
 
-        <Model onReady={onReady} />
+        <Model reactionSeed={reactionSeed} onReady={onReady} />
 
         {/* Shadows for grounded feel */}
         <ContactShadows

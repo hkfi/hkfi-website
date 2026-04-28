@@ -3,15 +3,25 @@ import { useGLTF, Environment, ContactShadows } from '@react-three/drei'
 import { useRef, useEffect } from 'react'
 import * as THREE from 'three'
 
-// Shared global mouse vector
+// Shared pointer vector, normalized around the emoji canvas rather than the viewport.
 const mouse = new THREE.Vector2(0, 0)
+const lookOffset = new THREE.Vector2(0, 0)
+const lookTarget = new THREE.Vector3(0, 0, 5)
+
+const MAX_LOOK_DISTANCE = 1
+const LOOK_OFFSET = 1.7
+const LOOK_DEPTH = 5
 
 function GlobalTracker() {
+  const { gl } = useThree()
+
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      // Normalize mouse (-1 to 1)
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+      const bounds = gl.domElement.getBoundingClientRect()
+
+      // Normalize against the canvas so (0, 0) is the emoji's screen position.
+      mouse.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1
+      mouse.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1
     }
 
     if (typeof window !== 'undefined') {
@@ -23,7 +33,7 @@ function GlobalTracker() {
         window.removeEventListener('mousemove', handleMouseMove)
       }
     }
-  }, [])
+  }, [gl])
   return null
 }
 
@@ -42,12 +52,14 @@ function Model({ onReady }: ModelProps) {
 
   useFrame(() => {
     if (ref.current) {
-      // Create a target vector for the model to look at
-      const target = new THREE.Vector3(mouse.x * 5, mouse.y * 5, 5)
+      lookOffset.copy(mouse).clampLength(0, MAX_LOOK_DISTANCE)
+      lookTarget.set(
+        lookOffset.x * LOOK_OFFSET,
+        lookOffset.y * LOOK_OFFSET,
+        LOOK_DEPTH
+      )
 
-      // We can use linear interpolation for smoothness if desired,
-      // but lookAt directly is responsive and snappy.
-      ref.current.lookAt(target)
+      ref.current.lookAt(lookTarget)
     }
   })
 

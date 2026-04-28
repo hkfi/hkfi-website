@@ -11,6 +11,7 @@ type Locale = 'en' | 'ja'
 
 interface CommandPaletteProps {
   posts: CommandPaletteItem[]
+  projects?: CommandPaletteItem[]
   locale?: Locale
 }
 
@@ -21,15 +22,50 @@ interface CPStrings {
   pages: string
   blogPosts: string
   aiSearch: string
+  surpriseMe: string
   home: string
   projects: string
   about: string
   blog: string
+  randomPost: string
+  randomProject: string
+  coffee: string
+  languageMode: string
 }
 
 const CP_STRINGS: Record<Locale, CPStrings> = {
-  en: { placeholder: 'Search pages and posts...', noResults: 'No results found.', pages: 'Pages', blogPosts: 'Blog Posts', aiSearch: 'AI Search', home: 'Home', projects: 'Projects', about: 'About', blog: 'Blog' },
-  ja: { placeholder: 'ページや記事を検索...', noResults: '結果が見つかりません。', pages: 'ページ', blogPosts: 'ブログ記事', aiSearch: 'AI検索', home: 'ホーム', projects: 'プロジェクト', about: '自己紹介', blog: 'ブログ' }
+  en: {
+    placeholder: 'Search pages and posts...',
+    noResults: 'No results found.',
+    pages: 'Pages',
+    blogPosts: 'Blog Posts',
+    aiSearch: 'AI Search',
+    surpriseMe: 'Surprise Me',
+    home: 'Home',
+    projects: 'Projects',
+    about: 'About',
+    blog: 'Blog',
+    randomPost: 'Random post',
+    randomProject: 'Random project',
+    coffee: 'Coffee break',
+    languageMode: 'Language mode'
+  },
+  ja: {
+    placeholder: 'ページや記事を検索...',
+    noResults: '結果が見つかりません。',
+    pages: 'ページ',
+    blogPosts: 'ブログ記事',
+    aiSearch: 'AI検索',
+    surpriseMe: 'おまかせ',
+    home: 'ホーム',
+    projects: 'プロジェクト',
+    about: '自己紹介',
+    blog: 'ブログ',
+    randomPost: 'ランダム記事',
+    randomProject: 'ランダムプロジェクト',
+    coffee: 'コーヒーブレイク',
+    languageMode: '言語モード'
+  }
 }
 
 function getLocalePath(locale: Locale, path: string): string {
@@ -129,7 +165,70 @@ function SparkleIcon() {
   )
 }
 
-export default function CommandPalette({ posts, locale = 'en' }: CommandPaletteProps) {
+function CoffeeIcon() {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      width='16'
+      height='16'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    >
+      <path d='M10 2v2' />
+      <path d='M14 2v2' />
+      <path d='M16 8h1a4 4 0 0 1 0 8h-1' />
+      <path d='M4 8h12v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5Z' />
+      <path d='M6 22h12' />
+    </svg>
+  )
+}
+
+function LanguageIcon() {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      width='16'
+      height='16'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    >
+      <path d='m5 8 6 6' />
+      <path d='m4 14 6-6 2-3' />
+      <path d='M2 5h12' />
+      <path d='M7 2h1' />
+      <path d='m22 22-5-10-5 10' />
+      <path d='M14 18h6' />
+    </svg>
+  )
+}
+
+function pickRandom<T>(items: T[]): T | null {
+  if (items.length === 0) return null
+  return items[Math.floor(Math.random() * items.length)]
+}
+
+function getOppositeLocalePath(): string {
+  const pathname = window.location.pathname
+  if (pathname === '/ja' || pathname.startsWith('/ja/')) {
+    const unprefixed = pathname.replace(/^\/ja(?=\/|$)/, '') || '/'
+    return unprefixed
+  }
+  return `/ja${pathname === '/' ? '' : pathname}`
+}
+
+export default function CommandPalette({
+  posts,
+  projects = [],
+  locale = 'en'
+}: CommandPaletteProps) {
   const strings = CP_STRINGS[locale]
   const PAGES = getPages(locale, strings)
   const [open, setOpen] = useState(false)
@@ -139,6 +238,7 @@ export default function CommandPalette({ posts, locale = 'en' }: CommandPaletteP
   const embeddingsRef = useRef<PostEmbedding[] | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const coffeeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -149,6 +249,12 @@ export default function CommandPalette({ posts, locale = 'en' }: CommandPaletteP
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (coffeeTimerRef.current) clearTimeout(coffeeTimerRef.current)
+    }
   }, [])
 
   // Listen for custom event from the navbar trigger button
@@ -263,6 +369,51 @@ export default function CommandPalette({ posts, locale = 'en' }: CommandPaletteP
       })
   }, [])
 
+  const handleRandomPost = useCallback(() => {
+    const post = pickRandom(posts)
+    handleSelect(
+      getLocalePath(locale, post ? `/blog/post/${post.slug}` : '/blog')
+    )
+  }, [handleSelect, locale, posts])
+
+  const handleRandomProject = useCallback(() => {
+    const project = pickRandom(projects)
+    handleSelect(
+      getLocalePath(locale, project ? `/projects/${project.slug}` : '/projects')
+    )
+  }, [handleSelect, locale, projects])
+
+  const handleLanguageMode = useCallback(() => {
+    handleSelect(getOppositeLocalePath())
+  }, [handleSelect])
+
+  const handleCoffeeBreak = useCallback(() => {
+    setOpen(false)
+    const existing = document.querySelector('.coffee-surprise')
+    existing?.remove()
+
+    const effect = document.createElement('div')
+    effect.className = 'coffee-surprise'
+    effect.setAttribute('role', 'status')
+    effect.setAttribute('aria-live', 'polite')
+    effect.innerHTML = `
+      <div class="coffee-surprise-steam" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="coffee-surprise-cup" aria-hidden="true">
+        <span></span>
+      </div>
+      <p>${locale === 'ja' ? 'コーヒーブレイク中' : 'Coffee break'}</p>
+    `
+    document.body.appendChild(effect)
+
+    if (coffeeTimerRef.current) clearTimeout(coffeeTimerRef.current)
+    coffeeTimerRef.current = setTimeout(() => {
+      effect.classList.add('is-leaving')
+      coffeeTimerRef.current = setTimeout(() => effect.remove(), 420)
+    }, 1800)
+  }, [locale])
+
   return (
     <Command.Dialog open={open} onOpenChange={setOpen} label='Command Palette'>
       <Command.Input
@@ -286,12 +437,45 @@ export default function CommandPalette({ posts, locale = 'en' }: CommandPaletteP
           ))}
         </Command.Group>
 
+        <Command.Group heading={strings.surpriseMe}>
+          <Command.Item
+            value={`${strings.randomPost} random post surprise blog`}
+            onSelect={handleRandomPost}
+          >
+            <SparkleIcon />
+            <span>{strings.randomPost}</span>
+          </Command.Item>
+          <Command.Item
+            value={`${strings.randomProject} random project surprise`}
+            onSelect={handleRandomProject}
+          >
+            <SparkleIcon />
+            <span>{strings.randomProject}</span>
+          </Command.Item>
+          <Command.Item
+            value={`${strings.coffee} coffee break easter egg`}
+            onSelect={handleCoffeeBreak}
+          >
+            <CoffeeIcon />
+            <span>{strings.coffee}</span>
+          </Command.Item>
+          <Command.Item
+            value={`${strings.languageMode} language mode ja en`}
+            onSelect={handleLanguageMode}
+          >
+            <LanguageIcon />
+            <span>{strings.languageMode}</span>
+          </Command.Item>
+        </Command.Group>
+
         <Command.Group heading={strings.blogPosts}>
           {posts.map((post) => (
             <Command.Item
               key={post.slug}
               value={`${post.title} ${post.tags.join(' ')}`}
-              onSelect={() => handleSelect(getLocalePath(locale, `/blog/post/${post.slug}`))}
+              onSelect={() =>
+                handleSelect(getLocalePath(locale, `/blog/post/${post.slug}`))
+              }
             >
               <PostIcon />
               <span>{post.title}</span>
@@ -322,7 +506,11 @@ export default function CommandPalette({ posts, locale = 'en' }: CommandPaletteP
               <Command.Item
                 key={`ai-${result.slug}`}
                 value={`ai-semantic-${result.title}`}
-                onSelect={() => handleSelect(getLocalePath(locale, `/blog/post/${result.slug}`))}
+                onSelect={() =>
+                  handleSelect(
+                    getLocalePath(locale, `/blog/post/${result.slug}`)
+                  )
+                }
                 forceMount
               >
                 <SparkleIcon />

@@ -8,8 +8,14 @@ import PostHog from '@/components/third-party/PostHog.astro'
 import type { AstroSeoProps } from '@astrolib/seo'
 import { AstroSeo } from '@astrolib/seo'
 import CommandPalette from '@/components/CommandPalette'
-import { getAllPosts } from '@/libs/notion/client'
-import { getLocale, stripLocalePrefix, LOCALES, DEFAULT_LOCALE, localePath } from '@/i18n/index'
+import { getAllProjectData, getAllPosts } from '@/libs/notion/client'
+import {
+  getLocale,
+  stripLocalePrefix,
+  LOCALES,
+  DEFAULT_LOCALE,
+  localePath
+} from '@/i18n/index'
 import type { Locale } from '@/i18n/types'
 
 export type Props = {
@@ -30,12 +36,19 @@ const commandPaletteItems = allPosts.map((post) => ({
       : '',
   slug:
     'rich_text' in post.properties.Slug
-      ? post.properties.Slug.rich_text[0].plain_text
+      ? post.properties.Slug.rich_text[0].plain_text.replace(/^\/+/, '')
       : '',
   tags:
     'Tags' in post.properties && 'multi_select' in post.properties.Tags
       ? post.properties.Tags.multi_select.map((t) => t.name)
       : []
+}))
+
+const allProjects = await getAllProjectData()
+const commandPaletteProjects = allProjects.map((project) => ({
+  title: project.name,
+  slug: project.slug.replace(/^\/+/, ''),
+  tags: project.tags
 }))
 ---
 
@@ -46,13 +59,15 @@ const commandPaletteItems = allPosts.map((post) => ({
     <meta name='viewport' content='width=device-width' />
     <link rel='icon' type='image/svg+xml' href='/favicon.ico' />
     <meta name='generator' content={Astro.generator} />
-    {LOCALES.map((loc) => (
-      <link
-        rel='alternate'
-        hreflang={loc}
-        href={`https://hkfi.dev${localePath(loc, currentPath)}`}
-      />
-    ))}
+    {
+      LOCALES.map((loc) => (
+        <link
+          rel='alternate'
+          hreflang={loc}
+          href={`https://hkfi.dev${localePath(loc, currentPath)}`}
+        />
+      ))
+    }
     <link
       rel='alternate'
       hreflang='x-default'
@@ -115,7 +130,12 @@ const commandPaletteItems = allPosts.map((post) => ({
     </main>
     <Footer locale={locale} />
     <div transition:persist='command-palette'>
-      <CommandPalette client:only='react' posts={commandPaletteItems} locale={locale} />
+      <CommandPalette
+        client:only='react'
+        posts={commandPaletteItems}
+        projects={commandPaletteProjects}
+        locale={locale}
+      />
     </div>
 
     <style is:global>

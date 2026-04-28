@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "hkfi",
-    "description": "古市洋輝のポートフォリオとエンジニアリングブログ。TypeScriptとPythonでWeb体験を構築するソフトウェアエンジニア。"
+    "description": "古市洋輝のポートフォリオとエンジニアリングブログ。AIを活用したプロダクトと洗練されたWeb体験を構築するソフトウェアエンジニア。"
   },
   "nav": {
     "blog": "ブログ",
@@ -12,7 +12,7 @@
     "hello": "こんにちは",
     "imName": "<accent>Hiroki</accent> です",
     "role": "ソフトウェアエンジニア",
-    "tagline": "TypeScriptとPythonでWeb体験を構築しています",
+    "tagline": "AIとvibe codingで、アイデアを使えるプロダクトに育てています",
     "recentPosts": "最近の記事"
   },
   "about": {

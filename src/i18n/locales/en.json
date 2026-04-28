@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "hkfi",
-    "description": "Portfolio and engineering blog of Hiroki Furuichi, a software engineer building web experiences with TypeScript and Python."
+    "description": "Portfolio and engineering blog of Hiroki Furuichi, a software engineer building AI-powered products and polished web experiences."
   },
   "nav": {
     "blog": "Blog",
@@ -12,7 +12,7 @@
     "hello": "Hello",
     "imName": "I'm <accent>Hiroki</accent>",
     "role": "Software Engineer",
-    "tagline": "Building web experiences with TypeScript and Python",
+    "tagline": "Vibe coding AI-powered products from idea to polished web experience",
     "recentPosts": "Recent Posts"
   },
   "about": {

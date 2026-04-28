@@ -36,6 +36,15 @@ const tags =
 const excerpt = cardData?.excerpt ?? ''
 const readingTime = cardData?.readingTime ?? ''
 const coverUrl = cardData?.coverUrl ?? null
+const primaryTag = tags[0]?.name ?? ''
+const whyLine =
+  locale === 'ja'
+    ? primaryTag
+      ? `気になる理由: ${primaryTag}を実践の視点で見られます。`
+      : '気になる理由: 小さな発見を短く追えます。'
+    : primaryTag
+      ? `Why it is interesting: a practical angle on ${primaryTag}.`
+      : 'Why it is interesting: a compact note from the workbench.'
 const gradient =
   cardData?.gradient ??
   'linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 30%, transparent) 0%, color-mix(in srgb, var(--color-secondary) 50%, transparent) 100%)'
@@ -43,11 +52,11 @@ const gradient =
 
 <a
   transition:name={`post-link-${post.id}`}
-  class='bg-secondary/20 hover:border-primary/20 group flex h-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300 hover:scale-[1.02] hover:shadow-xl'
+  class='post-card bg-secondary/20 hover:border-primary/20 group flex h-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300 hover:scale-[1.02] hover:shadow-xl'
   href={localePath(locale, `/blog/post/${slug}`)}
 >
   <!-- Cover image or gradient -->
-  <div class='relative h-32 w-full overflow-hidden'>
+  <div class='post-card-cover relative h-32 w-full overflow-hidden'>
     {
       coverUrl ? (
         <img
@@ -61,6 +70,14 @@ const gradient =
           class='h-full w-full transition-opacity duration-300 group-hover:opacity-80'
           style={`background: ${gradient}`}
         />
+      )
+    }
+
+    {
+      readingTime && (
+        <div class='absolute right-3 top-3 rounded-full border border-white/45 bg-black/35 px-2.5 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-0.5'>
+          {readingTime}
+        </div>
       )
     }
   </div>
@@ -81,6 +98,11 @@ const gradient =
           </p>
         )
       }
+      <p
+        class='post-card-why text-default/55 border-primary/10 bg-background/35 group-hover:border-primary/25 group-hover:text-default/75 mt-3 line-clamp-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-all duration-300'
+      >
+        {whyLine}
+      </p>
     </div>
 
     <div class='mt-4 flex items-end justify-between'>
@@ -88,16 +110,94 @@ const gradient =
         {tags.map((tag) => <Tag tag={tag} size='sm' />)}
       </div>
       <div class='text-default/40 flex shrink-0 items-center gap-1.5 text-xs'>
-        {
-          readingTime && (
-            <>
-              <span>{readingTime}</span>
-              <span>·</span>
-            </>
-          )
-        }
         <span>{date}</span>
       </div>
     </div>
   </div>
 </a>
+
+<style>
+  .post-card {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .post-card > :global(*) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .post-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(
+        circle at 12% 16%,
+        color-mix(in srgb, var(--color-accent) 26%, transparent),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at 88% 12%,
+        color-mix(in srgb, var(--color-primary) 18%, transparent),
+        transparent 24%
+      );
+    opacity: 0;
+    transition: opacity 280ms ease;
+  }
+
+  .post-card:hover::before,
+  .post-card:focus-visible::before {
+    opacity: 1;
+  }
+
+  .post-card-cover::after {
+    content: '';
+    position: absolute;
+    inset: -45%;
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      rgb(255 255 255 / 0.34) 48%,
+      transparent 61%
+    );
+    transform: translateX(-45%) rotate(8deg);
+    transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .post-card:hover .post-card-cover::after,
+  .post-card:focus-visible .post-card-cover::after {
+    transform: translateX(45%) rotate(8deg);
+  }
+
+  .post-card :global(.flex.flex-wrap > div.rounded-full) {
+    transition:
+      transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 160ms ease,
+      border-color 160ms ease;
+  }
+
+  .post-card:hover :global(.flex.flex-wrap > div.rounded-full:nth-child(2n)),
+  .post-card:focus-visible
+    :global(.flex.flex-wrap > div.rounded-full:nth-child(2n)) {
+    transform: translateY(-1px) rotate(1deg);
+  }
+
+  .post-card:hover
+    :global(.flex.flex-wrap > div.rounded-full:nth-child(2n + 1)),
+  .post-card:focus-visible
+    :global(.flex.flex-wrap > div.rounded-full:nth-child(2n + 1)) {
+    transform: translateY(-1px) rotate(-1deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .post-card::before,
+    .post-card-cover::after,
+    .post-card-why,
+    .post-card :global(.flex.flex-wrap > div.rounded-full) {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>

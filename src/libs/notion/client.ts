@@ -496,7 +496,7 @@ function extractProjectData(page: PageObjectResponse): Project {
   const name = 'title' in prop.Name ? prop.Name.title[0].plain_text : ''
   const slug =
     'rich_text' in prop.Slug && prop.Slug.rich_text[0]
-      ? prop.Slug.rich_text[0].plain_text
+      ? prop.Slug.rich_text[0].plain_text.replace(/^\/+/, '')
       : ''
   const description =
     'Description' in prop &&

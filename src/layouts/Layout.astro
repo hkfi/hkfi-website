@@ -27,6 +27,7 @@ export type Props = {
 const { title, seo, locale: localeProp } = Astro.props
 const locale = localeProp ?? getLocale(Astro.currentLocale)
 const currentPath = stripLocalePrefix(Astro.url.pathname, locale)
+const shouldLoadShadowWidget = !import.meta.env.DEV
 
 const allPosts = await getAllPosts()
 const commandPaletteItems = allPosts.map((post) => ({
@@ -114,12 +115,17 @@ const commandPaletteProjects = allProjects.map((project) => ({
     />
     <ClientRouter />
     <PostHog />
-    <script
-      async
-      is:inline
-      data-astro-rerun
-      src='https://shadowcl.one/widget.js'
-      data-widget-token='pub_a5a0dfd62921686f5cd7c34e9524b15d'></script>
+    {
+      shouldLoadShadowWidget && (
+        <script
+          async
+          is:inline
+          data-astro-rerun
+          src='https://shadowcl.one/widget.js'
+          data-widget-token='pub_a5a0dfd62921686f5cd7c34e9524b15d'
+        />
+      )
+    }
   </head>
   <body
     class='text-default flex min-h-screen flex-col items-center bg-background'

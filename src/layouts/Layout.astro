@@ -60,6 +60,29 @@ const commandPaletteItems = allPosts.map((post) => ({
     />
     <AstroSeo {...seo} />
     <title>{title}</title>
+    <script is:inline>
+      ;(() => {
+        const themeKey = 'theme'
+        const getStoredTheme = () => {
+          try {
+            const theme = window.localStorage.getItem(themeKey)
+            return theme === 'dark' || theme === 'light' ? theme : null
+          } catch {
+            return null
+          }
+        }
+        const getPreferredTheme = () =>
+          getStoredTheme() ??
+          (window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light')
+
+        document.documentElement.classList.toggle(
+          'dark',
+          getPreferredTheme() === 'dark'
+        )
+      })()
+    </script>
     <AstroFont
       config={[
         {
@@ -119,11 +142,21 @@ const commandPaletteItems = allPosts.map((post) => ({
 
     <script>
       const setDarkMode = () => {
-        if (localStorage.theme === 'dark') {
-          document.documentElement.classList.add('dark')
-        } else {
-          document.documentElement.classList.remove('dark')
+        const getStoredTheme = () => {
+          try {
+            const theme = localStorage.getItem('theme')
+            return theme === 'dark' || theme === 'light' ? theme : null
+          } catch {
+            return null
+          }
         }
+        const theme =
+          getStoredTheme() ??
+          (window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light')
+
+        document.documentElement.classList.toggle('dark', theme === 'dark')
       }
 
       // Runs on initial navigation

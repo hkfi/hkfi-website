@@ -1,0 +1,227 @@
+---
+import type { Locale } from '@/i18n/types'
+
+interface Props {
+  locale: Locale
+  items: {
+    label: string
+    detail: string
+    count: number
+  }[]
+}
+
+const { locale, items } = Astro.props
+
+const copy = {
+  en: {
+    title: 'Currently exploring'
+  },
+  ja: {
+    title: '最近探っていること'
+  }
+}[locale]
+
+const activeItems = items.filter((item) => item.label && item.detail)
+const payload = JSON.stringify(activeItems)
+---
+
+{
+  activeItems.length > 0 && (
+    <section
+      class='curiosity-strip border-secondary/60 bg-muted/40 rounded-lg border px-4 py-3 shadow-sm md:px-5 md:py-4'
+      data-curiosity-strip
+      data-curiosity-items={payload}
+    >
+      <div class='curiosity-heading min-w-0'>
+        <h2 class='text-lg font-bold tracking-tight md:text-xl'>
+          {copy.title}
+        </h2>
+      </div>
+
+      <div class='curiosity-chip-list flex gap-2' aria-label={copy.title}>
+        {activeItems.map((item, index) => (
+          <button
+            type='button'
+            class={`curiosity-chip rounded-full border px-3 py-1.5 text-sm font-bold transition ${
+              index === 0 ? 'is-active' : ''
+            }`}
+            data-curiosity-index={index}
+            aria-pressed={index === 0 ? 'true' : 'false'}
+          >
+            <span>{item.label}</span>
+            {item.count > 1 && (
+              <span class='curiosity-chip-count'>{item.count}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      <div class='curiosity-detail-list text-default/60 text-sm'>
+        {activeItems.map((item, index) => (
+          <p
+            class={`curiosity-detail ${index === 0 ? 'is-active' : ''}`}
+            data-curiosity-detail={index}
+            aria-hidden={index === 0 ? 'false' : 'true'}
+          >
+            {item.detail}
+          </p>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<script is:inline>
+  ;(() => {
+    const getTodayIndex = (length) => {
+      if (length <= 0) return 0
+      return Math.floor(Date.now() / 86400000) % length
+    }
+
+    const initCuriosityStrips = () => {
+      document.querySelectorAll('[data-curiosity-strip]').forEach((strip) => {
+        if (strip.dataset.curiosityInit) return
+        strip.dataset.curiosityInit = 'true'
+
+        const details = strip.querySelectorAll('[data-curiosity-detail]')
+        const buttons = strip.querySelectorAll('[data-curiosity-index]')
+        const items = JSON.parse(strip.dataset.curiosityItems || '[]')
+
+        const activate = (index) => {
+          const item = items[index]
+          if (!item) return
+
+          buttons.forEach((candidate) => {
+            const isActive = Number(candidate.dataset.curiosityIndex) === index
+            candidate.classList.toggle('is-active', isActive)
+            candidate.setAttribute('aria-pressed', String(isActive))
+          })
+
+          details.forEach((detail) => {
+            const isActive = Number(detail.dataset.curiosityDetail) === index
+            detail.classList.toggle('is-active', isActive)
+            detail.setAttribute('aria-hidden', String(!isActive))
+          })
+        }
+
+        buttons.forEach((button) => {
+          button.addEventListener('click', () => {
+            activate(Number(button.dataset.curiosityIndex))
+          })
+        })
+
+        activate(getTodayIndex(items.length))
+      })
+    }
+
+    initCuriosityStrips()
+    if (window.curiosityStripListenersInit) return
+    window.curiosityStripListenersInit = true
+    document.addEventListener('astro:page-load', initCuriosityStrips)
+    document.addEventListener('astro:after-swap', initCuriosityStrips)
+  })()
+</script>
+
+<style>
+  .curiosity-strip {
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-primary) 14%, transparent),
+        color-mix(in srgb, var(--color-accent) 12%, transparent)
+      ),
+      color-mix(in srgb, var(--color-background) 82%, var(--color-muted));
+    display: grid;
+    row-gap: 0.75rem;
+    grid-template-areas:
+      'heading'
+      'chips'
+      'detail';
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .curiosity-heading {
+    grid-area: heading;
+  }
+
+  .curiosity-detail-list {
+    display: grid;
+    grid-area: detail;
+  }
+
+  .curiosity-detail {
+    grid-area: 1 / 1;
+    line-height: 1.5;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .curiosity-detail.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .curiosity-chip-list {
+    grid-area: chips;
+    margin-inline: -0.25rem;
+    overflow-x: auto;
+    padding-inline: 0.25rem;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+
+  .curiosity-chip-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .curiosity-chip {
+    align-items: center;
+    border-color: color-mix(in srgb, var(--color-secondary) 74%, transparent);
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    display: inline-flex;
+    gap: 0.4rem;
+  }
+
+  .curiosity-chip:hover,
+  .curiosity-chip:focus-visible,
+  .curiosity-chip.is-active {
+    border-color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+    color: var(--color-text);
+    outline: none;
+  }
+
+  .curiosity-chip-count {
+    align-items: center;
+    background: color-mix(in srgb, currentColor 12%, transparent);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 0.7rem;
+    height: 1.1rem;
+    justify-content: center;
+    min-width: 1.1rem;
+    padding-inline: 0.3rem;
+  }
+
+  @media (min-width: 768px) {
+    .curiosity-strip {
+      align-items: end;
+      column-gap: 1.25rem;
+      grid-template-areas:
+        'heading chips'
+        'detail detail';
+      grid-template-columns: minmax(0, 1fr) max-content;
+      row-gap: 0.6rem;
+    }
+
+    .curiosity-chip-list {
+      align-self: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-inline: 0;
+      max-width: 26rem;
+      overflow: visible;
+      padding-inline: 0;
+      white-space: normal;
+    }
+  }
+</style>

@@ -22,7 +22,7 @@
     "@react-three/fiber": "^9.5.0",
     "@shikijs/transformers": "^3.21.0",
     "@types/three": "^0.182.0",
-    "astro": "^5.16.14",
+    "astro": "^6.0.0",
     "astro-font": "^1.1.0",
     "cmdk": "^1.1.1",
     "katex": "^0.16.11",

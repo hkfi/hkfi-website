@@ -21,8 +21,8 @@ importers:
         specifier: ^9.0.4
         version: 9.0.5(astro@5.18.1(@types/node@25.3.0)(@vercel/functions@2.2.13)(jiti@1.21.7)(rollup@4.59.0)(typescript@5.5.3)(yaml@2.4.5))(react@19.2.4)(rollup@4.59.0)
       '@astrolib/seo':
-        specifier: 1.0.0-beta.5
-        version: 1.0.0-beta.5(astro@5.18.1(@types/node@25.3.0)(@vercel/functions@2.2.13)(jiti@1.21.7)(rollup@4.59.0)(typescript@5.5.3)(yaml@2.4.5))
+        specifier: 1.0.0-beta.8
+        version: 1.0.0-beta.8(astro@5.18.1(@types/node@25.3.0)(@vercel/functions@2.2.13)(jiti@1.21.7)(rollup@4.59.0)(typescript@5.5.3)(yaml@2.4.5))
       '@fontsource/outfit':
         specifier: ^5.2.8
         version: 5.2.8
@@ -161,10 +161,10 @@ packages:
     peerDependencies:
       astro: ^5.0.0
 
-  '@astrolib/seo@1.0.0-beta.5':
-    resolution: {integrity: sha512-poBnSB9TzkmOyf+PoMR642zVLSoVVZbUIKnYDHXHrKi/upkaegNiaBdVRsyqaQC93SIxxyagQrIbLRtnSJT4Xg==}
+  '@astrolib/seo@1.0.0-beta.8':
+    resolution: {integrity: sha512-SpNycspjcjnz6um4Vph0k+SAKgUib7/8qJRCaaahJD1UfLuXKK7E+bmKbnv8QPBTRPZkQW6zFVaZRl5VvnyDfg==}
     peerDependencies:
-      astro: ^1.2.1 || ^2.0.0 || ^3.0.0-beta.0 || ^3.0.0 || ^4.0.0
+      astro: ^1.2.1 || ^2.0.0 || ^3.0.0-beta.0 || ^3.0.0 || ^4.0.0 || ^5.0.0-beta.0 || ^5.0.0
 
   '@babel/code-frame@7.28.6':
     resolution: {integrity: sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q==}
@@ -4159,7 +4159,7 @@ snapshots:
       - vue
       - vue-router
 
-  '@astrolib/seo@1.0.0-beta.5(astro@5.18.1(@types/node@25.3.0)(@vercel/functions@2.2.13)(jiti@1.21.7)(rollup@4.59.0)(typescript@5.5.3)(yaml@2.4.5))':
+  '@astrolib/seo@1.0.0-beta.8(astro@5.18.1(@types/node@25.3.0)(@vercel/functions@2.2.13)(jiti@1.21.7)(rollup@4.59.0)(typescript@5.5.3)(yaml@2.4.5))':
     dependencies:
       astro: 5.18.1(@types/node@25.3.0)(@vercel/functions@2.2.13)(jiti@1.21.7)(rollup@4.59.0)(typescript@5.5.3)(yaml@2.4.5)
 

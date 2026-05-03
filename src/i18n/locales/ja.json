@@ -13,6 +13,25 @@
     "imName": "<accent>Hiroki</accent> です",
     "role": "ソフトウェアエンジニア",
     "tagline": "AIとvibe codingで、アイデアを使えるプロダクトに育てています",
+    "githubToday": {
+      "title": "今日のGitHub",
+      "loading": "今日の公開GitHubアクティビティを確認しています...",
+      "quiet": "今日の公開GitHubアクティビティはまだありません。",
+      "activeSummary": "{activity}",
+      "event": "イベント",
+      "events": "イベント",
+      "commit": "コミット",
+      "commits": "コミット",
+      "repository": "リポジトリ",
+      "repositories": "リポジトリ",
+      "pullRequest": "PR",
+      "pullRequests": "PR",
+      "issue": "Issue",
+      "issues": "Issue",
+      "countTemplate": "{label}{count}件",
+      "separator": "、",
+      "finalSeparator": "、"
+    },
     "recentPosts": "最近の記事"
   },
   "about": {

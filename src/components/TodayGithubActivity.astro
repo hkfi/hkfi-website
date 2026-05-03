@@ -1,0 +1,242 @@
+---
+import { t } from '@/i18n/index'
+import type { Locale } from '@/i18n/types'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+
+const copy = {
+  title: t(locale, 'home.githubToday.title'),
+  loading: t(locale, 'home.githubToday.loading'),
+  quiet: t(locale, 'home.githubToday.quiet'),
+  activeSummary: t(locale, 'home.githubToday.activeSummary'),
+  event: t(locale, 'home.githubToday.event'),
+  events: t(locale, 'home.githubToday.events'),
+  commit: t(locale, 'home.githubToday.commit'),
+  commits: t(locale, 'home.githubToday.commits'),
+  repository: t(locale, 'home.githubToday.repository'),
+  repositories: t(locale, 'home.githubToday.repositories'),
+  pullRequest: t(locale, 'home.githubToday.pullRequest'),
+  pullRequests: t(locale, 'home.githubToday.pullRequests'),
+  issue: t(locale, 'home.githubToday.issue'),
+  issues: t(locale, 'home.githubToday.issues'),
+  countTemplate: t(locale, 'home.githubToday.countTemplate'),
+  separator: t(locale, 'home.githubToday.separator'),
+  finalSeparator: t(locale, 'home.githubToday.finalSeparator')
+}
+
+const payload = JSON.stringify(copy)
+---
+
+<section
+  class='github-today'
+  data-github-today
+  data-github-copy={payload}
+  aria-live='polite'
+  hidden
+>
+  <span class='github-today-label'>{copy.title}</span>
+  <span class='github-today-summary' data-github-summary></span>
+  <span class='github-today-repo-list' data-github-repos></span>
+</section>
+
+<script is:inline>
+  ;(() => {
+    const formatCount = (count, singular, plural, template) =>
+      template
+        .replace('{count}', String(count))
+        .replace('{label}', count === 1 ? singular : plural)
+
+    const joinParts = (parts, separator, finalSeparator) => {
+      if (parts.length <= 1) return parts[0] || ''
+      if (parts.length === 2) return parts.join(finalSeparator)
+      return `${parts.slice(0, -1).join(separator)}${finalSeparator}${
+        parts[parts.length - 1]
+      }`
+    }
+
+    const createRepoLink = (repo) => {
+      const link = document.createElement('a')
+      link.className = 'github-today-repo motion-underline'
+      link.href = repo.url
+      link.target = '_blank'
+      link.rel = 'noreferrer'
+      link.textContent = repo.name
+      return link
+    }
+
+    const buildActivityParts = (totals, copy) => {
+      const parts = []
+
+      if (totals.commits > 0) {
+        parts.push(
+          formatCount(
+            totals.commits,
+            copy.commit,
+            copy.commits,
+            copy.countTemplate
+          )
+        )
+      }
+
+      if (totals.repositories > 0) {
+        parts.push(
+          formatCount(
+            totals.repositories,
+            copy.repository,
+            copy.repositories,
+            copy.countTemplate
+          )
+        )
+      }
+
+      if (totals.pullRequests > 0) {
+        parts.push(
+          formatCount(
+            totals.pullRequests,
+            copy.pullRequest,
+            copy.pullRequests,
+            copy.countTemplate
+          )
+        )
+      }
+
+      if (totals.issues > 0) {
+        parts.push(
+          formatCount(
+            totals.issues,
+            copy.issue,
+            copy.issues,
+            copy.countTemplate
+          )
+        )
+      }
+
+      if (parts.length === 0 && totals.events > 0) {
+        parts.push(
+          formatCount(
+            totals.events,
+            copy.event,
+            copy.events,
+            copy.countTemplate
+          )
+        )
+      }
+
+      return parts
+    }
+
+    const renderActivity = (strip, activity, copy) => {
+      const summary = strip.querySelector('[data-github-summary]')
+      const repos = strip.querySelector('[data-github-repos]')
+
+      if (!summary || !repos) return
+
+      repos.replaceChildren()
+
+      if (activity.status !== 'active') {
+        strip.hidden = true
+        return
+      }
+
+      strip.hidden = false
+
+      const parts = buildActivityParts(activity.totals, copy)
+      const activityText = joinParts(parts, copy.separator, copy.finalSeparator)
+      summary.textContent = copy.activeSummary.replace(
+        '{activity}',
+        activityText
+      )
+
+      activity.repositories.forEach((repo) => {
+        repos.append(createRepoLink(repo))
+      })
+    }
+
+    const initGithubToday = () => {
+      document.querySelectorAll('[data-github-today]').forEach((strip) => {
+        if (strip.dataset.githubTodayInit) return
+        strip.dataset.githubTodayInit = 'true'
+
+        let copy
+        try {
+          copy = JSON.parse(strip.dataset.githubCopy || '{}')
+        } catch {
+          strip.hidden = true
+          return
+        }
+
+        fetch('/api/github/today')
+          .then((response) => {
+            if (!response.ok) throw new Error('GitHub activity request failed')
+            return response.json()
+          })
+          .then((activity) => {
+            renderActivity(strip, activity, copy)
+          })
+          .catch(() => {
+            strip.hidden = true
+          })
+      })
+    }
+
+    initGithubToday()
+    if (window.githubTodayListenersInit) return
+    window.githubTodayListenersInit = true
+    document.addEventListener('astro:page-load', initGithubToday)
+    document.addEventListener('astro:after-swap', initGithubToday)
+  })()
+</script>
+
+<style>
+  .github-today {
+    align-items: center;
+    color: color-mix(in srgb, var(--color-text) 68%, transparent);
+    column-gap: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    margin-top: 0.55rem;
+  }
+
+  .github-today[hidden] {
+    display: none;
+  }
+
+  .github-today-label {
+    color: color-mix(in srgb, var(--color-text) 78%, transparent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .github-today-summary {
+    color: color-mix(in srgb, var(--color-text) 76%, transparent);
+    font-weight: 600;
+  }
+
+  .github-today-repo-list {
+    align-items: center;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .github-today-repo {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .github-today-repo:hover,
+  .github-today-repo:focus-visible {
+    color: var(--color-text);
+    outline: none;
+  }
+</style>

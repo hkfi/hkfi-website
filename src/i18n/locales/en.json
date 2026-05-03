@@ -13,6 +13,25 @@
     "imName": "I'm <accent>Hiroki</accent>",
     "role": "Software Engineer",
     "tagline": "Vibe coding AI-powered products from idea to polished web experience",
+    "githubToday": {
+      "title": "Today on GitHub",
+      "loading": "Checking today's public GitHub activity...",
+      "quiet": "No public GitHub activity yet today.",
+      "activeSummary": "{activity}",
+      "event": "event",
+      "events": "events",
+      "commit": "commit",
+      "commits": "commits",
+      "repository": "repo touched",
+      "repositories": "repos touched",
+      "pullRequest": "PR",
+      "pullRequests": "PRs",
+      "issue": "issue",
+      "issues": "issues",
+      "countTemplate": "{count} {label}",
+      "separator": ", ",
+      "finalSeparator": " and "
+    },
     "recentPosts": "Recent Posts"
   },
   "about": {

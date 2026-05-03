@@ -1,5 +1,6 @@
 ---
 import type { Locale } from '@/i18n/types'
+import TodayGithubActivity from '@/components/TodayGithubActivity.astro'
 
 interface Props {
   locale: Locale
@@ -14,10 +15,10 @@ const { locale, items } = Astro.props
 
 const copy = {
   en: {
-    title: 'Currently exploring'
+    title: 'Exploring'
   },
   ja: {
-    title: '最近探っていること'
+    title: '探索中'
   }
 }[locale]
 
@@ -28,45 +29,43 @@ const payload = JSON.stringify(activeItems)
 {
   activeItems.length > 0 && (
     <section
-      class='curiosity-strip border-secondary/60 bg-muted/40 rounded-lg border px-4 py-3 shadow-sm md:px-5 md:py-4'
+      class='curiosity-strip'
       data-curiosity-strip
       data-curiosity-items={payload}
     >
-      <div class='curiosity-heading min-w-0'>
-        <h2 class='text-lg font-bold tracking-tight md:text-xl'>
-          {copy.title}
-        </h2>
+      <div class='curiosity-row'>
+        <span class='curiosity-label'>{copy.title}</span>
+
+        <div class='curiosity-chip-list flex gap-2' aria-label={copy.title}>
+          {activeItems.map((item, index) => (
+            <button
+              type='button'
+              class={`curiosity-chip transition ${index === 0 ? 'is-active' : ''}`}
+              data-curiosity-index={index}
+              aria-pressed={index === 0 ? 'true' : 'false'}
+            >
+              <span>{item.label}</span>
+              {item.count > 1 && (
+                <span class='curiosity-chip-count'>{item.count}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div class='curiosity-detail-list'>
+          {activeItems.map((item, index) => (
+            <p
+              class={`curiosity-detail ${index === 0 ? 'is-active' : ''}`}
+              data-curiosity-detail={index}
+              aria-hidden={index === 0 ? 'false' : 'true'}
+            >
+              {item.detail}
+            </p>
+          ))}
+        </div>
       </div>
 
-      <div class='curiosity-chip-list flex gap-2' aria-label={copy.title}>
-        {activeItems.map((item, index) => (
-          <button
-            type='button'
-            class={`curiosity-chip rounded-full border px-3 py-1.5 text-sm font-bold transition ${
-              index === 0 ? 'is-active' : ''
-            }`}
-            data-curiosity-index={index}
-            aria-pressed={index === 0 ? 'true' : 'false'}
-          >
-            <span>{item.label}</span>
-            {item.count > 1 && (
-              <span class='curiosity-chip-count'>{item.count}</span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      <div class='curiosity-detail-list text-default/60 text-sm'>
-        {activeItems.map((item, index) => (
-          <p
-            class={`curiosity-detail ${index === 0 ? 'is-active' : ''}`}
-            data-curiosity-detail={index}
-            aria-hidden={index === 0 ? 'false' : 'true'}
-          >
-            {item.detail}
-          </p>
-        ))}
-      </div>
+      <TodayGithubActivity locale={locale} />
     </section>
   )
 }
@@ -124,28 +123,34 @@ const payload = JSON.stringify(activeItems)
 
 <style>
   .curiosity-strip {
-    background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--color-primary) 14%, transparent),
-        color-mix(in srgb, var(--color-accent) 12%, transparent)
-      ),
-      color-mix(in srgb, var(--color-background) 82%, var(--color-muted));
-    display: grid;
-    row-gap: 0.75rem;
-    grid-template-areas:
-      'heading'
-      'chips'
-      'detail';
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
+    padding-block: 0.85rem 0.15rem;
   }
 
-  .curiosity-heading {
-    grid-area: heading;
+  .curiosity-row {
+    align-items: center;
+    color: color-mix(in srgb, var(--color-text) 68%, transparent);
+    column-gap: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    min-width: 0;
+  }
+
+  .curiosity-label {
+    color: color-mix(in srgb, var(--color-text) 78%, transparent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
   }
 
   .curiosity-detail-list {
     display: grid;
-    grid-area: detail;
+    flex: 1 1 22rem;
+    min-width: min(100%, 16rem);
   }
 
   .curiosity-detail {
@@ -161,8 +166,9 @@ const payload = JSON.stringify(activeItems)
   }
 
   .curiosity-chip-list {
-    grid-area: chips;
+    align-items: center;
     margin-inline: -0.25rem;
+    max-width: 100%;
     overflow-x: auto;
     padding-inline: 0.25rem;
     scrollbar-width: none;
@@ -175,17 +181,15 @@ const payload = JSON.stringify(activeItems)
 
   .curiosity-chip {
     align-items: center;
-    border-color: color-mix(in srgb, var(--color-secondary) 74%, transparent);
     color: color-mix(in srgb, var(--color-text) 72%, transparent);
     display: inline-flex;
     gap: 0.4rem;
+    font-weight: 700;
   }
 
   .curiosity-chip:hover,
   .curiosity-chip:focus-visible,
   .curiosity-chip.is-active {
-    border-color: var(--color-primary);
-    background: color-mix(in srgb, var(--color-primary) 22%, transparent);
     color: var(--color-text);
     outline: none;
   }
@@ -203,22 +207,11 @@ const payload = JSON.stringify(activeItems)
   }
 
   @media (min-width: 768px) {
-    .curiosity-strip {
-      align-items: end;
-      column-gap: 1.25rem;
-      grid-template-areas:
-        'heading chips'
-        'detail detail';
-      grid-template-columns: minmax(0, 1fr) max-content;
-      row-gap: 0.6rem;
-    }
-
     .curiosity-chip-list {
       align-self: center;
       flex-wrap: wrap;
-      justify-content: flex-end;
       margin-inline: 0;
-      max-width: 26rem;
+      max-width: 24rem;
       overflow: visible;
       padding-inline: 0;
       white-space: normal;

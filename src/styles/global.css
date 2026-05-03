@@ -250,6 +250,15 @@ a[href*='/projects/'] .flex.flex-wrap > span.rounded-full:hover {
   animation: emoji-think-nod 900ms ease-in-out;
 }
 
+.home-wave-emoji {
+  display: inline-block;
+  transform-origin: 70% 70%;
+}
+
+.home-wave-emoji:hover {
+  animation: emoji-wave 720ms ease-in-out both;
+}
+
 /* Command Palette (cmdk) */
 [cmdk-overlay] {
   position: fixed;
@@ -623,6 +632,7 @@ html.dark .coffee-surprise {
   .command-palette-tag,
   a[href*='/blog/post/'] .flex.flex-wrap > div.rounded-full,
   a[href*='/projects/'] .flex.flex-wrap > span.rounded-full,
+  .home-wave-emoji,
   .thinking-emoji-trigger,
   .thinking-emoji-fallback,
   [cmdk-item],
@@ -733,6 +743,33 @@ html.dark .coffee-surprise {
 
   70% {
     transform: rotate(2deg) scale(1);
+  }
+}
+
+@keyframes emoji-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  15% {
+    transform: rotate(16deg);
+  }
+
+  30% {
+    transform: rotate(-10deg);
+  }
+
+  45% {
+    transform: rotate(14deg);
+  }
+
+  60% {
+    transform: rotate(-7deg);
+  }
+
+  75% {
+    transform: rotate(6deg);
   }
 }
 

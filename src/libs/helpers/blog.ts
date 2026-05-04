@@ -32,7 +32,7 @@ export const buildHeadingId = (block: HeadingBlockObjectResponse) => {
 /**
  * Extract plain text from a block's rich_text array.
  */
-export function extractBlockText(block: BlockObjectResponse): string {
+function extractBlockText(block: BlockObjectResponse): string {
   const richText =
     block.type === 'paragraph'
       ? block.paragraph.rich_text

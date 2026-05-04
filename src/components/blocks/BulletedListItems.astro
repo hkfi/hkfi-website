@@ -1,7 +1,6 @@
 ---
 import { NotionTextColorsMap } from '@/libs/helpers/styles'
 import RichText from './text/RichText.astro'
-import NotionBlocks from '../NotionBlocks.astro'
 import type { CustomBulletedListItemBlockObjectResponse } from '@/libs/notion/client'
 
 export type Props = {
@@ -17,11 +16,7 @@ const { block } = Astro.props
       {block.bulleted_list_item.rich_text.map((richText) => (
         <RichText richText={richText} />
       ))}
-      {block.bulleted_list_item.children ? (
-        <ul class='ml-10 list-disc'>
-          <NotionBlocks blocks={block.bulleted_list_item.children} />
-        </ul>
-      ) : null}
+      <slot />
     </li>
   )
 }

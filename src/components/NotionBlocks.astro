@@ -72,7 +72,15 @@ if (isRoot) {
           <Table block={block} />
         ) : null
       case 'bulleted_list_item':
-        return <BulletedListItems block={block} />
+        return (
+          <BulletedListItems block={block}>
+            {block.bulleted_list_item.children ? (
+              <ul class='ml-10 list-disc'>
+                <Astro.self blocks={block.bulleted_list_item.children} />
+              </ul>
+            ) : null}
+          </BulletedListItems>
+        )
     }
   })
 }

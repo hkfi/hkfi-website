@@ -43,7 +43,7 @@ export type CustomColumnListBlockObjectResponse =
 export type CustomBulletedListItemBlockObjectResponse =
   BulletedListItemBlockObjectResponse & {
     bulleted_list_item: {
-      children?: BulletedListItemBlockObjectResponse[]
+      children?: BlockObjectResponse[]
     }
   }
 export type CustomNumberedListItemBlockObjectResponse =
@@ -86,6 +86,26 @@ function isBlockObjectResponse(
   return 'type' in block
 }
 
+async function queryAllDatabasePages(
+  params: QueryDatabaseParameters
+): Promise<PageObjectResponse[]> {
+  let results: PageObjectResponse[] = []
+
+  while (true) {
+    const res = await client.databases.query(params)
+
+    results = results.concat(res.results as PageObjectResponse[])
+
+    if (!res.has_more || !res.next_cursor) {
+      break
+    }
+
+    params.start_cursor = res.next_cursor
+  }
+
+  return results
+}
+
 export async function getAllPosts() {
   if (allPostsCache !== null) {
     return allPostsCache
@@ -119,20 +139,7 @@ export async function getAllPosts() {
     page_size: 100
   }
 
-  let results: PageObjectResponse[] = []
-
-  // Keep querying until there are no more pages
-  while (true) {
-    const res = await client.databases.query(params)
-
-    results = results.concat(res.results as PageObjectResponse[])
-
-    if (!res.has_more || !res.next_cursor) {
-      break
-    }
-
-    params['start_cursor'] = res.next_cursor
-  }
+  const results = await queryAllDatabasePages(params)
 
   allPostsCache = results.filter((pageObject) => isValidPageObject(pageObject))
 
@@ -241,7 +248,10 @@ export async function getAllBlocksByBlockId(blockId: string) {
       block.bulleted_list_item &&
       block.has_children
     ) {
-      block.bulleted_list_item.children = await getAllBlocksByBlockId(block.id)
+      const bulletedBlock = block as CustomBulletedListItemBlockObjectResponse
+      bulletedBlock.bulleted_list_item.children = await getAllBlocksByBlockId(
+        block.id
+      )
     }
   }
 
@@ -465,19 +475,10 @@ export async function getAllProjects(): Promise<PageObjectResponse[]> {
     page_size: 100
   }
 
-  let results: PageObjectResponse[] = []
-
   try {
-    while (true) {
-      const res = await client.databases.query(params)
-      results = results.concat(res.results as PageObjectResponse[])
-
-      if (!res.has_more || !res.next_cursor) {
-        break
-      }
-
-      params['start_cursor'] = res.next_cursor
-    }
+    const results = await queryAllDatabasePages(params)
+    allProjectsCache = results.filter(isValidProject)
+    return allProjectsCache
   } catch (error) {
     console.warn(
       'Failed to fetch projects from Notion:',
@@ -485,9 +486,6 @@ export async function getAllProjects(): Promise<PageObjectResponse[]> {
     )
     return []
   }
-
-  allProjectsCache = results.filter(isValidProject)
-  return allProjectsCache
 }
 
 function extractProjectData(page: PageObjectResponse): Project {

@@ -19,18 +19,16 @@ function getProjectBadge(project: (typeof projects)[number]): string {
   return locale === 'ja' ? '実験' : 'Study'
 }
 
-function getProjectWhyLine(project: (typeof projects)[number]): string {
+function getProjectInterestLine(project: (typeof projects)[number]): string {
   const tag = project.tags[0]
 
   if (locale === 'ja') {
     return tag
-      ? `気になる理由: ${tag}を触れる形にしています。`
-      : '気になる理由: 小さなアイデアを形にしています。'
+      ? `${tag}を触れる形にしています。`
+      : '小さなアイデアを形にしています。'
   }
 
-  return tag
-    ? `Why it is interesting: ${tag} made tangible.`
-    : 'Why it is interesting: a small idea made tangible.'
+  return tag ? `${tag} made tangible.` : 'A small idea made tangible.'
 }
 ---
 
@@ -66,7 +64,10 @@ function getProjectWhyLine(project: (typeof projects)[number]): string {
                   alt={project.name}
                   class='h-full'
                 />
-                <div class='absolute left-3 top-3 rounded-full border border-white/45 bg-black/35 px-2.5 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-0.5'>
+                <p class='project-card-interest absolute left-3 right-28 top-3 z-10 text-wrap py-1 text-xs font-bold uppercase leading-snug text-white/90'>
+                  {getProjectInterestLine(project)}
+                </p>
+                <div class='absolute right-3 top-3 z-10 rounded-full border border-white/45 bg-black/35 px-2.5 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-0.5'>
                   {getProjectBadge(project)}
                 </div>
               </div>
@@ -81,9 +82,6 @@ function getProjectWhyLine(project: (typeof projects)[number]): string {
                       {project.description}
                     </p>
                   )}
-                  <p class='project-card-why text-default/55 border-primary/10 bg-background/35 group-hover:border-primary/25 group-hover:text-default/75 mt-3 line-clamp-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-all duration-300'>
-                    {getProjectWhyLine(project)}
-                  </p>
                 </div>
 
                 <div class='mt-4 flex flex-col gap-3'>
@@ -187,6 +185,20 @@ function getProjectWhyLine(project: (typeof projects)[number]): string {
     opacity: 1;
   }
 
+  .project-card-cover::before {
+    background: linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.42),
+      rgb(0 0 0 / 0.1) 58%,
+      transparent
+    );
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+  }
+
   .project-card-cover::after {
     content: '';
     position: absolute;
@@ -205,6 +217,11 @@ function getProjectWhyLine(project: (typeof projects)[number]): string {
   .project-card:hover .project-card-cover::after,
   .project-card:focus-visible .project-card-cover::after {
     transform: translateX(45%) rotate(8deg);
+  }
+
+  .project-card-interest {
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.5);
   }
 
   .project-card-tag {
@@ -226,7 +243,6 @@ function getProjectWhyLine(project: (typeof projects)[number]): string {
   @media (prefers-reduced-motion: reduce) {
     .project-card::before,
     .project-card-cover::after,
-    .project-card-why,
     .project-card-tag {
       transition: none !important;
       transform: none !important;

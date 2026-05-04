@@ -51,7 +51,7 @@
 <script is:inline data-astro-rerun>
   ;(() => {
     const themeKey = 'theme'
-    const root = document.documentElement
+    const windowWithThemeToggle = window
     const getStoredTheme = () => {
       try {
         const theme = window.localStorage.getItem(themeKey)
@@ -65,16 +65,18 @@
         ? 'dark'
         : 'light'
     const applyTheme = (theme) => {
-      root.classList.toggle('dark', theme === 'dark')
+      document.documentElement.classList.toggle('dark', theme === 'dark')
     }
 
     applyTheme(getStoredTheme() ?? getSystemTheme())
 
-    if (root.dataset.themeToggleInit === 'true') return
-    root.dataset.themeToggleInit = 'true'
+    if (windowWithThemeToggle.__hkfiThemeToggleInit) return
+    windowWithThemeToggle.__hkfiThemeToggleInit = true
 
     const toggleTheme = () => {
-      const nextTheme = root.classList.contains('dark') ? 'light' : 'dark'
+      const nextTheme = document.documentElement.classList.contains('dark')
+        ? 'light'
+        : 'dark'
       applyTheme(nextTheme)
       try {
         window.localStorage.setItem(themeKey, nextTheme)

@@ -55,9 +55,18 @@ const { locale = DEFAULT_LOCALE, currentPath = '/' } = Astro.props
       <NavbarLink href={localePath(locale, '/')} label='hkfi' />
     </div>
     <div class='hidden w-2/5 items-center justify-end gap-2 md:flex'>
-      <NavbarLink href={localePath(locale, '/projects')} label={t(locale, 'nav.projects')} />
-      <NavbarLink href={localePath(locale, '/about')} label={t(locale, 'nav.about')} />
-      <NavbarLink href={localePath(locale, '/blog')} label={t(locale, 'nav.blog')} />
+      <NavbarLink
+        href={localePath(locale, '/projects')}
+        label={t(locale, 'nav.projects')}
+      />
+      <NavbarLink
+        href={localePath(locale, '/about')}
+        label={t(locale, 'nav.about')}
+      />
+      <NavbarLink
+        href={localePath(locale, '/blog')}
+        label={t(locale, 'nav.blog')}
+      />
     </div>
 
     <!-- Mobile layout -->
@@ -243,31 +252,83 @@ const { locale = DEFAULT_LOCALE, currentPath = '/' } = Astro.props
     })
   </script>
 
-  <script is:inline>
+  <script is:inline data-astro-rerun>
     ;(() => {
-      if (!window.matchMedia('(pointer: fine)').matches) return
+      const windowWithMagnetic = window
+      if (windowWithMagnetic.__hkfiMagneticInit) return
+      windowWithMagnetic.__hkfiMagneticInit = true
 
       const MAX_OFFSET = 4
-      document.querySelectorAll('[data-magnetic]').forEach((el) => {
-        if (el.dataset.magneticInit) return
-        el.dataset.magneticInit = 'true'
+      const isFinePointer = () => window.matchMedia('(pointer: fine)').matches
+      let activeEl = null
+
+      const getMagneticTarget = (target) => {
+        if (!(target instanceof Element)) return null
+        const el = target.closest('[data-magnetic]')
+        return el instanceof HTMLElement ? el : null
+      }
+
+      const resetMagnetic = (el) => {
+        el.style.transition = 'transform 0.2s ease-out'
+        el.style.transform = 'translate(0px, 0px)'
+      }
+
+      const handlePointerMove = (event) => {
+        if (!isFinePointer()) return
+
+        const el = getMagneticTarget(event.target)
+        if (!el) {
+          if (activeEl) {
+            resetMagnetic(activeEl)
+            activeEl = null
+          }
+          return
+        }
+
+        if (activeEl && activeEl !== el) resetMagnetic(activeEl)
+        activeEl = el
         el.style.willChange = 'transform'
 
-        el.addEventListener('mousemove', (e) => {
-          const rect = el.getBoundingClientRect()
-          const centerX = rect.left + rect.width / 2
-          const centerY = rect.top + rect.height / 2
-          const moveX = ((e.clientX - centerX) / (rect.width / 2)) * MAX_OFFSET
-          const moveY = ((e.clientY - centerY) / (rect.height / 2)) * MAX_OFFSET
-          el.style.transition = 'none'
-          el.style.transform = `translate(${moveX}px, ${moveY}px)`
-        })
+        const rect = el.getBoundingClientRect()
+        const centerX = rect.left + rect.width / 2
+        const centerY = rect.top + rect.height / 2
+        const moveX =
+          ((event.clientX - centerX) / (rect.width / 2)) * MAX_OFFSET
+        const moveY =
+          ((event.clientY - centerY) / (rect.height / 2)) * MAX_OFFSET
 
-        el.addEventListener('mouseleave', () => {
-          el.style.transition = 'transform 0.2s ease-out'
-          el.style.transform = 'translate(0px, 0px)'
-        })
+        el.style.transition = 'none'
+        el.style.transform = `translate(${moveX}px, ${moveY}px)`
+      }
+
+      const handlePointerOut = (event) => {
+        const el = getMagneticTarget(event.target)
+        if (!el) return
+        if (
+          event.relatedTarget instanceof Node &&
+          el.contains(event.relatedTarget)
+        ) {
+          return
+        }
+
+        resetMagnetic(el)
+        if (activeEl === el) activeEl = null
+      }
+
+      const resetActiveMagnetic = () => {
+        if (!activeEl) return
+        resetMagnetic(activeEl)
+        activeEl = null
+      }
+
+      document.addEventListener('pointermove', handlePointerMove, {
+        passive: true
       })
+      document.addEventListener('pointerout', handlePointerOut, {
+        passive: true
+      })
+      document.addEventListener('astro:before-swap', resetActiveMagnetic)
+      document.addEventListener('astro:page-load', resetActiveMagnetic)
     })()
   </script>
 

@@ -14,7 +14,7 @@
     "@astrojs/react": "^4.4.2",
     "@astrojs/rss": "^4.0.15",
     "@astrojs/tailwind": "^6.0.2",
-    "@astrojs/vercel": "^9.0.4",
+    "@astrojs/vercel": "^10.0.0",
     "@astrolib/seo": "1.0.0-beta.5",
     "@fontsource/outfit": "^5.2.8",
     "@notionhq/client": "^2.2.15",
